@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { GitCompare, Trash2, Heart, Trophy } from 'lucide-react';
+import { GitCompare, Trash2, Heart, Trophy, Building, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipProvider } from '@/components/ui/tooltip';
 import { Header } from '@/components/navigation/Header';
 import { useCompare } from '@/contexts/CompareContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
@@ -61,29 +62,17 @@ export default function ComparePage() {
           transition={{ duration: 0.6 }}
           className="mb-8"
         >
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center space-x-3">
-                <GitCompare className="w-8 h-8 text-blue-500" />
-                <span>Compare Teams</span>
-              </h1>
-              <p className="text-gray-600">
-                {compareList.length === 0 
-                  ? "Add teams to your comparison list to analyze their performance side-by-side." 
-                  : `Comparing ${compareList.length} team${compareList.length === 1 ? '' : 's'}.`
-                }
-              </p>
-            </div>
-            {compareList.length > 0 && (
-              <Button
-                variant="outline"
-                onClick={clearCompare}
-                className="flex items-center space-x-2 text-red-600 border-red-200 hover:bg-red-50"
-              >
-                <Trash2 className="w-4 h-4" />
-                <span>Clear All</span>
-              </Button>
-            )}
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center space-x-3">
+              <GitCompare className="w-8 h-8 text-blue-500" />
+              <span>Compare Teams</span>
+            </h1>
+            <p className="text-gray-600">
+              {compareList.length === 0 
+                ? "Add teams to your comparison list to analyze their performance side-by-side." 
+                : `Comparing ${compareList.length} team${compareList.length === 1 ? '' : 's'}.`
+              }
+            </p>
           </div>
         </motion.div>
 
@@ -164,11 +153,11 @@ export default function ComparePage() {
 function CompareTeamCard({ 
   team, 
   onRemove, 
-  onFavorite, 
-  isFavorite, 
+  onFavorite,
+  isFavorite,
   onClick 
 }: { 
-  team: Team; 
+  team: Team;
   onRemove: () => void;
   onFavorite: () => void;
   isFavorite: boolean;
@@ -176,30 +165,31 @@ function CompareTeamCard({
 }) {
   return (
     <Card 
-      className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-white/80 backdrop-blur-sm border-gray-200 cursor-pointer"
+      className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-white/80 backdrop-blur-sm border-gray-200 cursor-pointer group"
       onClick={onClick}
     >
-      <CardHeader className="pb-3">
+      <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <Avatar className="h-12 w-12 bg-gradient-to-br from-blue-500 to-purple-500">
-              <AvatarFallback className="text-white font-bold">
+            <div className="relative h-12 w-12 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-md">
+              <span className="text-white font-bold">
                 {team.teamNumber.slice(-2)}
-              </AvatarFallback>
-            </Avatar>
+              </span>
+            </div>
             <div>
               <CardTitle className="text-lg font-bold text-gray-900">
                 {team.teamNumber}
               </CardTitle>
-              <p className="text-sm text-gray-600 truncate">
+              <CardDescription className="text-sm text-gray-600">
                 {team.teamName}
-              </p>
+              </CardDescription>
             </div>
           </div>
-          <div className="flex flex-col items-end space-y-1">
+          <div className="flex items-center space-x-2">
             <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200">
               #{team.rank}
             </Badge>
+            {/* Action buttons */}
             <div className="flex space-x-1">
               <Button
                 size="sm"
@@ -208,13 +198,13 @@ function CompareTeamCard({
                   e.stopPropagation();
                   onFavorite();
                 }}
-                className={`h-6 w-6 p-0 ${
+                className={`h-8 w-8 p-0 ${
                   isFavorite 
                     ? 'text-red-500 hover:text-red-600' 
                     : 'text-gray-400 hover:text-red-500'
                 }`}
               >
-                <Heart className={`h-3 w-3 ${isFavorite ? 'fill-current' : ''}`} />
+                <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
               </Button>
               <Button
                 size="sm"
@@ -223,39 +213,24 @@ function CompareTeamCard({
                   e.stopPropagation();
                   onRemove();
                 }}
-                className="h-6 w-6 p-0 text-gray-400 hover:text-red-500"
+                className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600"
               >
-                <Trash2 className="h-3 w-3" />
+                <Trash2 className="h-4 w-4" />
               </Button>
             </div>
           </div>
         </div>
       </CardHeader>
       
-      <CardContent className="pt-0">
-        <div className="space-y-3">
-          <div className="text-xs text-gray-600 truncate">
-            {team.organization}
+      <CardContent>
+        <div className="space-y-2">
+          <div className="flex items-center text-sm text-gray-600">
+            <Building className="w-4 h-4 mr-2" />
+            <span>{team.organization}</span>
           </div>
-          
-          <div className="text-xs text-gray-500 truncate">
-            {team.eventRegion}, {team.country}
-          </div>
-          
-          <div className="grid grid-cols-2 gap-3 pt-3 border-t border-gray-100">
-            <div className="text-center">
-              <div className="text-lg font-bold text-blue-600">{team.autonomousSkills}</div>
-              <div className="text-xs text-gray-500">Autonomous</div>
-            </div>
-            <div className="text-center">
-              <div className="text-lg font-bold text-purple-600">{team.driverSkills}</div>
-              <div className="text-xs text-gray-500">Driver</div>
-            </div>
-          </div>
-          
-          <div className="text-center pt-2 border-t border-gray-100">
-            <div className="text-xl font-bold text-green-600">{team.score}</div>
-            <div className="text-xs text-gray-500">Total Score</div>
+          <div className="flex items-center text-sm text-gray-500">
+            <MapPin className="w-4 h-4 mr-2" />
+            <span>{team.eventRegion}, {team.country}</span>
           </div>
         </div>
       </CardContent>
@@ -264,60 +239,69 @@ function CompareTeamCard({
 }
 
 function ComparisonTable({ teams }: { teams: Team[] }) {
-  const metrics = [
-    { key: 'rank', label: 'Rank', format: (val: number) => `#${val}` },
-    { key: 'score', label: 'Total Score', format: (val: number) => val.toString() },
-    { key: 'autonomousSkills', label: 'Autonomous Skills', format: (val: number) => val.toString() },
-    { key: 'driverSkills', label: 'Driver Skills', format: (val: number) => val.toString() },
-  ];
-
-  const getBestInMetric = (metric: string) => {
-    if (metric === 'rank') {
-      return Math.min(...teams.map(team => team[metric as keyof Team] as number));
-    }
-    return Math.max(...teams.map(team => team[metric as keyof Team] as number));
-  };
-
-  const isMetricBest = (team: Team, metric: string) => {
-    const value = team[metric as keyof Team] as number;
-    const best = getBestInMetric(metric);
-    return value === best;
-  };
-
   return (
     <div className="overflow-x-auto">
       <table className="w-full">
         <thead>
           <tr className="border-b border-gray-200">
-            <th className="text-left py-3 px-4 font-semibold text-gray-900">Metric</th>
+            <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">Metric</th>
             {teams.map((team) => (
-              <th key={team.teamNumber} className="text-center py-3 px-4 font-semibold text-gray-900">
-                {team.teamNumber}
+              <th key={team.teamNumber} className="px-4 py-2 text-center">
+                <div className="flex flex-col items-center">
+                  <div className="relative h-10 w-10 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-md mb-1">
+                    <span className="text-white font-bold text-sm">
+                      {team.teamNumber.slice(-2)}
+                    </span>
+                  </div>
+                  <span className="text-sm font-medium text-gray-900">Team {team.teamNumber}</span>
+                </div>
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {metrics.map((metric) => (
-            <tr key={metric.key} className="border-b border-gray-100 hover:bg-gray-50">
-              <td className="py-3 px-4 font-medium text-gray-700">{metric.label}</td>
-              {teams.map((team) => {
-                const value = team[metric.key as keyof Team] as number;
-                const isBest = isMetricBest(team, metric.key);
-                return (
-                  <td key={team.teamNumber} className="text-center py-3 px-4">
-                    <span className={`font-semibold ${
-                      isBest 
-                        ? 'text-green-600 bg-green-100 px-2 py-1 rounded-full' 
-                        : 'text-gray-900'
-                    }`}>
-                      {metric.format(value)}
-                    </span>
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
+          <tr className="border-b border-gray-200">
+            <td className="px-4 py-2 text-sm font-medium text-gray-500">Rank</td>
+            {teams.map((team) => (
+              <td key={team.teamNumber} className="px-4 py-2 text-center">
+                <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200">
+                  #{team.rank}
+                </Badge>
+              </td>
+            ))}
+          </tr>
+          <tr className="border-b border-gray-200">
+            <td className="px-4 py-2 text-sm font-medium text-gray-500">Autonomous Skills</td>
+            {teams.map((team) => (
+              <td key={team.teamNumber} className="px-4 py-2 text-center font-medium text-blue-600">
+                {team.autonomousSkills}
+              </td>
+            ))}
+          </tr>
+          <tr className="border-b border-gray-200">
+            <td className="px-4 py-2 text-sm font-medium text-gray-500">Driver Skills</td>
+            {teams.map((team) => (
+              <td key={team.teamNumber} className="px-4 py-2 text-center font-medium text-purple-600">
+                {team.driverSkills}
+              </td>
+            ))}
+          </tr>
+          <tr className="border-b border-gray-200">
+            <td className="px-4 py-2 text-sm font-medium text-gray-500">Total Score</td>
+            {teams.map((team) => (
+              <td key={team.teamNumber} className="px-4 py-2 text-center font-medium text-green-600">
+                {team.score}
+              </td>
+            ))}
+          </tr>
+          <tr>
+            <td className="px-4 py-2 text-sm font-medium text-gray-500">Organization</td>
+            {teams.map((team) => (
+              <td key={team.teamNumber} className="px-4 py-2 text-center text-sm text-gray-600">
+                {team.organization}
+              </td>
+            ))}
+          </tr>
         </tbody>
       </table>
     </div>

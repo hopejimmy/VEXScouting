@@ -2,19 +2,23 @@
 
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Trophy, Users, MapPin, Building, Award } from 'lucide-react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { ArrowLeft, Trophy, Users, MapPin, Building, Award, Heart, GitCompare } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { useFavorites } from '@/contexts/FavoritesContext';
+import { useCompare } from '@/contexts/CompareContext';
+import { getTeamGradient } from '@/utils/gradients';
 import type { Team } from '@/types/skills';
 
 export default function TeamDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const teamNumber = params.teamNumber as string;
   const [mounted, setMounted] = useState(false);
   
@@ -31,6 +35,22 @@ export default function TeamDetailPage() {
     },
     enabled: !!teamNumber && mounted,
   });
+
+  const handleBackClick = () => {
+    const returnUrl = searchParams.get('returnUrl');
+    if (returnUrl && returnUrl.startsWith('/')) {
+      // Create a new URLSearchParams to preserve the search query
+      const returnSearchParams = new URLSearchParams(returnUrl.split('?')[1] || '');
+      const query = returnSearchParams.get('q');
+      if (query) {
+        router.push(`/?q=${encodeURIComponent(query)}`);
+      } else {
+        router.push('/');
+      }
+    } else {
+      router.push('/');
+    }
+  };
 
   if (!mounted) {
     return (
@@ -89,7 +109,7 @@ export default function TeamDetailPage() {
         >
           <Button
             variant="ghost"
-            onClick={() => router.back()}
+            onClick={handleBackClick}
             className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -100,7 +120,7 @@ export default function TeamDetailPage() {
         {isLoading && (
           <div className="space-y-6">
             <div className="flex items-center space-x-4">
-              <Skeleton className="h-16 w-16 rounded-full" />
+              <Skeleton className="h-20 w-20 rounded-full" />
               <div className="space-y-2">
                 <Skeleton className="h-8 w-[300px]" />
                 <Skeleton className="h-4 w-[200px]" />
@@ -133,11 +153,11 @@ export default function TeamDetailPage() {
           >
             {/* Team Header */}
             <div className="flex items-center space-x-6">
-              <Avatar className="h-20 w-20 bg-gradient-to-br from-blue-500 to-purple-500">
-                <AvatarFallback className="text-white font-bold text-2xl">
+              <div className="relative h-20 w-20 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-lg">
+                <span className="text-white font-bold text-2xl">
                   {team.teamNumber.slice(-2)}
-                </AvatarFallback>
-              </Avatar>
+                </span>
+              </div>
               <div className="flex-1">
                 <h1 className="text-4xl font-bold text-gray-900 mb-2">
                   Team {team.teamNumber}
@@ -154,9 +174,12 @@ export default function TeamDetailPage() {
                   </div>
                 </div>
               </div>
-              <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200 text-lg px-4 py-2">
-                Rank #{team.rank}
-              </Badge>
+              <div className="flex items-center space-x-4">
+                <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200 text-lg px-4 py-2">
+                  Rank #{team.rank}
+                </Badge>
+                <TeamActions team={team} />
+              </div>
             </div>
 
             {/* Skills Section */}
@@ -247,6 +270,59 @@ export default function TeamDetailPage() {
           </motion.div>
         )}
       </main>
+    </div>
+  );
+}
+
+function TeamActions({ team }: { team: Team }) {
+  const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
+  const { addToCompare, removeFromCompare, isInCompare, canAddToCompare } = useCompare();
+
+  const handleFavoriteClick = () => {
+    if (isFavorite(team.teamNumber)) {
+      removeFromFavorites(team.teamNumber);
+    } else {
+      addToFavorites(team);
+    }
+  };
+
+  const handleCompareClick = () => {
+    if (isInCompare(team.teamNumber)) {
+      removeFromCompare(team.teamNumber);
+    } else if (canAddToCompare) {
+      addToCompare(team);
+    }
+  };
+
+  return (
+    <div className="flex items-center space-x-2">
+      <Button
+        size="icon"
+        variant="outline"
+        onClick={handleFavoriteClick}
+        title={isFavorite(team.teamNumber) ? 'Remove from Favorites' : 'Add to Favorites'}
+        className={`h-10 w-10 ${
+          isFavorite(team.teamNumber)
+            ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100'
+            : 'text-gray-600 hover:text-red-600'
+        }`}
+      >
+        <Heart className={`h-5 w-5 ${isFavorite(team.teamNumber) ? 'fill-current' : ''}`} />
+      </Button>
+      <Button
+        size="icon"
+        variant="outline"
+        onClick={handleCompareClick}
+        disabled={!canAddToCompare && !isInCompare(team.teamNumber)}
+        title={isInCompare(team.teamNumber) ? 'Remove from Compare' : 'Add to Compare'}
+        className={`h-10 w-10 ${
+          isInCompare(team.teamNumber)
+            ? 'bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100'
+            : 'text-gray-600 hover:text-blue-600'
+        }`}
+      >
+        <GitCompare className="h-5 w-5" />
+      </Button>
     </div>
   );
 } 

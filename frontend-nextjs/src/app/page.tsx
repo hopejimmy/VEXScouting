@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
-import { Search, Trophy, Users, Target, Zap, Heart, GitCompare } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Search, Trophy, Users, Target, Zap, Heart, GitCompare, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,17 +11,39 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipProvider } from '@/components/ui/tooltip';
 import { Header } from '@/components/navigation/Header';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { useCompare } from '@/contexts/CompareContext';
+import { useDebounce } from '@/hooks/useDebounce';
 import type { SearchResponse, Team } from '@/types/skills';
+import { getTeamGradient } from '@/utils/gradients';
 
 export default function Home() {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState('');
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get('q') || '';
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [mounted, setMounted] = useState(false);
   const { clearFavorites } = useFavorites();
   const { clearCompare } = useCompare();
+  
+  // Debounce search query with a 1000ms delay
+  const debouncedSearchQuery = useDebounce(searchQuery, 1000);
+  
+  // Update URL when debounced search query changes
+  useEffect(() => {
+    if (mounted && debouncedSearchQuery !== searchParams.get('q')) {
+      const params = new URLSearchParams(searchParams.toString());
+      if (debouncedSearchQuery) {
+        params.set('q', debouncedSearchQuery);
+      } else {
+        params.delete('q');
+      }
+      const newUrl = params.toString() ? `/?${params.toString()}` : '/';
+      router.replace(newUrl, { scroll: false });
+    }
+  }, [debouncedSearchQuery, mounted, router, searchParams]);
   
   useEffect(() => {
     setMounted(true);
@@ -34,15 +56,18 @@ export default function Home() {
     localStorage.removeItem('vex-scouting-compare');
   };
   
+  // Configure React Query with caching
   const { data, isLoading, error } = useQuery<SearchResponse>({
-    queryKey: ['teams', searchQuery],
+    queryKey: ['teams', debouncedSearchQuery],
     queryFn: async () => {
-      if (!searchQuery.trim()) return { teams: [], total: 0 };
-      const response = await fetch(`http://localhost:3000/api/search?q=${encodeURIComponent(searchQuery)}`);
+      if (!debouncedSearchQuery.trim()) return { teams: [], total: 0 };
+      const response = await fetch(`http://localhost:3000/api/search?q=${encodeURIComponent(debouncedSearchQuery)}`);
       if (!response.ok) throw new Error('Failed to fetch teams');
       return response.json();
     },
-    enabled: searchQuery.trim().length > 0 && mounted,
+    enabled: debouncedSearchQuery.trim().length > 0 && mounted,
+    gcTime: 30 * 60 * 1000, // Keep data in cache for 30 minutes
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
   });
 
   const hasResults = data?.teams && data.teams.length > 0;
@@ -92,15 +117,6 @@ export default function Home() {
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
             Search and analyze VEX Robotics teams worldwide. Get insights into skills scores, rankings, and performance data.
           </p>
-          
-          {/* Add clear storage button for development */}
-          <Button
-            variant="outline"
-            onClick={clearAllStorage}
-            className="mb-4 text-red-600 border-red-200 hover:bg-red-50"
-          >
-            Clear Favorites & Compare Lists
-          </Button>
           
           {/* Search Bar */}
           <motion.div 
@@ -218,7 +234,13 @@ export default function Home() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: index * 0.1 }}
                   >
-                    <TeamCard team={team} onClick={() => router.push(`/team/${team.teamNumber}`)} />
+                    <TeamCard 
+                      team={team} 
+                      onClick={() => {
+                        const currentUrl = window.location.pathname + window.location.search;
+                        router.push(`/team/${team.teamNumber}?returnUrl=${encodeURIComponent(currentUrl)}`);
+                      }} 
+                    />
                   </motion.div>
                 ))}
               </motion.div>
@@ -260,11 +282,11 @@ function TeamCard({ team, onClick }: { team: Team; onClick?: () => void }) {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <Avatar className="h-12 w-12 bg-gradient-to-br from-blue-500 to-purple-500">
-              <AvatarFallback className="text-white font-bold">
+            <div className="relative h-12 w-12 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-md">
+              <span className="text-white font-bold">
                 {team.teamNumber.slice(-2)}
-              </AvatarFallback>
-            </Avatar>
+              </span>
+            </div>
             <div>
               <CardTitle className="text-lg font-bold text-gray-900">
                 {team.teamNumber}
