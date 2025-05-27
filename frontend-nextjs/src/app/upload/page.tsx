@@ -38,7 +38,7 @@ export default function UploadPage() {
         formData.append('file', file);
 
         try {
-            const response = await fetch('http://localhost:3000/api/teams/upload', {
+            const response = await fetch('http://localhost:3000/api/upload', {
                 method: 'POST',
                 body: formData,
             });

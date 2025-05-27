@@ -3,7 +3,9 @@ export interface Team {
   teamName: string;
   organization: string;
   eventRegion: string;
+  city: string;
   country: string;
+  countryRegion: string;
   rank: number;
   score: number;
   autonomousSkills: number;
@@ -15,7 +17,6 @@ export interface Team {
   highestAutonomousStopTime: number;
   highestDriverStopTime: number;
   // Computed properties for backward compatibility
-  city?: string;
   region?: string;
   skills?: SkillsData;
 }

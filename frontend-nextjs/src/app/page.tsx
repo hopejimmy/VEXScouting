@@ -20,16 +20,25 @@ export default function Home() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [mounted, setMounted] = useState(false);
+  const { clearFavorites } = useFavorites();
+  const { clearCompare } = useCompare();
   
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const clearAllStorage = () => {
+    clearFavorites();
+    clearCompare();
+    localStorage.removeItem('vex-scouting-favorites');
+    localStorage.removeItem('vex-scouting-compare');
+  };
   
   const { data, isLoading, error } = useQuery<SearchResponse>({
     queryKey: ['teams', searchQuery],
     queryFn: async () => {
       if (!searchQuery.trim()) return { teams: [], total: 0 };
-      const response = await fetch(`http://localhost:3000/api/teams/search?q=${encodeURIComponent(searchQuery)}`);
+      const response = await fetch(`http://localhost:3000/api/search?q=${encodeURIComponent(searchQuery)}`);
       if (!response.ok) throw new Error('Failed to fetch teams');
       return response.json();
     },
@@ -83,6 +92,15 @@ export default function Home() {
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
             Search and analyze VEX Robotics teams worldwide. Get insights into skills scores, rankings, and performance data.
           </p>
+          
+          {/* Add clear storage button for development */}
+          <Button
+            variant="outline"
+            onClick={clearAllStorage}
+            className="mb-4 text-red-600 border-red-200 hover:bg-red-50"
+          >
+            Clear Favorites & Compare Lists
+          </Button>
           
           {/* Search Bar */}
           <motion.div 
@@ -179,7 +197,7 @@ export default function Home() {
               </Card>
             )}
 
-            {data && data.teams.length === 0 && !isLoading && (
+            {data && data.teams && data.teams.length === 0 && !isLoading && (
               <Card className="p-8 text-center border-gray-200 bg-gray-50">
                 <div className="text-gray-400 mb-2">🔍</div>
                 <p className="text-gray-600">No teams found matching your search.</p>
