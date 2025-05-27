@@ -7,7 +7,7 @@ A professional, modern web application for scouting and analyzing VEX Robotics t
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=flat-square&logo=tailwind-css)
 ![Express.js](https://img.shields.io/badge/Express.js-4-green?style=flat-square&logo=express)
-![SQLite](https://img.shields.io/badge/SQLite-3-blue?style=flat-square&logo=sqlite)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue?style=flat-square&logo=postgresql)
 
 ## ✨ Features
 
@@ -52,6 +52,7 @@ A professional, modern web application for scouting and analyzing VEX Robotics t
 ### Prerequisites
 - Node.js 18+ 
 - npm or yarn
+- PostgreSQL 15+
 
 ### Installation
 
@@ -61,7 +62,27 @@ A professional, modern web application for scouting and analyzing VEX Robotics t
    cd VEXScouting
    ```
 
-2. **Install dependencies**
+2. **Set up PostgreSQL**
+   ```bash
+   # Create the database
+   createdb vexscouting
+
+   # Or using psql
+   psql -U postgres
+   CREATE DATABASE vexscouting;
+   ```
+
+3. **Configure environment variables**
+   Create a `.env` file in the project root:
+   ```env
+   POSTGRES_HOST=localhost
+   POSTGRES_PORT=5432
+   POSTGRES_DB=vexscouting
+   POSTGRES_USER=postgres
+   POSTGRES_PASSWORD=your_password
+   ```
+
+4. **Install dependencies**
    ```bash
    # Backend dependencies
    npm install
@@ -71,21 +92,21 @@ A professional, modern web application for scouting and analyzing VEX Robotics t
    npm install
    ```
 
-3. **Start the backend server**
+5. **Start the backend server**
    ```bash
    # From project root
    node src/api/server.js
    ```
    Server will run on `http://localhost:3000`
 
-4. **Start the frontend development server**
+6. **Start the frontend development server**
    ```bash
    # From frontend-nextjs directory
    npm run dev
    ```
    Frontend will run on `http://localhost:3001`
 
-5. **Open your browser**
+7. **Open your browser**
    Navigate to `http://localhost:3001` to start using the application!
 
 ## 📁 Project Structure
@@ -94,16 +115,10 @@ A professional, modern web application for scouting and analyzing VEX Robotics t
 VEXScouting/
 ├── src/
 │   ├── api/
-│   │   ├── server.js              # Express.js backend server
-│   │   └── server.ts              # TypeScript version (for development)
+│   │   └── server.js              # Express.js backend server with PostgreSQL
 │   └── utils/                     # Database utilities
-│       ├── setupDatabase.js       # Database initialization script
-│       ├── skillsParser.ts        # CSV data parser
 │       ├── csvParser.ts           # CSV processing utilities
-│       ├── fileUtils.ts           # File handling utilities
-│       └── dbTest.ts              # Database testing utilities
-├── data/
-│   └── skills.db                  # SQLite database with team data
+│       └── fileUtils.ts           # File handling utilities
 ├── public/
 │   └── data/                      # CSV source files for database
 │       ├── skills-standings (1).csv
@@ -146,8 +161,8 @@ VEXScouting/
 ### Backend
 - **[Express.js](https://expressjs.com/)** - Web application framework
 - **[Node.js](https://nodejs.org/)** - JavaScript runtime
-- **[SQLite](https://www.sqlite.org/)** - Lightweight database for team data
-- **[better-sqlite3](https://github.com/WiseLibs/better-sqlite3)** - Fast SQLite driver
+- **[PostgreSQL](https://www.postgresql.org/)** - Powerful, open-source database
+- **[node-postgres](https://node-postgres.com/)** - PostgreSQL client for Node.js
 
 ## 🎯 Usage Guide
 
@@ -173,22 +188,48 @@ VEXScouting/
 - See comprehensive skills breakdown and performance data
 - Navigate back using the back button
 
+### 5. **Data Upload**
+- Navigate to the upload page
+- Select a CSV file containing VEX team data
+- File should include columns for:
+  - Team Number
+  - Team Name
+  - Organization
+  - Event Region
+  - Country / Region
+  - Rank
+  - Score
+  - Autonomous Coding Skills
+  - Driver Skills
+  - Highest Autonomous Coding Skills
+  - Highest Driver Skills
+- Progress bar shows upload status
+- Data is automatically processed and added to the database
+- Existing teams are updated with new information
+- Success/error messages provide feedback
+
 ## 🔧 API Endpoints
 
 The backend provides the following REST API endpoints:
 
-- `GET /api/teams/search?q={query}` - Search teams by number or name
-- `GET /api/teams/top?limit={number}` - Get top-ranked teams
+- `GET /api/search?q={query}` - Search teams by number or name
+- `GET /api/teams` - Get all teams
 - `GET /api/teams/{teamNumber}` - Get detailed team information
+- `POST /api/upload` - Upload CSV data
 - `GET /api/health` - Health check endpoint
 
 ## 🗄️ Database Management
 
-### Database Setup
-The application uses SQLite for data storage with the following structure:
+### Database Schema
+The application uses PostgreSQL with the following schema:
 
 ```sql
 CREATE TABLE skills_standings (
+    teamNumber TEXT PRIMARY KEY,
+    teamName TEXT,
+    organization TEXT,
+    eventRegion TEXT,
+    countryRegion TEXT,
     rank INTEGER,
     score INTEGER,
     autonomousSkills INTEGER,
@@ -199,30 +240,24 @@ CREATE TABLE skills_standings (
     highestDriverTimestamp TEXT,
     highestAutonomousStopTime INTEGER,
     highestDriverStopTime INTEGER,
-    teamNumber TEXT PRIMARY KEY,
-    teamName TEXT,
-    organization TEXT,
-    eventRegion TEXT,
-    country TEXT
-)
+    lastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 ```
 
 ### Data Import
-To update the database with new VEX data:
+The application supports importing team data via CSV files. Use the upload feature in the UI or the `/api/upload` endpoint to import data.
 
-1. **Place CSV file** in `public/data/` directory
-2. **Update the path** in `src/utils/setupDatabase.js`
-3. **Run the setup script**:
-   ```bash
-   node src/utils/setupDatabase.js
-   ```
+### Environment Variables
+The following environment variables can be configured:
 
-### Utilities Available
-- **`setupDatabase.js`** - Initialize/update database from CSV
-- **`skillsParser.ts`** - Parse VEX skills data
-- **`csvParser.ts`** - Generic CSV processing
-- **`fileUtils.ts`** - File handling utilities
-- **`dbTest.ts`** - Database testing and validation
+```env
+POSTGRES_HOST=localhost      # PostgreSQL host
+POSTGRES_PORT=5432          # PostgreSQL port
+POSTGRES_DB=vexscouting     # Database name
+POSTGRES_USER=postgres      # Database user
+POSTGRES_PASSWORD=password  # Database password
+PORT=3000                   # API server port
+```
 
 ## 🎨 Design System
 
@@ -249,7 +284,7 @@ This project has been cleaned and optimized for development:
 
 ### ✅ **What's Included**
 - **Modern Next.js frontend** with TypeScript and Tailwind CSS
-- **Express.js backend** with SQLite database
+- **Express.js backend** with PostgreSQL database
 - **Database utilities** for data management
 - **Comprehensive documentation** and setup guides
 
