@@ -1,6 +1,6 @@
 'use client';
 
-import { Trophy, Heart, GitCompare, Home } from 'lucide-react';
+import { Trophy, Heart, GitCompare, Home, Upload } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,12 @@ export function Header() {
       label: 'Compare',
       path: '/compare',
       count: compareList.length,
+    },
+    {
+      icon: Upload,
+      label: 'Upload',
+      path: '/upload',
+      count: 0,
     },
   ];
 
