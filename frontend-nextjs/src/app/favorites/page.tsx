@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Heart, Trash2, GitCompare } from 'lucide-react';
+import { Heart, Trash2, GitCompare, Building, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipProvider } from '@/components/ui/tooltip';
 import { Header } from '@/components/navigation/Header';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { useCompare } from '@/contexts/CompareContext';
@@ -67,29 +68,17 @@ export default function FavoritesPage() {
           transition={{ duration: 0.6 }}
           className="mb-8"
         >
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center space-x-3">
-                <Heart className="w-8 h-8 text-red-500 fill-current" />
-                <span>Favorite Teams</span>
-              </h1>
-              <p className="text-gray-600">
-                {favorites.length === 0 
-                  ? "You haven't added any teams to your favorites yet." 
-                  : `You have ${favorites.length} favorite team${favorites.length === 1 ? '' : 's'}.`
-                }
-              </p>
-            </div>
-            {favorites.length > 0 && (
-              <Button
-                variant="outline"
-                onClick={clearFavorites}
-                className="flex items-center space-x-2 text-red-600 border-red-200 hover:bg-red-50"
-              >
-                <Trash2 className="w-4 h-4" />
-                <span>Clear All</span>
-              </Button>
-            )}
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center space-x-3">
+              <Heart className="w-8 h-8 text-red-500 fill-current" />
+              <span>Favorite Teams</span>
+            </h1>
+            <p className="text-gray-600">
+              {favorites.length === 0 
+                ? "You haven't added any teams to your favorites yet." 
+                : `You have ${favorites.length} favorite team${favorites.length === 1 ? '' : 's'}.`
+              }
+            </p>
           </div>
         </motion.div>
 
@@ -164,14 +153,14 @@ function FavoriteTeamCard({
       className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-white/80 backdrop-blur-sm border-gray-200 cursor-pointer group"
       onClick={onClick}
     >
-      <CardHeader className="pb-3">
+      <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <Avatar className="h-12 w-12 bg-gradient-to-br from-blue-500 to-purple-500">
-              <AvatarFallback className="text-white font-bold">
+            <div className="relative h-12 w-12 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-md">
+              <span className="text-white font-bold">
                 {team.teamNumber.slice(-2)}
-              </AvatarFallback>
-            </Avatar>
+              </span>
+            </div>
             <div>
               <CardTitle className="text-lg font-bold text-gray-900">
                 {team.teamNumber}
@@ -213,25 +202,15 @@ function FavoriteTeamCard({
         </div>
       </CardHeader>
       
-      <CardContent className="pt-0">
-        <div className="space-y-3">
+      <CardContent>
+        <div className="space-y-2">
           <div className="flex items-center text-sm text-gray-600">
-            <span className="font-medium">{team.organization}</span>
+            <Building className="w-4 h-4 mr-2" />
+            <span>{team.organization}</span>
           </div>
-          
           <div className="flex items-center text-sm text-gray-500">
+            <MapPin className="w-4 h-4 mr-2" />
             <span>{team.eventRegion}, {team.country}</span>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-3 pt-3 border-t border-gray-100">
-            <div className="text-center">
-              <div className="text-lg font-bold text-blue-600">{team.autonomousSkills}</div>
-              <div className="text-xs text-gray-500">Autonomous</div>
-            </div>
-            <div className="text-center">
-              <div className="text-lg font-bold text-purple-600">{team.driverSkills}</div>
-              <div className="text-xs text-gray-500">Driver</div>
-            </div>
           </div>
         </div>
       </CardContent>

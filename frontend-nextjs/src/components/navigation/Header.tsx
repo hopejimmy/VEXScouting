@@ -1,17 +1,27 @@
 'use client';
 
-import { Trophy, Heart, GitCompare, Home, Upload } from 'lucide-react';
+import { Trophy, Heart, GitCompare, Home, Upload, Trash2 } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipProvider } from '@/components/ui/tooltip';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { useCompare } from '@/contexts/CompareContext';
 
 export function Header() {
   const router = useRouter();
   const pathname = usePathname();
-  const { favorites } = useFavorites();
-  const { compareList } = useCompare();
+  const { favorites, clearFavorites } = useFavorites();
+  const { compareList, clearCompare } = useCompare();
+
+  const hasItemsToClear = favorites.length > 0 || compareList.length > 0;
+
+  const clearAllStorage = () => {
+    clearFavorites();
+    clearCompare();
+    localStorage.removeItem('vex-scouting-favorites');
+    localStorage.removeItem('vex-scouting-compare');
+  };
 
   const navItems = [
     {
@@ -92,6 +102,24 @@ export function Header() {
                 </Button>
               );
             })}
+            <div className="h-4 w-px bg-gray-200 mx-2" />
+            <TooltipProvider>
+              <Tooltip content={hasItemsToClear ? "Clear favorites and compare lists" : "No items to clear"}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearAllStorage}
+                  disabled={!hasItemsToClear}
+                  className={`${
+                    hasItemsToClear 
+                      ? 'text-red-600 hover:text-red-700 hover:bg-red-50' 
+                      : 'text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </Tooltip>
+            </TooltipProvider>
           </nav>
         </div>
       </div>
