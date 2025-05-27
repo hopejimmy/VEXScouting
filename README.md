@@ -205,6 +205,7 @@ VEXScouting/
   - Highest Driver Skills
 - Progress bar shows upload status
 - Data is automatically processed and added to the database
+- Automatic validation ensures data integrity
 - Existing teams are updated with new information
 - Success/error messages provide feedback
 
