@@ -1,51 +1,33 @@
 const express = require('express');
 const cors = require('cors');
-const helmet = require('helmet');
-const path = require('path');
-const Database = require('better-sqlite3');
+const { Pool } = require('pg');
 const multer = require('multer');
-const csv = require('csv-parse');
+const csv = require('csv-parser');
 const fs = require('fs');
+const path = require('path');
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Configure multer for CSV file uploads
-const upload = multer({
-    storage: multer.diskStorage({
-        destination: function (req, file, cb) {
-            cb(null, path.join(__dirname, '../../uploads'))
-        },
-        filename: function (req, file, cb) {
-            cb(null, 'teams-' + Date.now() + '.csv')
-        }
-    }),
-    fileFilter: function (req, file, cb) {
-        if (file.mimetype !== 'text/csv') {
-            return cb(new Error('Only CSV files are allowed'));
-        }
-        cb(null, true);
-    }
-});
-
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
 // Middleware
-app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-// Database connection and initialization
-const dbPath = path.join(__dirname, '../../data/skills.db');
-const db = new Database(dbPath);
+// PostgreSQL connection configuration
+const pool = new Pool({
+  host: process.env.POSTGRES_HOST || 'localhost',
+  port: process.env.POSTGRES_PORT || 5432,
+  database: process.env.POSTGRES_DB || 'vexscouting',
+  user: process.env.POSTGRES_USER || 'postgres',
+  password: process.env.POSTGRES_PASSWORD || 'postgres',
+});
 
 // Initialize database schema
-db.exec(`
-    CREATE TABLE IF NOT EXISTS skills_standings (
+async function initializeDatabase() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS skills_standings (
         teamNumber TEXT PRIMARY KEY,
         teamName TEXT,
         organization TEXT,
@@ -62,223 +44,229 @@ db.exec(`
         highestAutonomousStopTime INTEGER,
         highestDriverStopTime INTEGER,
         lastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-`);
+      )
+    `);
+    console.log('Database schema initialized successfully');
+  } catch (error) {
+    console.error('Error initializing database schema:', error);
+  }
+}
+
+// Initialize database on startup
+initializeDatabase();
+
+// Configure multer for file upload
+const upload = multer({ dest: 'uploads/' });
 
 // API Routes
-app.get('/api/teams/search', (req, res) => {
-    try {
-        const query = req.query.q;
-        
-        if (!query || query.trim().length === 0) {
-            return res.json({ teams: [], total: 0 });
+app.post('/api/upload', upload.single('file'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  const results = [];
+  fs.createReadStream(req.file.path)
+    .pipe(csv())
+    .on('data', (data) => results.push(data))
+    .on('end', async () => {
+      try {
+        await pool.query('BEGIN');
+
+        for (const record of results) {
+          const mappedRecord = {
+            rank: parseInt(record['Rank']) || 0,
+            score: parseInt(record['Score']) || 0,
+            autonomousSkills: parseInt(record['Autonomous Coding Skills']) || 0,
+            driverSkills: parseInt(record['Driver Skills']) || 0,
+            highestAutonomousSkills: parseInt(record['Highest Autonomous Coding Skills']) || 0,
+            highestDriverSkills: parseInt(record['Highest Driver Skills']) || 0,
+            teamNumber: record['Team Number'],
+            teamName: record['Team Name'],
+            organization: record['Organization'],
+            eventRegion: record['Event Region'] || '',
+            countryRegion: record['Country / Region'] || '',
+          };
+
+          // Upsert query using ON CONFLICT
+          await pool.query(`
+            INSERT INTO skills_standings (
+              teamNumber, teamName, organization, eventRegion, countryRegion,
+              rank, score, autonomousSkills, driverSkills,
+              highestAutonomousSkills, highestDriverSkills
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+            ON CONFLICT (teamNumber) DO UPDATE SET
+              teamName = EXCLUDED.teamName,
+              organization = EXCLUDED.organization,
+              eventRegion = EXCLUDED.eventRegion,
+              countryRegion = EXCLUDED.countryRegion,
+              rank = EXCLUDED.rank,
+              score = EXCLUDED.score,
+              autonomousSkills = EXCLUDED.autonomousSkills,
+              driverSkills = EXCLUDED.driverSkills,
+              highestAutonomousSkills = EXCLUDED.highestAutonomousSkills,
+              highestDriverSkills = EXCLUDED.highestDriverSkills,
+              lastUpdated = CURRENT_TIMESTAMP
+          `, [
+            mappedRecord.teamNumber,
+            mappedRecord.teamName,
+            mappedRecord.organization,
+            mappedRecord.eventRegion,
+            mappedRecord.countryRegion,
+            mappedRecord.rank,
+            mappedRecord.score,
+            mappedRecord.autonomousSkills,
+            mappedRecord.driverSkills,
+            mappedRecord.highestAutonomousSkills,
+            mappedRecord.highestDriverSkills,
+          ]);
         }
 
-        const searchTerm = `%${query.trim()}%`;
+        await pool.query('COMMIT');
         
-        const sql = `
-            SELECT * FROM skills_standings 
-            WHERE teamNumber LIKE ? OR teamName LIKE ? 
-            ORDER BY rank ASC 
-            LIMIT 50
-        `;
-        
-        try {
-            const rows = db.prepare(sql).all(searchTerm, searchTerm);
-            res.json({
-                teams: rows,
-                total: rows.length
-            });
-        } catch (err) {
-            console.error('Database error:', err);
-            return res.status(500).json({ error: 'Database error' });
-        }
-    } catch (error) {
-        console.error('Search error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-app.get('/api/teams/top', (req, res) => {
-    try {
-        const limit = parseInt(req.query.limit || '10');
-        
-        const sql = `
-            SELECT * FROM skills_standings 
-            ORDER BY rank ASC 
-            LIMIT ?
-        `;
-        
-        try {
-            const rows = db.prepare(sql).all(limit);
-            res.json({
-                teams: rows,
-                total: rows.length
-            });
-        } catch (err) {
-            console.error('Database error:', err);
-            return res.status(500).json({ error: 'Database error' });
-        }
-    } catch (error) {
-        console.error('Top teams error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-app.get('/api/teams/:teamNumber', (req, res) => {
-    try {
-        const { teamNumber } = req.params;
-        
-        const sql = `
-            SELECT * FROM skills_standings 
-            WHERE teamNumber = ?
-        `;
-        
-        try {
-            const row = db.prepare(sql).get(teamNumber);
-            
-            if (!row) {
-                return res.status(404).json({ error: 'Team not found' });
-            }
-            
-            res.json(row);
-        } catch (err) {
-            console.error('Database error:', err);
-            return res.status(500).json({ error: 'Database error' });
-        }
-    } catch (error) {
-        console.error('Team details error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-// New route for CSV upload and processing
-app.post('/api/teams/upload', upload.single('file'), async (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' });
-    }
-
-    try {
-        const results = [];
-        const parser = fs.createReadStream(req.file.path)
-            .pipe(csv.parse({
-                columns: true,
-                skip_empty_lines: true
-            }));
-
-        for await (const record of parser) {
-            // Map the VEX skills standings CSV format to our database format
-            const mappedRecord = {
-                rank: parseInt(record['Rank']) || 0,
-                score: parseInt(record['Score']) || 0,
-                autonomousSkills: parseInt(record['Autonomous Coding Skills']) || 0,
-                driverSkills: parseInt(record['Driver Skills']) || 0,
-                highestAutonomousSkills: parseInt(record['Highest Autonomous Coding Skills']) || 0,
-                highestDriverSkills: parseInt(record['Highest Driver Skills']) || 0,
-                teamNumber: record['Team Number'],
-                teamName: record['Team Name'],
-                organization: record['Organization'],
-                eventRegion: record['Event Region'] || '',
-                countryRegion: record['Country / Region'] || '',
-                highestAutonomousTimestamp: record['Highest Autonomous Score Timestamp'] || '',
-                highestDriverTimestamp: record['Highest Driver Score Timestamp'] || '',
-                highestAutonomousStopTime: parseInt(record['Highest Autonomous Score Stop Time']) || 0,
-                highestDriverStopTime: parseInt(record['Highest Driver Score Stop Time']) || 0
-            };
-
-            // Validate required fields
-            if (!mappedRecord.teamNumber || !mappedRecord.teamName) {
-                console.warn('Skipping record due to missing required fields:', record);
-                continue;
-            }
-
-            results.push(mappedRecord);
-        }
-
-        // Begin transaction
-        const transaction = db.transaction((teams) => {
-            const insertStmt = db.prepare(`
-                INSERT INTO skills_standings (
-                    teamNumber, teamName, organization, eventRegion, countryRegion,
-                    rank, score, autonomousSkills, driverSkills,
-                    highestAutonomousSkills, highestDriverSkills,
-                    highestAutonomousTimestamp, highestDriverTimestamp,
-                    highestAutonomousStopTime, highestDriverStopTime
-                ) VALUES (
-                    @teamNumber, @teamName, @organization, @eventRegion, @countryRegion,
-                    @rank, @score, @autonomousSkills, @driverSkills,
-                    @highestAutonomousSkills, @highestDriverSkills,
-                    @highestAutonomousTimestamp, @highestDriverTimestamp,
-                    @highestAutonomousStopTime, @highestDriverStopTime
-                ) ON CONFLICT(teamNumber) DO UPDATE SET
-                    teamName = @teamName,
-                    organization = @organization,
-                    eventRegion = @eventRegion,
-                    countryRegion = @countryRegion,
-                    rank = @rank,
-                    score = @score,
-                    autonomousSkills = @autonomousSkills,
-                    driverSkills = @driverSkills,
-                    highestAutonomousSkills = @highestAutonomousSkills,
-                    highestDriverSkills = @highestDriverSkills,
-                    highestAutonomousTimestamp = @highestAutonomousTimestamp,
-                    highestDriverTimestamp = @highestDriverTimestamp,
-                    highestAutonomousStopTime = @highestAutonomousStopTime,
-                    highestDriverStopTime = @highestDriverStopTime
-            `);
-
-            for (const team of teams) {
-                insertStmt.run(team);
-            }
-        });
-
-        // Execute transaction
-        transaction(results);
-
         // Clean up uploaded file
         fs.unlinkSync(req.file.path);
-
-        res.json({
-            message: `Successfully processed ${results.length} teams`,
-            processed: results.length
-        });
-
-    } catch (error) {
+        
+        res.json({ message: 'CSV data processed successfully' });
+      } catch (error) {
+        await pool.query('ROLLBACK');
         console.error('CSV processing error:', error);
-        // Clean up uploaded file in case of error
-        if (req.file && fs.existsSync(req.file.path)) {
-            fs.unlinkSync(req.file.path);
-        }
         res.status(500).json({ error: 'Error processing CSV file' });
+      }
+    });
+});
+
+// Get all teams
+app.get('/api/teams', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM skills_standings ORDER BY rank');
+    // Transform the response to use camelCase property names
+    const teams = result.rows.map(team => ({
+      teamNumber: team.teamnumber,
+      teamName: team.teamname,
+      organization: team.organization,
+      eventRegion: team.eventregion,
+      city: team.eventregion?.split(',')[0]?.trim() || '',
+      country: team.countryregion || '',
+      countryRegion: team.countryregion,
+      rank: team.rank,
+      score: team.score,
+      autonomousSkills: team.autonomousskills,
+      driverSkills: team.driverskills,
+      highestAutonomousSkills: team.highestautonomousskills,
+      highestDriverSkills: team.highestdriverskills,
+      highestAutonomousTimestamp: team.highestautonomoustimestamp,
+      highestDriverTimestamp: team.highestdrivertimestamp,
+      highestAutonomousStopTime: team.highestautonomousstoptime,
+      highestDriverStopTime: team.highestdriverstoptime,
+      lastUpdated: team.lastupdated
+    }));
+    res.json(teams);
+  } catch (error) {
+    console.error('Error fetching teams:', error);
+    res.status(500).json({ error: 'Error fetching teams' });
+  }
+});
+
+// Get team by number
+app.get('/api/teams/:teamNumber', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM skills_standings WHERE teamNumber = $1', [req.params.teamNumber]);
+    if (result.rows.length === 0) {
+      res.status(404).json({ error: 'Team not found' });
+    } else {
+      // Transform the response to use camelCase property names
+      const team = {
+        teamNumber: result.rows[0].teamnumber,
+        teamName: result.rows[0].teamname,
+        organization: result.rows[0].organization,
+        eventRegion: result.rows[0].eventregion,
+        city: result.rows[0].eventregion?.split(',')[0]?.trim() || '',
+        country: result.rows[0].countryregion || '',
+        countryRegion: result.rows[0].countryregion,
+        rank: result.rows[0].rank,
+        score: result.rows[0].score,
+        autonomousSkills: result.rows[0].autonomousskills,
+        driverSkills: result.rows[0].driverskills,
+        highestAutonomousSkills: result.rows[0].highestautonomousskills,
+        highestDriverSkills: result.rows[0].highestdriverskills,
+        highestAutonomousTimestamp: result.rows[0].highestautonomoustimestamp,
+        highestDriverTimestamp: result.rows[0].highestdrivertimestamp,
+        highestAutonomousStopTime: result.rows[0].highestautonomousstoptime,
+        highestDriverStopTime: result.rows[0].highestdriverstoptime,
+        lastUpdated: result.rows[0].lastupdated
+      };
+      res.json(team);
     }
+  } catch (error) {
+    console.error('Error fetching team:', error);
+    res.status(500).json({ error: 'Error fetching team' });
+  }
+});
+
+// Search teams
+app.get('/api/search', async (req, res) => {
+  const { q } = req.query;
+  try {
+    const result = await pool.query(
+      'SELECT * FROM skills_standings WHERE teamNumber ILIKE $1 OR teamName ILIKE $1 ORDER BY rank',
+      [`%${q}%`]
+    );
+    
+    // Transform the response to use camelCase property names
+    const teams = result.rows.map(team => ({
+      teamNumber: team.teamnumber,
+      teamName: team.teamname,
+      organization: team.organization,
+      eventRegion: team.eventregion,
+      city: team.eventregion?.split(',')[0]?.trim() || '',
+      country: team.countryregion || '',
+      countryRegion: team.countryregion,
+      rank: team.rank,
+      score: team.score,
+      autonomousSkills: team.autonomousskills,
+      driverSkills: team.driverskills,
+      highestAutonomousSkills: team.highestautonomousskills,
+      highestDriverSkills: team.highestdriverskills,
+      highestAutonomousTimestamp: team.highestautonomoustimestamp,
+      highestDriverTimestamp: team.highestdrivertimestamp,
+      highestAutonomousStopTime: team.highestautonomousstoptime,
+      highestDriverStopTime: team.highestdriverstoptime,
+      lastUpdated: team.lastupdated
+    }));
+    
+    res.json({ teams, total: teams.length });
+  } catch (error) {
+    console.error('Error searching teams:', error);
+    res.status(500).json({ error: 'Error searching teams' });
+  }
 });
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'OK', timestamp: new Date().toISOString() });
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ error: 'Something went wrong!' });
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
 });
 
 // 404 handler
 app.use('*', (req, res) => {
-    res.status(404).json({ error: 'Route not found' });
+  res.status(404).json({ error: 'Route not found' });
 });
 
 // Start server
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📊 API endpoints available at http://localhost:${PORT}/api`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`📊 API endpoints available at http://localhost:${PORT}/api`);
 });
 
 // Graceful shutdown
 process.on('SIGINT', () => {
-    console.log('\n🛑 Shutting down server...');
-    db.close();
-    console.log('Database connection closed.');
-    process.exit(0);
+  console.log('\n🛑 Shutting down server...');
+  pool.end();
+  console.log('Database connection closed.');
+  process.exit(0);
 }); 
