@@ -34,4 +34,25 @@ export interface SkillsData {
 export interface SearchResponse {
   teams: Team[];
   total: number;
+}
+
+export interface TeamEvent {
+  id: number;
+  name: string;
+  start: string;
+  end: string;
+  season: {
+    id: number;
+    name: string;
+  };
+  location: {
+    venue: string;
+    city: string;
+    region: string;
+    country: string;
+  };
+  divisions: string[];
+  level: string;
+  upcoming: boolean;
+  type: string;
 } 

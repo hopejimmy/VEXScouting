@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "VEX Robotics Scouting Application",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/api/server.js",
@@ -20,6 +21,7 @@
     "helmet": "^8.1.0",
     "morgan": "^1.10.0",
     "multer": "^2.0.0",
+    "node-fetch": "^3.3.2",
     "pg": "^8.16.0"
   }
 }

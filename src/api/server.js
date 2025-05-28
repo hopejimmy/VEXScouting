@@ -1,14 +1,30 @@
-const express = require('express');
-const cors = require('cors');
-const { Pool } = require('pg');
-const multer = require('multer');
-const csv = require('csv-parser');
-const fs = require('fs');
-const path = require('path');
-require('dotenv').config();
+import express from 'express';
+import cors from 'cors';
+import pg from 'pg';
+import multer from 'multer';
+import csv from 'csv-parser';
+import fs from 'fs';
+import path from 'path';
+import fetch from 'node-fetch';
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Load environment variables from .env file
+dotenv.config({ path: path.join(__dirname, '../..', '.env') });
+
+// Debug: Print environment variables (excluding sensitive data)
+console.log('Environment variables loaded:', {
+  CURRENT_SEASON_ID: process.env.CURRENT_SEASON_ID,
+  hasApiToken: !!process.env.ROBOTEVENTS_API_TOKEN
+});
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const { Pool } = pg;
 
 // Middleware
 app.use(cors());
@@ -238,6 +254,144 @@ app.get('/api/search', async (req, res) => {
   } catch (error) {
     console.error('Error searching teams:', error);
     res.status(500).json({ error: 'Error searching teams' });
+  }
+});
+
+// Get team events for the current season
+app.get('/api/teams/:teamNumber/events', async (req, res) => {
+  try {
+    const { teamNumber } = req.params;
+    const { season } = req.query;
+    
+    // Get the current season ID and API token from environment
+    const seasonId = season || process.env.CURRENT_SEASON_ID || '190'; // Use query param or default to High Stakes
+    const apiToken = process.env.ROBOTEVENTS_API_TOKEN;
+
+    console.log('Using season ID:', seasonId); // Debug log
+
+    if (!apiToken) {
+      throw new Error('RobotEvents API token not configured');
+    }
+
+    // First get the team ID by searching for the team
+    const teamResponse = await fetch(
+      `https://www.robotevents.com/api/v2/teams?number[]=${encodeURIComponent(teamNumber.toUpperCase())}&program[]=1`,
+      {
+        headers: {
+          'Authorization': `Bearer ${apiToken}`,
+          'Accept': 'application/json'
+        }
+      }
+    );
+
+    if (!teamResponse.ok) {
+      const errorData = await teamResponse.json();
+      console.log('Team search response:', await teamResponse.text());  // Debug log
+      throw new Error(`RobotEvents API error: ${errorData.message || 'Failed to fetch team'}`);
+    }
+
+    const teamData = await teamResponse.json();
+    console.log('Team search result:', teamData);  // Debug log
+    
+    if (!teamData.data || teamData.data.length === 0) {
+      throw new Error('Team not found');
+    }
+
+    const team = teamData.data[0];
+    
+    // Get events for the specified season
+    console.log(`Fetching events for team ${team.id} and season ${seasonId}`);
+    
+    const eventsResponse = await fetch(
+      `https://www.robotevents.com/api/v2/teams/${team.id}/events?season[]=${seasonId}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${apiToken}`,
+          'Accept': 'application/json'
+        }
+      }
+    );
+
+    if (!eventsResponse.ok) {
+      const errorData = await eventsResponse.json();
+      console.log('Events response error:', errorData);
+      throw new Error(`RobotEvents API error: ${errorData.message || 'Failed to fetch events'}`);
+    }
+
+    const eventsData = await eventsResponse.json();
+    console.log('Events data:', JSON.stringify(eventsData, null, 2));
+    
+    // Transform and sort events
+    const events = (eventsData.data || []).map(event => {
+      const startDate = new Date(event.start);
+      const endDate = new Date(event.end);
+      const now = new Date();
+      return {
+        id: event.id,
+        name: event.name,
+        start: event.start,
+        end: event.end,
+        season: event.season,
+        location: {
+          venue: event.location.venue,
+          city: event.location.city,
+          region: event.location.region,
+          country: event.location.country,
+        },
+        divisions: event.divisions.map(d => d.name),
+        level: event.level,
+        upcoming: startDate > now, // Event is upcoming only if it hasn't started yet
+        type: event.event_type,
+      };
+    }).sort((a, b) => new Date(a.start) - new Date(b.start));
+    
+    res.json(events);
+  } catch (error) {
+    console.error('Error fetching team events:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get VRC seasons
+app.get('/api/seasons', async (req, res) => {
+  try {
+    const apiToken = process.env.ROBOTEVENTS_API_TOKEN;
+
+    if (!apiToken) {
+      throw new Error('RobotEvents API token not configured');
+    }
+
+    const response = await fetch(
+      'https://www.robotevents.com/api/v2/seasons?program[]=1', // Filter for VRC program
+      {
+        headers: {
+          'Authorization': `Bearer ${apiToken}`,
+          'Accept': 'application/json'
+        }
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`RobotEvents API error: ${errorData.message || 'Failed to fetch seasons'}`);
+    }
+
+    const data = await response.json();
+    
+    // Transform and sort seasons (most recent first)
+    const seasons = data.data
+      .map(season => ({
+        id: season.id,
+        name: season.name,
+        start: season.start,
+        end: season.end
+      }))
+      .sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime());
+
+    res.json(seasons);
+  } catch (error) {
+    console.error('Error fetching seasons:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 

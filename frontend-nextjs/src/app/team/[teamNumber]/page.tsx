@@ -14,6 +14,11 @@ import { useFavorites } from '@/contexts/FavoritesContext';
 import { useCompare } from '@/contexts/CompareContext';
 import { getTeamGradient } from '@/utils/gradients';
 import type { Team } from '@/types/skills';
+import { useTeam } from '@/hooks/useTeam';
+import { useTeamEvents } from '@/hooks/useTeamEvents';
+import { SkillsSection } from '@/components/team/SkillsSection';
+import { EventsSection } from '@/components/team/EventsSection';
+import { Separator } from '@/components/ui/separator';
 
 export default function TeamDetailPage() {
   const params = useParams();
@@ -21,20 +26,14 @@ export default function TeamDetailPage() {
   const searchParams = useSearchParams();
   const teamNumber = params.teamNumber as string;
   const [mounted, setMounted] = useState(false);
+  const [selectedSeasonId, setSelectedSeasonId] = useState('190'); // Default to High Stakes
   
   useEffect(() => {
     setMounted(true);
   }, []);
   
-  const { data: team, isLoading, error } = useQuery<Team>({
-    queryKey: ['team', teamNumber],
-    queryFn: async () => {
-      const response = await fetch(`http://localhost:3000/api/teams/${encodeURIComponent(teamNumber)}`);
-      if (!response.ok) throw new Error('Failed to fetch team details');
-      return response.json();
-    },
-    enabled: !!teamNumber && mounted,
-  });
+  const { data: team, isLoading: isTeamLoading, error: teamError } = useTeam(teamNumber);
+  const { data: events, isLoading: isEventsLoading, error: eventsError } = useTeamEvents(teamNumber, selectedSeasonId);
 
   const handleBackClick = () => {
     const returnUrl = searchParams.get('returnUrl');
@@ -50,6 +49,10 @@ export default function TeamDetailPage() {
     } else {
       router.push('/');
     }
+  };
+
+  const handleSeasonChange = (seasonId: string) => {
+    setSelectedSeasonId(seasonId);
   };
 
   if (!mounted) {
@@ -117,7 +120,7 @@ export default function TeamDetailPage() {
           </Button>
         </motion.div>
 
-        {isLoading && (
+        {isTeamLoading && (
           <div className="space-y-6">
             <div className="flex items-center space-x-4">
               <Skeleton className="h-20 w-20 rounded-full" />
@@ -137,7 +140,7 @@ export default function TeamDetailPage() {
           </div>
         )}
 
-        {error && (
+        {teamError && (
           <Card className="p-8 text-center border-red-200 bg-red-50">
             <div className="text-red-600 mb-2">⚠️ Error</div>
             <p className="text-red-700">Failed to fetch team details. Please try again.</p>
@@ -183,53 +186,26 @@ export default function TeamDetailPage() {
             </div>
 
             {/* Skills Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                <Award className="w-6 h-6" />
-                <span>Skills Performance</span>
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-                  <CardHeader className="text-center">
-                    <CardTitle className="text-blue-700">Autonomous Skills</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-center">
-                    <div className="text-4xl font-bold text-blue-900 mb-2">
-                      {team.autonomousSkills}
-                    </div>
-                    <p className="text-sm text-blue-600">Points</p>
-                  </CardContent>
-                </Card>
+            <Separator />
 
-                <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-                  <CardHeader className="text-center">
-                    <CardTitle className="text-purple-700">Driver Skills</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-center">
-                    <div className="text-4xl font-bold text-purple-900 mb-2">
-                      {team.driverSkills}
-                    </div>
-                    <p className="text-sm text-purple-600">Points</p>
-                  </CardContent>
-                </Card>
+            <SkillsSection
+              teamNumber={teamNumber}
+              team={team}
+              isLoading={isTeamLoading}
+              error={teamError}
+            />
 
-                <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-                  <CardHeader className="text-center">
-                    <CardTitle className="text-green-700">Total Score</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-center">
-                    <div className="text-4xl font-bold text-green-900 mb-2">
-                      {team.score}
-                    </div>
-                    <p className="text-sm text-green-600">Combined Points</p>
-                  </CardContent>
-                </Card>
-              </div>
-            </motion.div>
+            {/* Events Section */}
+            <Separator />
+
+            <EventsSection
+              teamNumber={teamNumber}
+              events={events || []}
+              isLoading={isEventsLoading}
+              error={eventsError}
+              onSeasonChange={handleSeasonChange}
+              currentSeasonId={selectedSeasonId}
+            />
 
             {/* Team Information */}
             <motion.div
