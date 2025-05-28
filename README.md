@@ -17,6 +17,13 @@ A professional, modern web application for scouting and analyzing VEX Robotics t
 - **Beautiful team cards** with gradient avatars and detailed information
 - **Responsive grid layout** optimized for all screen sizes
 
+### 🏆 **Season Selector**
+- **Interactive dropdown** to select different VRC seasons
+- **Season-specific team events** showing past and upcoming competitions
+- **Seamless integration** with the RobotEvents API
+- **Graceful loading states** and error handling
+- **Persistent season selection** throughout user session
+
 ### ❤️ **Favorites System**
 - **Add/remove teams** to your personal favorites list
 - **Persistent storage** using localStorage
@@ -80,6 +87,8 @@ A professional, modern web application for scouting and analyzing VEX Robotics t
    POSTGRES_DB=vexscouting
    POSTGRES_USER=postgres
    POSTGRES_PASSWORD=your_password
+   ROBOTEVENTS_API_KEY=your_robotevents_api_key
+   CURRENT_SEASON_ID=190
    ```
 
 4. **Install dependencies**
@@ -133,11 +142,18 @@ VEXScouting/
 │   │   │   └── layout.tsx         # Root layout with providers
 │   │   ├── components/
 │   │   │   ├── ui/                # shadcn/ui components
+│   │   │   ├── team/              # Team-related components
+│   │   │   │   ├── EventsSection.tsx  # Team events with season selector
+│   │   │   │   ├── EventsError.tsx    # Error handling component
+│   │   │   │   └── EventsSkeleton.tsx # Loading state component
 │   │   │   ├── navigation/        # Header and navigation
 │   │   │   └── providers/         # React Query provider
 │   │   ├── contexts/              # React contexts
 │   │   │   ├── FavoritesContext.tsx
 │   │   │   └── CompareContext.tsx
+│   │   ├── hooks/                 # Custom React hooks
+│   │   │   ├── useSeasons.ts      # Hook for fetching VRC seasons
+│   │   │   └── useTeamEvents.ts   # Hook for fetching team events by season
 │   │   └── types/                 # TypeScript type definitions
 │   ├── package.json               # Frontend dependencies
 │   ├── tailwind.config.js         # Tailwind CSS configuration
@@ -163,6 +179,7 @@ VEXScouting/
 - **[Node.js](https://nodejs.org/)** - JavaScript runtime
 - **[PostgreSQL](https://www.postgresql.org/)** - Powerful, open-source database
 - **[node-postgres](https://node-postgres.com/)** - PostgreSQL client for Node.js
+- **[RobotEvents API](https://www.robotevents.com/api/v2)** - VEX Robotics event data
 
 ## 🎯 Usage Guide
 
@@ -186,9 +203,16 @@ VEXScouting/
 ### 4. **Team Details**
 - Click on any team card to view detailed information
 - See comprehensive skills breakdown and performance data
+- View team events for different VRC seasons using the season selector
 - Navigate back using the back button
 
-### 5. **Data Upload**
+### 5. **Season Selection**
+- Use the dropdown in the team events section to select different VRC seasons
+- View past and upcoming events specific to the selected season
+- Events display venue, location, dates, and division information
+- System defaults to the current VRC season ("High Stakes")
+
+### 6. **Data Upload**
 - Navigate to the upload page
 - Select a CSV file containing VEX team data
 - File should include columns for:
@@ -216,6 +240,8 @@ The backend provides the following REST API endpoints:
 - `GET /api/search?q={query}` - Search teams by number or name
 - `GET /api/teams` - Get all teams
 - `GET /api/teams/{teamNumber}` - Get detailed team information
+- `GET /api/teams/{teamNumber}/events?season={seasonId}` - Get team events for a specific season
+- `GET /api/seasons` - Get list of VRC seasons
 - `POST /api/upload` - Upload CSV data
 - `GET /api/health` - Health check endpoint
 
@@ -258,6 +284,8 @@ POSTGRES_DB=vexscouting     # Database name
 POSTGRES_USER=postgres      # Database user
 POSTGRES_PASSWORD=password  # Database password
 PORT=3000                   # API server port
+ROBOTEVENTS_API_KEY=key     # RobotEvents API key for production
+CURRENT_SEASON_ID=190        # Default VRC season ID
 ```
 
 ## 🎨 Design System
@@ -278,6 +306,7 @@ PORT=3000                   # API server port
 - **Buttons**: Gradient primary, ghost secondary
 - **Badges**: Colored backgrounds with proper contrast
 - **Animations**: Smooth, purposeful motion
+- **Dropdowns**: Clean, accessible select components
 
 ## 🧹 Project Maintenance
 
@@ -286,6 +315,7 @@ This project has been cleaned and optimized for development:
 ### ✅ **What's Included**
 - **Modern Next.js frontend** with TypeScript and Tailwind CSS
 - **Express.js backend** with PostgreSQL database
+- **RobotEvents API integration** for team events and seasons
 - **Database utilities** for data management
 - **Comprehensive documentation** and setup guides
 
@@ -319,6 +349,8 @@ npm run build
 ```bash
 # Backend
 PORT=3000                    # Server port (optional, defaults to 3000)
+ROBOTEVENTS_API_KEY=key      # RobotEvents API key for production
+CURRENT_SEASON_ID=190        # Default VRC season ID
 
 # Frontend (for production)
 NEXT_PUBLIC_API_URL=your-api-url  # Backend API URL
@@ -370,6 +402,7 @@ npm run dev
 - Ensure backend is running on port 3000
 - Check `http://localhost:3000/api/health` for backend status
 - Verify no CORS issues in browser console
+- Make sure your RobotEvents API key is correctly configured
 
 ## 🤝 Contributing
 
@@ -386,6 +419,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 Acknowledgments
 
 - **VEX Robotics** for inspiring competitive robotics
+- **RobotEvents API** for providing comprehensive event data
 - **shadcn/ui** for beautiful, accessible components
 - **Tailwind CSS** for the utility-first approach
 - **Next.js team** for the amazing React framework
