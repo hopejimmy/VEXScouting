@@ -1,97 +1,130 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Search, Trophy, Users, Target, Zap, Heart, GitCompare, Trash2 } from 'lucide-react';
+import { Trophy, Search, Filter, Heart, GitCompare } from 'lucide-react';
 import { motion } from 'framer-motion';
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipProvider } from '@/components/ui/tooltip';
-import { Header } from '@/components/navigation/Header';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { useCompare } from '@/contexts/CompareContext';
-import { useDebounce } from '@/hooks/useDebounce';
-import type { SearchResponse, Team } from '@/types/skills';
-import { getTeamGradient } from '@/utils/gradients';
+import { Header } from '@/components/navigation/Header';
+import type { Team, Program } from '@/types/skills';
+
+interface TeamsResponse {
+  teams: Team[];
+  total: number;
+}
+
+async function searchTeams(query: string, matchType?: string): Promise<TeamsResponse> {
+  if (!query.trim()) {
+    // Return empty results when no search query
+    return { teams: [], total: 0 };
+  }
+
+  const params = new URLSearchParams();
+  params.append('q', query);
+  if (matchType) params.append('matchType', matchType);
+
+  const response = await fetch(`http://localhost:3000/api/search?${params.toString()}`);
+  if (!response.ok) {
+    throw new Error('Failed to search teams');
+  }
+  return response.json();
+}
 
 export default function Home() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialQuery = searchParams.get('q') || '';
-  const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const [mounted, setMounted] = useState(false);
-  const { clearFavorites } = useFavorites();
-  const { clearCompare } = useCompare();
-  
-  // Debounce search query with a 1000ms delay
-  const debouncedSearchQuery = useDebounce(searchQuery, 1000);
-  
-  // Update URL when debounced search query changes
-  useEffect(() => {
-    if (mounted && debouncedSearchQuery !== searchParams.get('q')) {
-      const params = new URLSearchParams(searchParams.toString());
-      if (debouncedSearchQuery) {
-        params.set('q', debouncedSearchQuery);
-      } else {
-        params.delete('q');
-      }
-      const newUrl = params.toString() ? `/?${params.toString()}` : '/';
-      router.replace(newUrl, { scroll: false });
-    }
-  }, [debouncedSearchQuery, mounted, router, searchParams]);
-  
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const [inputQuery, setInputQuery] = useState(''); // For immediate input display
+  const [query, setQuery] = useState(''); // For debounced search query
+  const [selectedMatchType, setSelectedMatchType] = useState<string>('');
+  const [isClient, setIsClient] = useState(false);
 
-  const clearAllStorage = () => {
-    clearFavorites();
-    clearCompare();
-    localStorage.removeItem('vex-scouting-favorites');
-    localStorage.removeItem('vex-scouting-compare');
-  };
-  
-  // Configure React Query with caching
-  const { data, isLoading, error } = useQuery<SearchResponse>({
-    queryKey: ['teams', debouncedSearchQuery],
+  // Fetch available programs
+  const { data: programs = [] } = useQuery<Program[]>({
+    queryKey: ['programs'],
     queryFn: async () => {
-      if (!debouncedSearchQuery.trim()) return { teams: [], total: 0 };
-      const response = await fetch(`http://localhost:3000/api/search?q=${encodeURIComponent(debouncedSearchQuery)}`);
-      if (!response.ok) throw new Error('Failed to fetch teams');
+      const response = await fetch('http://localhost:3000/api/programs');
+      if (!response.ok) {
+        throw new Error('Failed to fetch programs');
+      }
       return response.json();
     },
-    enabled: debouncedSearchQuery.trim().length > 0 && mounted,
-    gcTime: 30 * 60 * 1000, // Keep data in cache for 30 minutes
-    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  const hasResults = data?.teams && data.teams.length > 0;
+  // Sync with URL parameters after client-side hydration
+  useEffect(() => {
+    setIsClient(true);
+    const urlQuery = searchParams.get('q') || '';
+    const urlMatchType = searchParams.get('matchType') || '';
+    setInputQuery(urlQuery); // Set both input and query to URL values
+    setQuery(urlQuery);
+    setSelectedMatchType(urlMatchType);
+  }, [searchParams]);
 
-  if (!mounted) {
+  // Debounce search input - wait 1 second after user stops typing
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      setQuery(inputQuery);
+      
+      // Update URL when query changes (but not on initial load)
+      if (isClient && inputQuery !== searchParams.get('q')) {
+        const params = new URLSearchParams();
+        if (inputQuery.trim()) params.append('q', inputQuery.trim());
+        if (selectedMatchType) params.append('matchType', selectedMatchType);
+        
+        const newUrl = params.toString() ? `/?${params.toString()}` : '/';
+        router.replace(newUrl); // Use replace instead of push to avoid history pollution
+      }
+    }, 1000);
+
+    return () => clearTimeout(debounceTimer);
+  }, [inputQuery, selectedMatchType, isClient, router, searchParams]);
+
+  const { data, isLoading, error } = useQuery<TeamsResponse>({
+    queryKey: ['teams', query, selectedMatchType],
+    queryFn: () => searchTeams(query, selectedMatchType || undefined),
+    enabled: isClient && query.trim().length > 0, // Only fetch when there's a search query
+    staleTime: 10 * 60 * 1000, // 10 minutes - longer stale time for better persistence
+    gcTime: 30 * 60 * 1000, // 30 minutes - keep in cache longer
+  });
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Immediately set query to current input to trigger search
+    setQuery(inputQuery);
+    
+    // Update URL with search params
+    const params = new URLSearchParams();
+    if (inputQuery.trim()) params.append('q', inputQuery.trim());
+    if (selectedMatchType) params.append('matchType', selectedMatchType);
+    
+    const newUrl = params.toString() ? `/?${params.toString()}` : '/';
+    router.push(newUrl);
+  };
+
+  const handleMatchTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedMatchType(e.target.value);
+  };
+
+  const hasResults = data && data.teams && data.teams.length > 0;
+  const hasQuery = query.trim().length > 0;
+  const isTyping = inputQuery.trim() !== query.trim(); // User is typing but search hasn't triggered yet
+
+  // Prevent rendering until hydration is complete
+  if (!isClient) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <Header />
-
-        {/* Loading state */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
-              Discover VEX Teams
-            </h2>
-            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              Search and analyze VEX Robotics teams worldwide. Get insights into skills scores, rankings, and performance data.
-            </p>
-            <div className="max-w-2xl mx-auto mb-8">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <div className="pl-12 pr-4 py-6 text-lg rounded-2xl border-2 border-gray-200 shadow-lg bg-white h-[72px]" />
-              </div>
-            </div>
+          <div className="text-center">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Find VEX Teams</h2>
+            <p className="text-xl text-gray-600">Search and compare team performances across competitions</p>
           </div>
         </main>
       </div>
@@ -99,121 +132,148 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Header />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Hero Section */}
-        <motion.div 
+        {/* Search Section */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
-            Discover VEX Teams
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            Find VEX Teams
           </h2>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Search and analyze VEX Robotics teams worldwide. Get insights into skills scores, rankings, and performance data.
+          <p className="text-xl text-gray-600 mb-8">
+            Search and compare team performances across competitions
           </p>
           
-          {/* Search Bar */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="max-w-2xl mx-auto mb-8"
-          >
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 z-10" />
-              <input
-                type="text"
-                placeholder="Search by team number or name..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-6 text-lg rounded-2xl border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-lg transition-all duration-200"
-              />
+          <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
+            <div className="flex flex-col gap-4">
+              {/* Match Type Filter */}
+              <div className="flex items-center gap-4">
+                <div className="flex items-center space-x-2">
+                  <Filter className="w-4 h-4 text-gray-500" />
+                  <label className="text-sm font-medium text-gray-700">
+                    Competition Type:
+                  </label>
+                </div>
+                <select
+                  value={selectedMatchType}
+                  onChange={handleMatchTypeChange}
+                  className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                >
+                  <option value="">All Types</option>
+                  {programs.map((program) => (
+                    <option key={program.id} value={program.code}>
+                      {program.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Search Input */}
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    value={inputQuery}
+                    onChange={(e) => setInputQuery(e.target.value)}
+                    placeholder="Search by team number or name..."
+                    className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  {/* Search status indicator */}
+                  {isTyping && inputQuery.trim().length > 0 && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <div className="w-4 h-4 border-2 border-blue-300 border-t-blue-600 rounded-full animate-spin"></div>
+                    </div>
+                  )}
+                </div>
+                <Button type="submit" size="lg" className="px-6">
+                  Search
+                </Button>
+              </div>
             </div>
-          </motion.div>
+          </form>
         </motion.div>
 
-        {/* Stats Cards */}
-        {!searchQuery.trim() && (
-          <motion.div 
+        {/* Results */}
+        {!hasQuery && (
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
+            transition={{ duration: 0.4 }}
+            className="text-center"
           >
-            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-blue-700">Total Teams</CardTitle>
-                <Users className="h-4 w-4 text-blue-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-blue-900">25,000+</div>
-                <p className="text-xs text-blue-600">Worldwide VEX teams</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-purple-700">Skills Scores</CardTitle>
-                <Target className="h-4 w-4 text-purple-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-purple-900">1M+</div>
-                <p className="text-xs text-purple-600">Recorded skills runs</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-green-700">Live Data</CardTitle>
-                <Zap className="h-4 w-4 text-green-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-900">Real-time</div>
-                <p className="text-xs text-green-600">Updated continuously</p>
-              </CardContent>
+            <Card className="p-12 border-gray-200 bg-white/60 backdrop-blur-sm">
+              <div className="text-gray-400 mb-4">
+                <Search className="w-16 h-16 mx-auto mb-4" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                Welcome to VEX Scouting
+              </h3>
+              <p className="text-gray-600 max-w-md mx-auto">
+                Enter a team number or name in the search box above to find teams and view their performance data across different VEX competitions.
+              </p>
             </Card>
           </motion.div>
         )}
 
-        {/* Search Results */}
-        {searchQuery.trim() && (
+        {hasQuery && isLoading && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {[...Array(9)].map((_, i) => (
+              <Card key={i} className="p-6">
+                <div className="flex items-center space-x-4 mb-4">
+                  <Skeleton className="h-12 w-12 rounded-full" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-[150px]" />
+                    <Skeleton className="h-3 w-[100px]" />
+                  </div>
+                </div>
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-3/4" />
+              </Card>
+            ))}
+          </motion.div>
+        )}
+
+        {hasQuery && error && (
+          <Card className="p-8 text-center border-red-200 bg-red-50">
+            <div className="text-red-600 mb-2">⚠️ Error</div>
+            <p className="text-red-700">Failed to load teams. Please try again.</p>
+          </Card>
+        )}
+
+        {hasQuery && data && !isLoading && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            {isLoading && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(6)].map((_, i) => (
-                  <Card key={i} className="p-6">
-                    <div className="flex items-center space-x-4 mb-4">
-                      <Skeleton className="h-12 w-12 rounded-full" />
-                      <div className="space-y-2">
-                        <Skeleton className="h-4 w-[200px]" />
-                        <Skeleton className="h-4 w-[150px]" />
-                      </div>
-                    </div>
-                    <Skeleton className="h-4 w-full mb-2" />
-                    <Skeleton className="h-4 w-3/4" />
-                  </Card>
-                ))}
+            {/* Results Summary */}
+            {hasResults && (
+              <div className="mb-6 text-center">
+                <p className="text-gray-600">
+                  Found {data.total} team{data.total !== 1 ? 's' : ''}
+                  {selectedMatchType && (
+                    <span className="ml-1">
+                      in {programs.find(p => p.code === selectedMatchType)?.name || selectedMatchType}
+                    </span>
+                  )}
+                  {query && <span className="ml-1">matching "{query}"</span>}
+                </p>
               </div>
             )}
 
-            {error && (
-              <Card className="p-8 text-center border-red-200 bg-red-50">
-                <div className="text-red-600 mb-2">⚠️ Error</div>
-                <p className="text-red-700">Failed to fetch teams. Please try again.</p>
-              </Card>
-            )}
-
-            {data && data.teams && data.teams.length === 0 && !isLoading && (
+            {data && data.teams && data.teams.length === 0 && (
               <Card className="p-8 text-center border-gray-200 bg-gray-50">
                 <div className="text-gray-400 mb-2">🔍</div>
                 <p className="text-gray-600">No teams found matching your search.</p>
@@ -254,7 +314,7 @@ export default function Home() {
 
 function TeamCard({ team, onClick }: { team: Team; onClick?: () => void }) {
   const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
-  const { addToCompare, removeFromCompare, isInCompare, canAddToCompare } = useCompare();
+  const { addToCompare, removeFromCompare, isInCompare } = useCompare();
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -269,16 +329,22 @@ function TeamCard({ team, onClick }: { team: Team; onClick?: () => void }) {
     e.stopPropagation();
     if (isInCompare(team.teamNumber)) {
       removeFromCompare(team.teamNumber);
-    } else if (canAddToCompare) {
+    } else {
       addToCompare(team);
     }
   };
 
+  const getMatchTypeBadgeColor = (matchType: string) => {
+    switch (matchType) {
+      case 'VEXIQ': return 'bg-green-100 text-green-700 border-green-200';
+      case 'VEXU': return 'bg-purple-100 text-purple-700 border-purple-200';
+      case 'VRC': return 'bg-blue-100 text-blue-700 border-blue-200';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+    }
+  };
+
   return (
-    <Card 
-      className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-white/80 backdrop-blur-sm border-gray-200 cursor-pointer group"
-      onClick={onClick}
-    >
+    <Card className="group hover:shadow-lg transition-all duration-200 cursor-pointer border-gray-200 bg-white/80 backdrop-blur-sm" onClick={onClick}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -318,7 +384,6 @@ function TeamCard({ team, onClick }: { team: Team; onClick?: () => void }) {
                 size="sm"
                 variant="ghost"
                 onClick={handleCompareClick}
-                disabled={!canAddToCompare && !isInCompare(team.teamNumber)}
                 className={`h-8 w-8 p-0 ${
                   isInCompare(team.teamNumber) 
                     ? 'text-blue-500 hover:text-blue-600' 
@@ -334,8 +399,11 @@ function TeamCard({ team, onClick }: { team: Team; onClick?: () => void }) {
       
       <CardContent className="pt-0">
         <div className="space-y-3">
-          <div className="flex items-center text-sm text-gray-600">
-            <span className="font-medium">{team.organization}</span>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-600">{team.organization}</span>
+            <Badge className={getMatchTypeBadgeColor(team.matchType)}>
+              {team.matchType}
+            </Badge>
           </div>
           
           <div className="flex items-center text-sm text-gray-500">

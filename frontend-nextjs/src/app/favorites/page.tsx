@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Heart, Trash2, GitCompare, Building, MapPin } from 'lucide-react';
+import { Heart, Trash2, GitCompare, Building, MapPin, Filter } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,13 +12,28 @@ import { Tooltip, TooltipProvider } from '@/components/ui/tooltip';
 import { Header } from '@/components/navigation/Header';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { useCompare } from '@/contexts/CompareContext';
-import type { Team } from '@/types/skills';
+import { useQuery } from '@tanstack/react-query';
+import type { Team, Program } from '@/types/skills';
 
 export default function FavoritesPage() {
   const router = useRouter();
   const { favorites, removeFromFavorites, clearFavorites } = useFavorites();
   const { addToCompare, removeFromCompare, isInCompare, canAddToCompare } = useCompare();
   const [mounted, setMounted] = useState(false);
+  const [selectedMatchType, setSelectedMatchType] = useState<string>('');
+
+  // Fetch available programs for filtering
+  const { data: programs = [] } = useQuery<Program[]>({
+    queryKey: ['programs'],
+    queryFn: async () => {
+      const response = await fetch('http://localhost:3000/api/programs');
+      if (!response.ok) {
+        throw new Error('Failed to fetch programs');
+      }
+      return response.json();
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
 
   useEffect(() => {
     setMounted(true);
@@ -56,6 +71,21 @@ export default function FavoritesPage() {
     removeFromFavorites(teamNumber);
   };
 
+  // Filter favorites by match type
+  const filteredFavorites = selectedMatchType 
+    ? favorites.filter(team => team.matchType === selectedMatchType)
+    : favorites;
+
+  // Get match type badge color
+  const getMatchTypeBadgeColor = (matchType: string) => {
+    switch (matchType) {
+      case 'VEXIQ': return 'bg-green-100 text-green-700 border-green-200';
+      case 'VEXU': return 'bg-purple-100 text-purple-700 border-purple-200';
+      case 'VRC': return 'bg-blue-100 text-blue-700 border-blue-200';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Header />
@@ -68,17 +98,43 @@ export default function FavoritesPage() {
           transition={{ duration: 0.6 }}
           className="mb-8"
         >
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center space-x-3">
-              <Heart className="w-8 h-8 text-red-500 fill-current" />
-              <span>Favorite Teams</span>
-            </h1>
-            <p className="text-gray-600">
-              {favorites.length === 0 
-                ? "You haven't added any teams to your favorites yet." 
-                : `You have ${favorites.length} favorite team${favorites.length === 1 ? '' : 's'}.`
-              }
-            </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center space-x-3">
+                <Heart className="w-8 h-8 text-red-500 fill-current" />
+                <span>Favorite Teams</span>
+              </h1>
+              <p className="text-gray-600">
+                {favorites.length === 0 
+                  ? "You haven't added any teams to your favorites yet." 
+                  : `You have ${favorites.length} favorite team${favorites.length === 1 ? '' : 's'}${filteredFavorites.length !== favorites.length ? ` (${filteredFavorites.length} shown)` : ''}.`
+                }
+              </p>
+            </div>
+            
+            {/* Match Type Filter */}
+            {favorites.length > 0 && (
+              <div className="flex items-center gap-4">
+                <div className="flex items-center space-x-2">
+                  <Filter className="w-4 h-4 text-gray-500" />
+                  <label className="text-sm font-medium text-gray-700">
+                    Competition Type:
+                  </label>
+                </div>
+                <select
+                  value={selectedMatchType}
+                  onChange={(e) => setSelectedMatchType(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                >
+                  <option value="">All Types</option>
+                  {programs.map((program) => (
+                    <option key={program.id} value={program.code}>
+                      {program.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
         </motion.div>
 
@@ -101,15 +157,34 @@ export default function FavoritesPage() {
           </motion.div>
         )}
 
+        {/* No results after filtering */}
+        {favorites.length > 0 && filteredFavorites.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-center py-16"
+          >
+            <Filter className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No teams match this filter</h3>
+            <p className="text-gray-600 mb-6">
+              Try selecting a different competition type or clear the filter to see all favorites.
+            </p>
+            <Button onClick={() => setSelectedMatchType('')}>
+              Clear Filter
+            </Button>
+          </motion.div>
+        )}
+
         {/* Favorites Grid */}
-        {favorites.length > 0 && (
+        {filteredFavorites.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
-            {favorites.map((team, index) => (
+            {filteredFavorites.map((team, index) => (
               <motion.div
                 key={team.teamNumber}
                 initial={{ opacity: 0, y: 20 }}
@@ -123,6 +198,7 @@ export default function FavoritesPage() {
                   isInCompare={isInCompare(team.teamNumber)}
                   canAddToCompare={canAddToCompare}
                   onClick={() => router.push(`/team/${team.teamNumber}`)}
+                  getMatchTypeBadgeColor={getMatchTypeBadgeColor}
                 />
               </motion.div>
             ))}
@@ -139,7 +215,8 @@ function FavoriteTeamCard({
   onCompare, 
   isInCompare, 
   canAddToCompare, 
-  onClick 
+  onClick,
+  getMatchTypeBadgeColor
 }: { 
   team: Team; 
   onRemove: (teamNumber: string, e: React.MouseEvent) => void;
@@ -147,6 +224,7 @@ function FavoriteTeamCard({
   isInCompare: boolean;
   canAddToCompare: boolean;
   onClick: () => void;
+  getMatchTypeBadgeColor: (matchType: string) => string;
 }) {
   return (
     <Card 
@@ -202,15 +280,28 @@ function FavoriteTeamCard({
         </div>
       </CardHeader>
       
-      <CardContent>
-        <div className="space-y-2">
-          <div className="flex items-center text-sm text-gray-600">
-            <Building className="w-4 h-4 mr-2" />
-            <span>{team.organization}</span>
+      <CardContent className="pt-0">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-600">{team.organization}</span>
+            <Badge className={getMatchTypeBadgeColor(team.matchType)}>
+              {team.matchType}
+            </Badge>
           </div>
+          
           <div className="flex items-center text-sm text-gray-500">
-            <MapPin className="w-4 h-4 mr-2" />
             <span>{team.eventRegion}, {team.country}</span>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-3 pt-3 border-t border-gray-100">
+            <div className="text-center">
+              <div className="text-lg font-bold text-blue-600">{team.autonomousSkills}</div>
+              <div className="text-xs text-gray-500">Autonomous</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-bold text-purple-600">{team.driverSkills}</div>
+              <div className="text-xs text-gray-500">Driver</div>
+            </div>
           </div>
         </div>
       </CardContent>

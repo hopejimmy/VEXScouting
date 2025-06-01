@@ -12,10 +12,12 @@ A professional, modern web application for scouting and analyzing VEX Robotics t
 ## ✨ Features
 
 ### 🔍 **Team Search & Discovery**
-- **Real-time search** by team number or name
+- **Real-time search** by team number or name with intelligent debouncing
+- **Competition type filtering** by VEX IQ, VRC, and VEXU with color-coded badges
 - **Comprehensive team data** including skills scores, rankings, and performance metrics
 - **Beautiful team cards** with gradient avatars and detailed information
 - **Responsive grid layout** optimized for all screen sizes
+- **Match type indicators** with consistent color coding across the application
 
 ### 🏆 **Season Selector**
 - **Interactive dropdown** to select different VRC seasons
@@ -32,19 +34,34 @@ A professional, modern web application for scouting and analyzing VEX Robotics t
 - **Optimized loading** with skeleton states for awards
 - **Graceful fallbacks** when awards data is unavailable
 
-### ❤️ **Favorites System**
-- **Add/remove teams** to your personal favorites list
+### ❤️ **Enhanced Favorites System**
+- **Add/remove teams** to your personal favorites list with competition type awareness
+- **Competition type filtering** on the favorites page with live count updates
+- **Color-coded match type badges** (Green: VEX IQ, Blue: VRC, Purple: VEXU)
 - **Persistent storage** using localStorage
-- **Dedicated favorites page** with beautiful empty states
+- **Beautiful dedicated favorites page** with empty states and filtered result handling
 - **Quick access** from navigation with live counters
 - **Bulk operations** including "Clear All" functionality
+- **Skills breakdown display** with autonomous/driver performance metrics
 
-### 📊 **Team Comparison**
-- **Side-by-side comparison** of up to 4 teams
-- **Detailed metrics table** highlighting best performers
+### 📊 **Advanced Team Comparison**
+- **Side-by-side comparison** of up to 4 teams with competition type filtering
+- **Competition type awareness** in comparison tables with match type headers
+- **Detailed metrics table** highlighting best performers across competitions
 - **Visual indicators** for top performance in each category
-- **Interactive comparison cards** with remove/favorite actions
+- **Interactive comparison cards** with remove/favorite actions and match type badges
 - **Performance analytics** including rank, scores, and skills breakdown
+- **Filter-aware comparison** showing counts of filtered vs total teams
+
+### 🎯 **Competition Type Management**
+- **Multi-competition support** for VEX IQ, VRC, and VEXU programs
+- **Consistent color coding** throughout the application:
+  - **VEX IQ**: Green badges (`bg-green-100 text-green-700`)
+  - **VRC**: Blue badges (`bg-blue-100 text-blue-700`)
+  - **VEXU**: Purple badges (`bg-purple-100 text-purple-700`)
+- **Smart filtering** with proper SQL query optimization
+- **Database integration** with matchtype column support
+- **API endpoint enhancements** for program-aware operations
 
 ### 🎨 **Modern UI/UX**
 - **Glass morphism design** with backdrop blur effects
@@ -53,14 +70,18 @@ A professional, modern web application for scouting and analyzing VEX Robotics t
 - **Framer Motion animations** for smooth transitions
 - **Mobile-first responsive design**
 - **Intuitive navigation** with active state indicators
+- **Search state persistence** when navigating between pages
+- **Hydration-safe components** preventing layout shifts
 
 ### 🔧 **Technical Excellence**
 - **TypeScript** for type safety and better development experience
-- **React Query** for efficient data fetching and caching
-- **Context API** for state management
+- **React Query** for efficient data fetching and caching with 5-minute stale time
+- **Context API** for state management across favorites and compare features
 - **localStorage persistence** for favorites and comparisons
 - **SSR/CSR hydration safety** preventing layout shifts
 - **Error boundaries** and loading states
+- **Debounced search** with 1-second delay for optimal performance
+- **URL parameter synchronization** for shareable search states
 
 ## 🚀 Quick Start
 
@@ -194,24 +215,34 @@ VEXScouting/
 ### 1. **Searching for Teams**
 - Use the search bar on the home page
 - Type team numbers (e.g., "1234A") or team names
-- Results appear instantly with team details
+- **Filter by competition type** using the dropdown (All Types, VEX IQ, VRC, VEXU)
+- Results appear instantly with **color-coded match type badges**
+- **Search state persists** when navigating to team details and back
+- **URL parameters** allow sharing filtered search results
 
 ### 2. **Managing Favorites**
 - Click the **heart icon** on any team card to add/remove favorites
 - Access your favorites via the navigation menu
-- View the counter badge showing total favorites
+- **Filter favorites by competition type** for focused analysis
+- View **live counter badges** showing total and filtered counts
+- **Skills breakdown display** with autonomous and driver performance
 - Use "Clear All" to remove all favorites at once
+- **Empty state handling** for both no favorites and no filtered results
 
 ### 3. **Comparing Teams**
 - Click the **compare icon** on team cards (up to 4 teams)
 - Navigate to the Compare page to see side-by-side analysis
-- View detailed metrics table with performance highlights
+- **Filter comparison list by competition type** for fair comparisons
+- View **detailed metrics table** with match type headers and badges
+- **Performance highlights** show best performers in each category
 - Remove teams individually or clear all comparisons
+- **Competition-aware comparison** ensures like-for-like analysis
 
 ### 4. **Team Details**
 - Click on any team card to view detailed information
 - See comprehensive skills breakdown and performance data
 - View team events for different VRC seasons using the season selector
+- **Return to previous search state** using the back button with preserved filters
 - Navigate back using the back button
 
 ### 5. **Season Selection**
@@ -229,6 +260,7 @@ VEXScouting/
   - Organization
   - Event Region
   - Country / Region
+  - **Match Type** (VEXIQ, VRC, VEXU)
   - Rank
   - Score
   - Autonomous Coding Skills
@@ -237,6 +269,7 @@ VEXScouting/
   - Highest Driver Skills
 - Progress bar shows upload status
 - Data is automatically processed and added to the database
+- **Automatic competition type detection** and categorization
 - Automatic validation ensures data integrity
 - Existing teams are updated with new information
 - Success/error messages provide feedback
@@ -245,19 +278,20 @@ VEXScouting/
 
 The backend provides the following REST API endpoints:
 
-- `GET /api/search?q={query}` - Search teams by number or name
-- `GET /api/teams` - Get all teams
+- `GET /api/search?q={query}&matchType={type}` - Search teams by number or name with optional competition type filter
+- `GET /api/teams?matchType={type}` - Get all teams with optional competition type filter
 - `GET /api/teams/{teamNumber}` - Get detailed team information
 - `GET /api/teams/{teamNumber}/events?season={seasonId}` - Get team events for a specific season
 - `GET /api/teams/{teamNumber}/events/{eventId}/awards` - Get awards for a team at a specific event
 - `GET /api/seasons` - Get list of VRC seasons
-- `POST /api/upload` - Upload CSV data
+- `GET /api/programs` - Get list of VEX competition programs (VEX IQ, VRC, VEXU)
+- `POST /api/upload` - Upload CSV data with automatic competition type processing
 - `GET /api/health` - Health check endpoint
 
 ## 🗄️ Database Management
 
 ### Database Schema
-The application uses PostgreSQL with the following schema:
+The application uses PostgreSQL with the following enhanced schema:
 
 ```sql
 CREATE TABLE skills_standings (
@@ -266,6 +300,7 @@ CREATE TABLE skills_standings (
     organization TEXT,
     eventRegion TEXT,
     countryRegion TEXT,
+    matchtype TEXT DEFAULT 'VRC',  -- Competition type: VEXIQ, VRC, VEXU
     rank INTEGER,
     score INTEGER,
     autonomousSkills INTEGER,
@@ -278,10 +313,20 @@ CREATE TABLE skills_standings (
     highestDriverStopTime INTEGER,
     lastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Index for efficient filtering by competition type
+CREATE INDEX idx_skills_standings_matchtype ON skills_standings(matchtype);
 ```
 
+### Competition Type Support
+The application now supports multiple VEX competition programs:
+
+- **VEX IQ**: Elementary and middle school robotics
+- **VRC (V5RC)**: High school robotics competition
+- **VEXU**: University-level robotics competition
+
 ### Data Import
-The application supports importing team data via CSV files. Use the upload feature in the UI or the `/api/upload` endpoint to import data.
+The application supports importing team data via CSV files with automatic competition type detection. Use the upload feature in the UI or the `/api/upload` endpoint to import data.
 
 ### Environment Variables
 The following environment variables can be configured:
@@ -301,6 +346,10 @@ CURRENT_SEASON_ID=190        # Default VRC season ID
 
 ### Colors
 - **Primary**: Blue to Purple gradient (`from-blue-600 to-purple-600`)
+- **Competition Type Badges**:
+  - **VEX IQ**: Green (`bg-green-100 text-green-700 border-green-200`)
+  - **VRC**: Blue (`bg-blue-100 text-blue-700 border-blue-200`)
+  - **VEXU**: Purple (`bg-purple-100 text-purple-700 border-purple-200`)
 - **Secondary**: Light blue (`blue-100`, `blue-700`)
 - **Accent**: Red for favorites (`red-500`), Green for success (`green-600`)
 - **Neutral**: Gray scale for text and backgrounds
@@ -309,13 +358,15 @@ CURRENT_SEASON_ID=190        # Default VRC season ID
 - **Headings**: Bold, gradient text for impact
 - **Body**: Clean, readable sans-serif
 - **Hierarchy**: Clear size and weight distinctions
+- **Badge Text**: Consistent sizing and weight for competition types
 
 ### Components
-- **Cards**: Glass morphism with backdrop blur
-- **Buttons**: Gradient primary, ghost secondary
-- **Badges**: Colored backgrounds with proper contrast
-- **Animations**: Smooth, purposeful motion
-- **Dropdowns**: Clean, accessible select components
+- **Cards**: Glass morphism with backdrop blur and competition type indicators
+- **Buttons**: Gradient primary, ghost secondary with proper hover states
+- **Badges**: Colored backgrounds with proper contrast and competition type styling
+- **Animations**: Smooth, purposeful motion with stagger effects
+- **Dropdowns**: Clean, accessible select components for filtering
+- **Filter Controls**: Consistent styling across all pages
 
 ## 🧹 Project Maintenance
 
