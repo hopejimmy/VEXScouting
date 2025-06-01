@@ -108,3 +108,6 @@ Desktop.ini
 
 # Local development
 .local
+
+#curosr rule file
+*.mdc
