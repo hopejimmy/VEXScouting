@@ -352,6 +352,77 @@ app.get('/api/teams/:teamNumber/events', async (req, res) => {
   }
 });
 
+// New endpoint: Get awards for a team at a specific event
+app.get('/api/teams/:teamNumber/events/:eventId/awards', async (req, res) => {
+  try {
+    const { teamNumber, eventId } = req.params;
+    const apiToken = process.env.ROBOTEVENTS_API_TOKEN;
+
+    if (!apiToken) {
+      throw new Error('RobotEvents API token not configured');
+    }
+
+    // First get the team ID by searching for the team
+    const teamResponse = await fetch(
+      `https://www.robotevents.com/api/v2/teams?number[]=${encodeURIComponent(teamNumber.toUpperCase())}&program[]=1`,
+      {
+        headers: {
+          'Authorization': `Bearer ${apiToken}`,
+          'Accept': 'application/json'
+        }
+      }
+    );
+
+    if (!teamResponse.ok) {
+      const errorData = await teamResponse.json();
+      throw new Error(`RobotEvents API error: ${errorData.message || 'Failed to fetch team'}`);
+    }
+
+    const teamData = await teamResponse.json();
+    
+    if (!teamData.data || teamData.data.length === 0) {
+      return res.json([]); // Return empty array if team not found
+    }
+
+    const team = teamData.data[0];
+    
+    // Get awards for the team at the specific event
+    const awardsResponse = await fetch(
+      `https://www.robotevents.com/api/v2/events/${eventId}/awards?team[]=${team.id}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${apiToken}`,
+          'Accept': 'application/json'
+        }
+      }
+    );
+
+    if (!awardsResponse.ok) {
+      // If awards endpoint fails, return empty array (some events might not have awards)
+      console.log(`No awards found for team ${teamNumber} at event ${eventId}`);
+      return res.json([]);
+    }
+
+    const awardsData = await awardsResponse.json();
+    
+    // Transform awards data
+    const awards = (awardsData.data || []).map(award => ({
+      id: award.id,
+      title: award.title,
+      qualifications: award.qualifications || [],
+      placement: award.order || 1, // Some awards don't have placement
+      eventId: parseInt(eventId),
+      teamId: team.id
+    }));
+    
+    res.json(awards);
+  } catch (error) {
+    console.error('Error fetching team awards:', error);
+    // Return empty array instead of error to avoid breaking UI
+    res.json([]);
+  }
+});
+
 // Get VRC seasons
 app.get('/api/seasons', async (req, res) => {
   try {

@@ -6,8 +6,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { TeamEvent } from '@/types/skills';
 import { EventsSkeleton } from './EventsSkeleton';
 import { EventsError } from './EventsError';
+import { AwardsBadge } from './AwardsBadge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useSeasons } from '@/hooks/useSeasons';
+import { useMultipleTeamAwards } from '@/hooks/useAwards';
 
 interface EventsSectionProps {
   teamNumber: string;
@@ -27,6 +29,10 @@ export function EventsSection({
   currentSeasonId 
 }: EventsSectionProps) {
   const { data: seasons, isLoading: isSeasonsLoading } = useSeasons();
+  
+  // Fetch awards for all events
+  const eventIds = events.map(event => event.id);
+  const { data: awardsMap, isLoading: isAwardsLoading } = useMultipleTeamAwards(teamNumber, eventIds);
 
   if (isLoading) {
     return <EventsSkeleton />;
@@ -74,43 +80,65 @@ export function EventsSection({
             </CardContent>
           </Card>
         ) : (
-          events.map((event) => (
-            <Card key={event.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="flex justify-between items-start">
-                  <span>{event.name}</span>
-                  <Badge variant={event.upcoming ? "default" : "secondary"}>
-                    {event.upcoming ? "Upcoming" : "Past"}
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-center text-gray-600">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    <span>
-                      {new Date(event.start).toLocaleDateString()} - {new Date(event.end).toLocaleDateString()}
-                    </span>
+          events.map((event) => {
+            const eventAwards = awardsMap?.[event.id] || [];
+            
+            return (
+              <Card key={event.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <CardTitle className="flex justify-between items-start">
+                    <span>{event.name}</span>
+                    <Badge variant={event.upcoming ? "default" : "secondary"}>
+                      {event.upcoming ? "Upcoming" : "Past"}
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex items-center text-gray-600">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      <span>
+                        {new Date(event.start).toLocaleDateString()} - {new Date(event.end).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="flex items-center text-gray-600">
+                      <MapPin className="w-4 h-4 mr-2" />
+                      <span>
+                        {[event.location.venue, event.location.city, event.location.region]
+                          .filter(Boolean)
+                          .join(', ')}
+                      </span>
+                    </div>
+                    
+                    {/* Awards Section */}
+                    {!event.upcoming && (
+                      <div className="space-y-2">
+                        {isAwardsLoading ? (
+                          <div className="flex gap-2">
+                            <Skeleton className="h-6 w-16" />
+                            <Skeleton className="h-6 w-20" />
+                          </div>
+                        ) : eventAwards.length > 0 ? (
+                          <div>
+                            <p className="text-sm font-medium text-gray-700 mb-1">Awards:</p>
+                            <AwardsBadge awards={eventAwards} maxDisplay={3} />
+                          </div>
+                        ) : null}
+                      </div>
+                    )}
+                    
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {event.divisions.map((division) => (
+                        <Badge key={division} variant="outline">{division}</Badge>
+                      ))}
+                      <Badge variant="outline">{event.level}</Badge>
+                      {event.type && <Badge variant="outline">{event.type}</Badge>}
+                    </div>
                   </div>
-                  <div className="flex items-center text-gray-600">
-                    <MapPin className="w-4 h-4 mr-2" />
-                    <span>
-                      {[event.location.venue, event.location.city, event.location.region]
-                        .filter(Boolean)
-                        .join(', ')}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {event.divisions.map((division) => (
-                      <Badge key={division} variant="outline">{division}</Badge>
-                    ))}
-                    <Badge variant="outline">{event.level}</Badge>
-                    {event.type && <Badge variant="outline">{event.type}</Badge>}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))
+                </CardContent>
+              </Card>
+            );
+          })
         )}
       </div>
     </motion.div>

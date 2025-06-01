@@ -24,6 +24,14 @@ A professional, modern web application for scouting and analyzing VEX Robotics t
 - **Graceful loading states** and error handling
 - **Persistent season selection** throughout user session
 
+### 🥇 **Team Awards Display**
+- **Automatic awards fetching** for each competition event
+- **Visual award badges** with appropriate icons (trophies, medals, stars)
+- **Smart award categorization** by type and importance
+- **Award hover tooltips** showing full award names
+- **Optimized loading** with skeleton states for awards
+- **Graceful fallbacks** when awards data is unavailable
+
 ### ❤️ **Favorites System**
 - **Add/remove teams** to your personal favorites list
 - **Persistent storage** using localStorage
@@ -241,6 +249,7 @@ The backend provides the following REST API endpoints:
 - `GET /api/teams` - Get all teams
 - `GET /api/teams/{teamNumber}` - Get detailed team information
 - `GET /api/teams/{teamNumber}/events?season={seasonId}` - Get team events for a specific season
+- `GET /api/teams/{teamNumber}/events/{eventId}/awards` - Get awards for a team at a specific event
 - `GET /api/seasons` - Get list of VRC seasons
 - `POST /api/upload` - Upload CSV data
 - `GET /api/health` - Health check endpoint
