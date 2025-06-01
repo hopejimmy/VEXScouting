@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { GitCompare, Trash2, Heart, Trophy, Building, MapPin } from 'lucide-react';
+import { GitCompare, Trash2, Heart, Trophy, Building, MapPin, Filter } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,13 +12,28 @@ import { Tooltip, TooltipProvider } from '@/components/ui/tooltip';
 import { Header } from '@/components/navigation/Header';
 import { useCompare } from '@/contexts/CompareContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
-import type { Team } from '@/types/skills';
+import { useQuery } from '@tanstack/react-query';
+import type { Team, Program } from '@/types/skills';
 
 export default function ComparePage() {
   const router = useRouter();
   const { compareList, removeFromCompare, clearCompare } = useCompare();
   const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
   const [mounted, setMounted] = useState(false);
+  const [selectedMatchType, setSelectedMatchType] = useState<string>('');
+
+  // Fetch available programs for filtering
+  const { data: programs = [] } = useQuery<Program[]>({
+    queryKey: ['programs'],
+    queryFn: async () => {
+      const response = await fetch('http://localhost:3000/api/programs');
+      if (!response.ok) {
+        throw new Error('Failed to fetch programs');
+      }
+      return response.json();
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
 
   useEffect(() => {
     setMounted(true);
@@ -50,6 +65,21 @@ export default function ComparePage() {
     }
   };
 
+  // Filter compare list by match type
+  const filteredCompareList = selectedMatchType 
+    ? compareList.filter(team => team.matchType === selectedMatchType)
+    : compareList;
+
+  // Get match type badge color
+  const getMatchTypeBadgeColor = (matchType: string) => {
+    switch (matchType) {
+      case 'VEXIQ': return 'bg-green-100 text-green-700 border-green-200';
+      case 'VEXU': return 'bg-purple-100 text-purple-700 border-purple-200';
+      case 'VRC': return 'bg-blue-100 text-blue-700 border-blue-200';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Header />
@@ -62,17 +92,43 @@ export default function ComparePage() {
           transition={{ duration: 0.6 }}
           className="mb-8"
         >
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center space-x-3">
-              <GitCompare className="w-8 h-8 text-blue-500" />
-              <span>Compare Teams</span>
-            </h1>
-            <p className="text-gray-600">
-              {compareList.length === 0 
-                ? "Add teams to your comparison list to analyze their performance side-by-side." 
-                : `Comparing ${compareList.length} team${compareList.length === 1 ? '' : 's'}.`
-              }
-            </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center space-x-3">
+                <GitCompare className="w-8 h-8 text-blue-500" />
+                <span>Compare Teams</span>
+              </h1>
+              <p className="text-gray-600">
+                {compareList.length === 0 
+                  ? "Add teams to your comparison list to analyze their performance side-by-side." 
+                  : `Comparing ${compareList.length} team${compareList.length === 1 ? '' : 's'}${filteredCompareList.length !== compareList.length ? ` (${filteredCompareList.length} shown)` : ''}.`
+                }
+              </p>
+            </div>
+            
+            {/* Match Type Filter */}
+            {compareList.length > 0 && (
+              <div className="flex items-center gap-4">
+                <div className="flex items-center space-x-2">
+                  <Filter className="w-4 h-4 text-gray-500" />
+                  <label className="text-sm font-medium text-gray-700">
+                    Competition Type:
+                  </label>
+                </div>
+                <select
+                  value={selectedMatchType}
+                  onChange={(e) => setSelectedMatchType(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                >
+                  <option value="">All Types</option>
+                  {programs.map((program) => (
+                    <option key={program.id} value={program.code}>
+                      {program.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
         </motion.div>
 
@@ -95,8 +151,27 @@ export default function ComparePage() {
           </motion.div>
         )}
 
+        {/* No results after filtering */}
+        {compareList.length > 0 && filteredCompareList.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-center py-16"
+          >
+            <Filter className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No teams match this filter</h3>
+            <p className="text-gray-600 mb-6">
+              Try selecting a different competition type or clear the filter to see all teams.
+            </p>
+            <Button onClick={() => setSelectedMatchType('')}>
+              Clear Filter
+            </Button>
+          </motion.div>
+        )}
+
         {/* Comparison Grid */}
-        {compareList.length > 0 && (
+        {filteredCompareList.length > 0 && (
           <>
             {/* Teams Overview */}
             <motion.div
@@ -105,7 +180,7 @@ export default function ComparePage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
             >
-              {compareList.map((team, index) => (
+              {filteredCompareList.map((team, index) => (
                 <motion.div
                   key={team.teamNumber}
                   initial={{ opacity: 0, y: 20 }}
@@ -118,13 +193,14 @@ export default function ComparePage() {
                     onFavorite={() => handleFavoriteClick(team)}
                     isFavorite={isFavorite(team.teamNumber)}
                     onClick={() => router.push(`/team/${team.teamNumber}`)}
+                    getMatchTypeBadgeColor={getMatchTypeBadgeColor}
                   />
                 </motion.div>
               ))}
             </motion.div>
 
             {/* Detailed Comparison Table */}
-            {compareList.length > 1 && (
+            {filteredCompareList.length > 1 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -138,7 +214,7 @@ export default function ComparePage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <ComparisonTable teams={compareList} />
+                    <ComparisonTable teams={filteredCompareList} getMatchTypeBadgeColor={getMatchTypeBadgeColor} />
                   </CardContent>
                 </Card>
               </motion.div>
@@ -155,13 +231,15 @@ function CompareTeamCard({
   onRemove, 
   onFavorite,
   isFavorite,
-  onClick 
+  onClick,
+  getMatchTypeBadgeColor
 }: { 
   team: Team;
   onRemove: () => void;
   onFavorite: () => void;
   isFavorite: boolean;
   onClick: () => void;
+  getMatchTypeBadgeColor: (matchType: string) => string;
 }) {
   return (
     <Card 
@@ -222,15 +300,28 @@ function CompareTeamCard({
         </div>
       </CardHeader>
       
-      <CardContent>
-        <div className="space-y-2">
-          <div className="flex items-center text-sm text-gray-600">
-            <Building className="w-4 h-4 mr-2" />
-            <span>{team.organization}</span>
+      <CardContent className="pt-0">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-600">{team.organization}</span>
+            <Badge className={getMatchTypeBadgeColor(team.matchType)}>
+              {team.matchType}
+            </Badge>
           </div>
+          
           <div className="flex items-center text-sm text-gray-500">
-            <MapPin className="w-4 h-4 mr-2" />
             <span>{team.eventRegion}, {team.country}</span>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-3 pt-3 border-t border-gray-100">
+            <div className="text-center">
+              <div className="text-lg font-bold text-blue-600">{team.autonomousSkills}</div>
+              <div className="text-xs text-gray-500">Autonomous</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-bold text-purple-600">{team.driverSkills}</div>
+              <div className="text-xs text-gray-500">Driver</div>
+            </div>
           </div>
         </div>
       </CardContent>
@@ -238,7 +329,7 @@ function CompareTeamCard({
   );
 }
 
-function ComparisonTable({ teams }: { teams: Team[] }) {
+function ComparisonTable({ teams, getMatchTypeBadgeColor }: { teams: Team[]; getMatchTypeBadgeColor: (matchType: string) => string }) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full">
@@ -246,14 +337,12 @@ function ComparisonTable({ teams }: { teams: Team[] }) {
           <tr className="border-b border-gray-200">
             <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">Metric</th>
             {teams.map((team) => (
-              <th key={team.teamNumber} className="px-4 py-2 text-center">
-                <div className="flex flex-col items-center">
-                  <div className="relative h-10 w-10 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-md mb-1">
-                    <span className="text-white font-bold text-sm">
-                      {team.teamNumber.slice(-2)}
-                    </span>
-                  </div>
-                  <span className="text-sm font-medium text-gray-900">Team {team.teamNumber}</span>
+              <th key={team.teamNumber} className="px-4 py-2 text-center text-sm font-medium text-gray-900">
+                <div className="space-y-1">
+                  <div>{team.teamNumber}</div>
+                  <Badge className={getMatchTypeBadgeColor(team.matchType)} variant="outline">
+                    {team.matchType}
+                  </Badge>
                 </div>
               </th>
             ))}

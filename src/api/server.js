@@ -59,9 +59,17 @@ async function initializeDatabase() {
         highestDriverTimestamp TEXT,
         highestAutonomousStopTime INTEGER,
         highestDriverStopTime INTEGER,
+        matchType TEXT DEFAULT 'VRC',
         lastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+
+    // Add the matchType column if it doesn't exist (for existing databases)
+    await pool.query(`
+      ALTER TABLE skills_standings 
+      ADD COLUMN IF NOT EXISTS matchType TEXT DEFAULT 'VRC'
+    `);
+
     console.log('Database schema initialized successfully');
   } catch (error) {
     console.error('Error initializing database schema:', error);
@@ -78,6 +86,15 @@ const upload = multer({ dest: 'uploads/' });
 app.post('/api/upload', upload.single('file'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  // Get matchType from request body, default to 'VRC'
+  const matchType = req.body.matchType || 'VRC';
+
+  // Validate matchType
+  const validMatchTypes = ['VRC', 'VEXIQ', 'VEXU'];
+  if (!validMatchTypes.includes(matchType)) {
+    return res.status(400).json({ error: 'Invalid match type. Must be one of: VRC, VEXIQ, VEXU' });
   }
 
   const results = [];
@@ -101,6 +118,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
             organization: record['Organization'],
             eventRegion: record['Event Region'] || '',
             countryRegion: record['Country / Region'] || '',
+            matchType: matchType
           };
 
           // Upsert query using ON CONFLICT
@@ -108,8 +126,8 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
             INSERT INTO skills_standings (
               teamNumber, teamName, organization, eventRegion, countryRegion,
               rank, score, autonomousSkills, driverSkills,
-              highestAutonomousSkills, highestDriverSkills
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+              highestAutonomousSkills, highestDriverSkills, matchType
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
             ON CONFLICT (teamNumber) DO UPDATE SET
               teamName = EXCLUDED.teamName,
               organization = EXCLUDED.organization,
@@ -121,6 +139,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
               driverSkills = EXCLUDED.driverSkills,
               highestAutonomousSkills = EXCLUDED.highestAutonomousSkills,
               highestDriverSkills = EXCLUDED.highestDriverSkills,
+              matchType = EXCLUDED.matchType,
               lastUpdated = CURRENT_TIMESTAMP
           `, [
             mappedRecord.teamNumber,
@@ -134,6 +153,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
             mappedRecord.driverSkills,
             mappedRecord.highestAutonomousSkills,
             mappedRecord.highestDriverSkills,
+            mappedRecord.matchType
           ]);
         }
 
@@ -142,7 +162,11 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
         // Clean up uploaded file
         fs.unlinkSync(req.file.path);
         
-        res.json({ message: 'CSV data processed successfully' });
+        res.json({ 
+          message: `CSV data processed successfully for ${matchType}`,
+          recordsProcessed: results.length,
+          matchType: matchType
+        });
       } catch (error) {
         await pool.query('ROLLBACK');
         console.error('CSV processing error:', error);
@@ -154,7 +178,20 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
 // Get all teams
 app.get('/api/teams', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM skills_standings ORDER BY rank');
+    const { matchType } = req.query;
+    
+    let query = 'SELECT * FROM skills_standings';
+    let params = [];
+    
+    if (matchType) {
+      query += ' WHERE matchtype = $1';
+      params.push(matchType);
+    }
+    
+    query += ' ORDER BY rank';
+    
+    const result = await pool.query(query, params);
+    
     // Transform the response to use camelCase property names
     const teams = result.rows.map(team => ({
       teamNumber: team.teamnumber,
@@ -174,6 +211,7 @@ app.get('/api/teams', async (req, res) => {
       highestDriverTimestamp: team.highestdrivertimestamp,
       highestAutonomousStopTime: team.highestautonomousstoptime,
       highestDriverStopTime: team.highestdriverstoptime,
+      matchType: team.matchtype || 'VRC',
       lastUpdated: team.lastupdated
     }));
     res.json(teams);
@@ -209,6 +247,7 @@ app.get('/api/teams/:teamNumber', async (req, res) => {
         highestDriverTimestamp: result.rows[0].highestdrivertimestamp,
         highestAutonomousStopTime: result.rows[0].highestautonomousstoptime,
         highestDriverStopTime: result.rows[0].highestdriverstoptime,
+        matchType: result.rows[0].matchtype || 'VRC',
         lastUpdated: result.rows[0].lastupdated
       };
       res.json(team);
@@ -221,12 +260,19 @@ app.get('/api/teams/:teamNumber', async (req, res) => {
 
 // Search teams
 app.get('/api/search', async (req, res) => {
-  const { q } = req.query;
+  const { q, matchType } = req.query;
   try {
-    const result = await pool.query(
-      'SELECT * FROM skills_standings WHERE teamNumber ILIKE $1 OR teamName ILIKE $1 ORDER BY rank',
-      [`%${q}%`]
-    );
+    let query = 'SELECT * FROM skills_standings WHERE (teamNumber ILIKE $1 OR teamName ILIKE $1)';
+    let params = [`%${q}%`];
+    
+    if (matchType) {
+      query += ' AND matchtype = $2';  // Use lowercase 'matchtype' column name
+      params.push(matchType);
+    }
+    
+    query += ' ORDER BY rank';
+    
+    const result = await pool.query(query, params);
     
     // Transform the response to use camelCase property names
     const teams = result.rows.map(team => ({
@@ -247,6 +293,7 @@ app.get('/api/search', async (req, res) => {
       highestDriverTimestamp: team.highestdrivertimestamp,
       highestAutonomousStopTime: team.highestautonomousstoptime,
       highestDriverStopTime: team.highestdriverstoptime,
+      matchType: team.matchtype || 'VRC',
       lastUpdated: team.lastupdated
     }));
     
@@ -465,6 +512,61 @@ app.get('/api/seasons', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// Get available programs/match types
+app.get('/api/programs', async (req, res) => {
+  try {
+    const apiToken = process.env.ROBOTEVENTS_API_TOKEN;
+
+    if (!apiToken) {
+      throw new Error('RobotEvents API token not configured');
+    }
+
+    const response = await fetch(
+      'https://www.robotevents.com/api/v2/programs',
+      {
+        headers: {
+          'Authorization': `Bearer ${apiToken}`,
+          'Accept': 'application/json'
+        }
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`RobotEvents API error: ${errorData.message || 'Failed to fetch programs'}`);
+    }
+
+    const data = await response.json();
+    
+    // Filter for VEX programs and transform
+    const vexPrograms = data.data
+      .filter(program => program.name.includes('VEX'))
+      .map(program => ({
+        id: program.id,
+        name: program.name,
+        code: program.code || getMatchTypeFromName(program.name)
+      }));
+
+    res.json(vexPrograms);
+  } catch (error) {
+    console.error('Error fetching programs:', error);
+    // Return default programs if API fails
+    res.json([
+      { id: 1, name: 'VEX V5 Robotics Competition', code: 'VRC' },
+      { id: 4, name: 'VEX IQ Robotics Competition', code: 'VEXIQ' },
+      { id: 41, name: 'VEX U Robotics Competition', code: 'VEXU' }
+    ]);
+  }
+});
+
+// Helper function to extract match type from program name
+function getMatchTypeFromName(programName) {
+  if (programName.includes('VEX IQ') || programName.includes('VEXIQ')) return 'VEXIQ';
+  if (programName.includes('VEX U') || programName.includes('VEXU')) return 'VEXU';
+  if (programName.includes('VEX V5') || programName.includes('VRC')) return 'VRC';
+  return 'VRC'; // Default
+}
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

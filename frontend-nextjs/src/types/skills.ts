@@ -16,6 +16,7 @@ export interface Team {
   highestDriverTimestamp: string;
   highestAutonomousStopTime: number;
   highestDriverStopTime: number;
+  matchType: string;
   // Computed properties for backward compatibility
   region?: string;
   skills?: SkillsData;
@@ -65,4 +66,10 @@ export interface Award {
   placement: number;
   eventId: number;
   teamId: number;
+}
+
+export interface Program {
+  id: number;
+  name: string;
+  code: string;
 } 

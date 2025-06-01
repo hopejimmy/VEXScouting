@@ -3,13 +3,29 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import type { Program } from '@/types/skills';
 
 export default function UploadPage() {
     const [file, setFile] = useState<File | null>(null);
+    const [selectedMatchType, setSelectedMatchType] = useState<string>('VRC');
     const [status, setStatus] = useState<string>('');
     const [error, setError] = useState<string>('');
     const [isClient, setIsClient] = useState(false);
     const router = useRouter();
+
+    // Fetch available programs
+    const { data: programs = [], isLoading: isProgramsLoading } = useQuery<Program[]>({
+        queryKey: ['programs'],
+        queryFn: async () => {
+            const response = await fetch('http://localhost:3000/api/programs');
+            if (!response.ok) {
+                throw new Error('Failed to fetch programs');
+            }
+            return response.json();
+        },
+        staleTime: 5 * 60 * 1000, // 5 minutes
+    });
 
     // Use useEffect to mark when component is mounted on client
     useEffect(() => {
@@ -24,10 +40,21 @@ export default function UploadPage() {
         }
     };
 
+    const handleMatchTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedMatchType(e.target.value);
+        setStatus('');
+        setError('');
+    };
+
     const handleUpload = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!file) {
             setError('Please select a CSV file');
+            return;
+        }
+
+        if (!selectedMatchType) {
+            setError('Please select a match type');
             return;
         }
 
@@ -36,6 +63,7 @@ export default function UploadPage() {
 
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('matchType', selectedMatchType);
 
         try {
             const response = await fetch('http://localhost:3000/api/upload', {
@@ -49,7 +77,7 @@ export default function UploadPage() {
                 throw new Error(result.error || 'Upload failed');
             }
 
-            setStatus(`Success! ${result.message}`);
+            setStatus(`Success! ${result.message} (${result.recordsProcessed} records processed)`);
             setFile(null);
             if (document.querySelector<HTMLInputElement>('input[type="file"]')) {
                 (document.querySelector<HTMLInputElement>('input[type="file"]')!).value = '';
@@ -78,6 +106,7 @@ export default function UploadPage() {
                     <div className="mb-6">
                         <h2 className="text-lg font-semibold mb-2">Instructions:</h2>
                         <ol className="list-decimal list-inside space-y-2 text-gray-700">
+                            <li>Select the match type for your data (VEXIQ, VRC, or VEXU)</li>
                             <li>Prepare a CSV file with the following headers:
                                 <code className="block bg-gray-50 p-2 mt-1 rounded text-sm">
                                     Rank,Score,Autonomous Coding Skills,Driver Skills,Highest Autonomous Coding Skills,Highest Driver Skills,Team Number,Team Name,Organization
@@ -93,7 +122,32 @@ export default function UploadPage() {
                         <form onSubmit={handleUpload} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Select CSV File
+                                    Match Type *
+                                </label>
+                                <select
+                                    value={selectedMatchType}
+                                    onChange={handleMatchTypeChange}
+                                    className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    disabled={isProgramsLoading}
+                                >
+                                    {isProgramsLoading ? (
+                                        <option>Loading programs...</option>
+                                    ) : (
+                                        programs.map((program) => (
+                                            <option key={program.id} value={program.code}>
+                                                {program.name}
+                                            </option>
+                                        ))
+                                    )}
+                                </select>
+                                <p className="mt-1 text-sm text-gray-500">
+                                    Select the VEX competition type that this data belongs to
+                                </p>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Select CSV File *
                                 </label>
                                 <input
                                     type="file"
@@ -110,9 +164,9 @@ export default function UploadPage() {
 
                             <button
                                 type="submit"
-                                disabled={!file}
+                                disabled={!file || !selectedMatchType}
                                 className={`w-full py-2 px-4 rounded-md text-white font-medium
-                                    ${!file 
+                                    ${!file || !selectedMatchType
                                         ? 'bg-gray-400 cursor-not-allowed' 
                                         : 'bg-blue-600 hover:bg-blue-700'}`}
                             >
