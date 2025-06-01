@@ -55,4 +55,14 @@ export interface TeamEvent {
   level: string;
   upcoming: boolean;
   type: string;
+  awards?: Award[]; // Optional awards for this event
+}
+
+export interface Award {
+  id: number;
+  title: string;
+  qualifications: string[];
+  placement: number;
+  eventId: number;
+  teamId: number;
 } 
