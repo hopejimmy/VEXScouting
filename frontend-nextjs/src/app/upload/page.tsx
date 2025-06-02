@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import type { Program } from '@/types/skills';
+import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -16,6 +17,7 @@ function UploadPageContent() {
     const [error, setError] = useState<string>('');
     const [isClient, setIsClient] = useState(false);
     const router = useRouter();
+    const { token } = useAuth();
 
     // Fetch available programs
     const { data: programs = [], isLoading: isProgramsLoading } = useQuery<Program[]>({
@@ -61,6 +63,11 @@ function UploadPageContent() {
             return;
         }
 
+        if (!token) {
+            setError('You must be logged in to upload files');
+            return;
+        }
+
         setStatus('Uploading...');
         setError('');
 
@@ -71,6 +78,9 @@ function UploadPageContent() {
         try {
             const response = await fetch(`${API_BASE_URL}/api/upload`, {
                 method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
                 body: formData,
             });
 
