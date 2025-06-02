@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Trophy, Search, Filter, Heart, GitCompare } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -13,6 +13,9 @@ import { useFavorites } from '@/contexts/FavoritesContext';
 import { useCompare } from '@/contexts/CompareContext';
 import { Header } from '@/components/navigation/Header';
 import type { Team, Program } from '@/types/skills';
+
+// Force dynamic rendering for pages that use searchParams
+export const dynamic = 'force-dynamic';
 
 interface TeamsResponse {
   teams: Team[];
@@ -38,7 +41,8 @@ async function searchTeams(query: string, matchType?: string): Promise<TeamsResp
   return response.json();
 }
 
-export default function Home() {
+// Separate component that uses searchParams
+function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [inputQuery, setInputQuery] = useState(''); // For immediate input display
@@ -311,6 +315,25 @@ export default function Home() {
         )}
       </main>
     </div>
+  );
+}
+
+// Main page component with Suspense boundary
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <Header />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Find VEX Teams</h2>
+            <p className="text-xl text-gray-600">Search and compare team performances across competitions</p>
+          </div>
+        </main>
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
   );
 }
 
