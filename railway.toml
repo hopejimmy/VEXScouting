@@ -6,19 +6,5 @@ startCommand = "node api/server.js"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
 
-# Environment variables for production
-[environment]
-NODE_ENV = "production"
-
-# Use src as the root directory for this service
-[service]
-rootDirectory = "src"
-
-# Set src as the root directory
-[build.nixpacks]
-rootDir = "src"
-
-# Railway will use this as the root directory
-[[services]]
-name = "backend"
-rootDirectory = "/src" 
+[variables]
+RAILWAY_DOCKERFILE_PATH = "src" 
