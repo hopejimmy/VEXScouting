@@ -35,9 +35,36 @@ const { Pool } = pg;
 
 // Middleware
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? [process.env.FRONTEND_URL, 'https://localhost:3001', 'http://localhost:3001']
-    : ['http://localhost:3001', 'http://localhost:3000', 'http://127.0.0.1:3001'],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'http://localhost:3001',
+      'http://localhost:3000', 
+      'http://127.0.0.1:3001',
+      'https://localhost:3001'
+    ];
+    
+    if (process.env.NODE_ENV === 'production') {
+      // Add production frontend URL if configured
+      if (process.env.FRONTEND_URL) {
+        allowedOrigins.push(process.env.FRONTEND_URL);
+      }
+      
+      // Allow all Vercel deployment URLs (both main and preview deployments)
+      if (origin.includes('.vercel.app')) {
+        return callback(null, true);
+      }
+    }
+    
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    console.log('CORS blocked origin:', origin);
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   optionsSuccessStatus: 200
 };
