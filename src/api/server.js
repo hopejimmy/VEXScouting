@@ -1325,7 +1325,7 @@ app.get('/api', (req, res) => {
       'GET /api/programs - Get competition programs',
       'GET /api/search - Search teams',
       'GET /api/teams/:number - Get team details',
-      'POST /api/login - User login',
+      'POST /api/auth/login - User login',
       'POST /api/logout - User logout',
       'GET /api/admin/* - Admin endpoints (requires authentication)'
     ]
