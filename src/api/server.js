@@ -1165,6 +1165,39 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Root endpoint for debugging
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'VEX Scouting API Server',
+    status: 'running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    endpoints: {
+      health: '/api/health',
+      teams: '/api/search',
+      programs: '/api/programs',
+      admin: '/api/admin/*'
+    }
+  });
+});
+
+// API root endpoint
+app.get('/api', (req, res) => {
+  res.json({ 
+    message: 'VEX Scouting API',
+    version: '1.0.0',
+    endpoints: [
+      'GET /api/health - Health check',
+      'GET /api/programs - Get competition programs',
+      'GET /api/search - Search teams',
+      'GET /api/teams/:number - Get team details',
+      'POST /api/login - User login',
+      'POST /api/logout - User logout',
+      'GET /api/admin/* - Admin endpoints (requires authentication)'
+    ]
+  });
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -1177,9 +1210,17 @@ app.use('*', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📊 API endpoints available at http://localhost:${PORT}/api`);
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
+  console.log(`📊 API endpoints available at http://0.0.0.0:${PORT}/api`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔗 Database: ${process.env.DATABASE_URL ? 'Connected via DATABASE_URL' : 'Local connection'}`);
+});
+
+// Handle server startup errors
+server.on('error', (err) => {
+  console.error('❌ Server startup error:', err);
+  process.exit(1);
 });
 
 // Graceful shutdown
