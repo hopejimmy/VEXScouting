@@ -1,0 +1,25 @@
+{
+  "name": "vexscouting-backend",
+  "version": "1.0.0",
+  "description": "VEX Scouting Backend API",
+  "main": "api/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node api/server.js",
+    "dev": "node api/server.js"
+  },
+  "keywords": ["vex", "robotics", "scouting", "api"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.0.1",
+    "cors": "^2.8.5",
+    "pg": "^8.13.1",
+    "multer": "^1.4.5-lts.1",
+    "csv-parser": "^3.0.0",
+    "node-fetch": "^3.3.2",
+    "dotenv": "^16.4.7",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2"
+  }
+}

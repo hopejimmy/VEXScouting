@@ -1,0 +1,11 @@
+[variables]
+NIXPACKS_METADATA = "backend"
+
+[phases.build]
+dependsOn = ["install"]
+
+[phases.install]
+nixPkgs = ["nodejs-18_x", "npm-9_x"]
+
+[start]
+cmd = "node api/server.js" 
