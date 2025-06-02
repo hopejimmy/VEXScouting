@@ -1204,7 +1204,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong!' });
 });
 
-// 404 handler
+// 404 handler - This must be LAST
 app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
