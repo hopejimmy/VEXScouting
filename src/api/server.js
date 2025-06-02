@@ -1181,7 +1181,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// API root endpoint
+// API info endpoint - Must be after all other /api routes to avoid conflicts
 app.get('/api', (req, res) => {
   res.json({ 
     message: 'VEX Scouting API',
