@@ -30,7 +30,15 @@ const PORT = process.env.PORT || 3000;
 const { Pool } = pg;
 
 // Middleware
-app.use(cors());
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? [process.env.FRONTEND_URL, 'https://localhost:3001', 'http://localhost:3001']
+    : ['http://localhost:3001', 'http://localhost:3000', 'http://127.0.0.1:3001'],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // JWT Authentication Middleware
@@ -62,13 +70,20 @@ function requireRole(role) {
 }
 
 // PostgreSQL connection configuration
-const pool = new Pool({
-  host: process.env.POSTGRES_HOST || 'localhost',
-  port: process.env.POSTGRES_PORT || 5432,
-  database: process.env.POSTGRES_DB || 'vexscouting',
-  user: process.env.POSTGRES_USER || 'postgres',
-  password: process.env.POSTGRES_PASSWORD || 'postgres',
-});
+const pool = new Pool(
+  process.env.DATABASE_URL 
+    ? {
+        connectionString: process.env.DATABASE_URL,
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+      }
+    : {
+        host: process.env.POSTGRES_HOST || 'localhost',
+        port: process.env.POSTGRES_PORT || 5432,
+        database: process.env.POSTGRES_DB || 'vexscouting',
+        user: process.env.POSTGRES_USER || 'postgres',
+        password: process.env.POSTGRES_PASSWORD || 'postgres',
+      }
+);
 
 // Initialize database schema
 async function initializeDatabase() {
@@ -1150,21 +1165,62 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Root endpoint for debugging
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'VEX Scouting API Server',
+    status: 'running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    endpoints: {
+      health: '/api/health',
+      teams: '/api/search',
+      programs: '/api/programs',
+      admin: '/api/admin/*'
+    }
+  });
+});
+
+// API info endpoint - Must be after all other /api routes to avoid conflicts
+app.get('/api', (req, res) => {
+  res.json({ 
+    message: 'VEX Scouting API',
+    version: '1.0.0',
+    endpoints: [
+      'GET /api/health - Health check',
+      'GET /api/programs - Get competition programs',
+      'GET /api/search - Search teams',
+      'GET /api/teams/:number - Get team details',
+      'POST /api/login - User login',
+      'POST /api/logout - User logout',
+      'GET /api/admin/* - Admin endpoints (requires authentication)'
+    ]
+  });
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Something went wrong!' });
 });
 
-// 404 handler
+// 404 handler - This must be LAST
 app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📊 API endpoints available at http://localhost:${PORT}/api`);
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
+  console.log(`📊 API endpoints available at http://0.0.0.0:${PORT}/api`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔗 Database: ${process.env.DATABASE_URL ? 'Connected via DATABASE_URL' : 'Local connection'}`);
+});
+
+// Handle server startup errors
+server.on('error', (err) => {
+  console.error('❌ Server startup error:', err);
+  process.exit(1);
 });
 
 // Graceful shutdown

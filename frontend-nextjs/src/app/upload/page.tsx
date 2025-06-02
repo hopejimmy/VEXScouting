@@ -7,6 +7,8 @@ import { useQuery } from '@tanstack/react-query';
 import type { Program } from '@/types/skills';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+
 function UploadPageContent() {
     const [file, setFile] = useState<File | null>(null);
     const [selectedMatchType, setSelectedMatchType] = useState<string>('VRC');
@@ -19,7 +21,7 @@ function UploadPageContent() {
     const { data: programs = [], isLoading: isProgramsLoading } = useQuery<Program[]>({
         queryKey: ['programs'],
         queryFn: async () => {
-            const response = await fetch('http://localhost:3000/api/programs');
+            const response = await fetch(`${API_BASE_URL}/api/programs`);
             if (!response.ok) {
                 throw new Error('Failed to fetch programs');
             }
@@ -67,7 +69,7 @@ function UploadPageContent() {
         formData.append('matchType', selectedMatchType);
 
         try {
-            const response = await fetch('http://localhost:3000/api/upload', {
+            const response = await fetch(`${API_BASE_URL}/api/upload`, {
                 method: 'POST',
                 body: formData,
             });
