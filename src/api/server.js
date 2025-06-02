@@ -9,6 +9,8 @@ import fetch from 'node-fetch';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -19,7 +21,8 @@ dotenv.config({ path: path.join(__dirname, '../..', '.env') });
 // Debug: Print environment variables (excluding sensitive data)
 console.log('Environment variables loaded:', {
   CURRENT_SEASON_ID: process.env.CURRENT_SEASON_ID,
-  hasApiToken: !!process.env.ROBOTEVENTS_API_TOKEN
+  hasApiToken: !!process.env.ROBOTEVENTS_API_TOKEN,
+  hasJwtSecret: !!process.env.JWT_SECRET
 });
 
 const app = express();
@@ -29,6 +32,34 @@ const { Pool } = pg;
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// JWT Authentication Middleware
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ error: 'Access token required' });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: 'Invalid or expired token' });
+    }
+    req.user = user;
+    next();
+  });
+}
+
+// Role-based authorization middleware
+function requireRole(role) {
+  return (req, res, next) => {
+    if (!req.user || req.user.role !== role) {
+      return res.status(403).json({ error: 'Insufficient permissions' });
+    }
+    next();
+  };
+}
 
 // PostgreSQL connection configuration
 const pool = new Pool({
@@ -42,6 +73,7 @@ const pool = new Pool({
 // Initialize database schema
 async function initializeDatabase() {
   try {
+    // Create skills_standings table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS skills_standings (
         teamNumber TEXT PRIMARY KEY,
@@ -70,6 +102,140 @@ async function initializeDatabase() {
       ADD COLUMN IF NOT EXISTS matchType TEXT DEFAULT 'VRC'
     `);
 
+    // Create authentication tables
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS roles (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(50) UNIQUE NOT NULL,
+        description TEXT,
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS permissions (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) UNIQUE NOT NULL,
+        description TEXT,
+        resource VARCHAR(50) NOT NULL,
+        action VARCHAR(50) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(50) UNIQUE NOT NULL,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
+        role_id INTEGER REFERENCES roles(id),
+        active BOOLEAN DEFAULT true,
+        last_login TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS role_permissions (
+        role_id INTEGER REFERENCES roles(id) ON DELETE CASCADE,
+        permission_id INTEGER REFERENCES permissions(id) ON DELETE CASCADE,
+        granted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (role_id, permission_id)
+      )
+    `);
+
+    // Insert default roles if they don't exist
+    await pool.query(`
+      INSERT INTO roles (name, description) VALUES 
+      ('admin', 'Full access to all features including user management')
+      ON CONFLICT (name) DO NOTHING
+    `);
+
+    await pool.query(`
+      INSERT INTO roles (name, description) VALUES 
+      ('guest', 'Basic access excluding upload and user management')
+      ON CONFLICT (name) DO NOTHING
+    `);
+
+    // Insert default permissions if they don't exist
+    const permissions = [
+      ['teams:search', 'Search and view teams', 'teams', 'search'],
+      ['teams:compare', 'Compare teams', 'teams', 'compare'],
+      ['teams:favorites', 'Manage favorite teams', 'teams', 'favorites'],
+      ['upload:create', 'Upload data files', 'upload', 'create'],
+      ['users:read', 'View users', 'users', 'read'],
+      ['users:create', 'Create users', 'users', 'create'],
+      ['users:update', 'Update users', 'users', 'update'],
+      ['users:delete', 'Delete users', 'users', 'delete'],
+      ['roles:read', 'View roles', 'roles', 'read'],
+      ['roles:create', 'Create roles', 'roles', 'create'],
+      ['roles:update', 'Update roles', 'roles', 'update'],
+      ['roles:delete', 'Delete roles', 'roles', 'delete'],
+      ['admin:access', 'Access admin panel', 'admin', 'access'],
+      ['admin:users', 'Manage users in admin panel', 'admin', 'users'],
+      ['admin:roles', 'Manage roles in admin panel', 'admin', 'roles'],
+      ['admin:settings', 'Manage system settings', 'admin', 'settings'],
+      ['admin:database', 'View database status', 'admin', 'database']
+    ];
+
+    for (const [name, description, resource, action] of permissions) {
+      await pool.query(`
+        INSERT INTO permissions (name, description, resource, action) VALUES ($1, $2, $3, $4)
+        ON CONFLICT (name) DO NOTHING
+      `, [name, description, resource, action]);
+    }
+
+    // Get role IDs
+    const adminRole = await pool.query(`SELECT id FROM roles WHERE name = 'admin'`);
+    const guestRole = await pool.query(`SELECT id FROM roles WHERE name = 'guest'`);
+
+    if (adminRole.rows.length > 0 && guestRole.rows.length > 0) {
+      const adminRoleId = adminRole.rows[0].id;
+      const guestRoleId = guestRole.rows[0].id;
+
+      // Assign all permissions to admin role
+      const allPermissions = await pool.query(`SELECT id FROM permissions`);
+      for (const permission of allPermissions.rows) {
+        await pool.query(`
+          INSERT INTO role_permissions (role_id, permission_id) VALUES ($1, $2)
+          ON CONFLICT (role_id, permission_id) DO NOTHING
+        `, [adminRoleId, permission.id]);
+      }
+
+      // Assign limited permissions to guest role
+      const guestPermissions = await pool.query(`
+        SELECT id FROM permissions WHERE name IN ('teams:search', 'teams:compare', 'teams:favorites')
+      `);
+      for (const permission of guestPermissions.rows) {
+        await pool.query(`
+          INSERT INTO role_permissions (role_id, permission_id) VALUES ($1, $2)
+          ON CONFLICT (role_id, permission_id) DO NOTHING
+        `, [guestRoleId, permission.id]);
+      }
+
+      // Create default admin user if it doesn't exist
+      const adminExists = await pool.query(`SELECT id FROM users WHERE username = $1`, [
+        process.env.ADMIN_USERNAME || 'admin'
+      ]);
+
+      if (adminExists.rows.length === 0) {
+        const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'Admin123!', 10);
+        await pool.query(`
+          INSERT INTO users (username, email, password_hash, role_id) VALUES ($1, $2, $3, $4)
+        `, [
+          process.env.ADMIN_USERNAME || 'admin',
+          process.env.ADMIN_EMAIL || 'admin@vexscouting.com',
+          hashedPassword,
+          adminRoleId
+        ]);
+        console.log('Default admin user created');
+      }
+    }
+
     console.log('Database schema initialized successfully');
   } catch (error) {
     console.error('Error initializing database schema:', error);
@@ -82,8 +248,159 @@ initializeDatabase();
 // Configure multer for file upload
 const upload = multer({ dest: 'uploads/' });
 
+// Helper function to validate password strength
+function validatePassword(password) {
+  const minLength = 6;
+  const hasNumber = /\d/;
+  const hasUpperCase = /[A-Z]/;
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/;
+
+  if (password.length < minLength) {
+    return { valid: false, message: 'Password must be at least 6 characters long' };
+  }
+  if (!hasNumber.test(password)) {
+    return { valid: false, message: 'Password must contain at least one number' };
+  }
+  if (!hasUpperCase.test(password)) {
+    return { valid: false, message: 'Password must contain at least one uppercase letter' };
+  }
+  if (!hasSpecialChar.test(password)) {
+    return { valid: false, message: 'Password must contain at least one special character' };
+  }
+  return { valid: true };
+}
+
+// Authentication Routes
+
+// Login endpoint
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
+    }
+
+    // Get user with role information
+    const result = await pool.query(`
+      SELECT u.*, r.name as role_name 
+      FROM users u 
+      JOIN roles r ON u.role_id = r.id 
+      WHERE u.username = $1 AND u.active = true
+    `, [username]);
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const user = result.rows[0];
+    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Update last login
+    await pool.query(`UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = $1`, [user.id]);
+
+    // Get user permissions
+    const permissionsResult = await pool.query(`
+      SELECT p.name, p.resource, p.action 
+      FROM permissions p
+      JOIN role_permissions rp ON p.id = rp.permission_id
+      WHERE rp.role_id = $1
+    `, [user.role_id]);
+
+    const permissions = permissionsResult.rows.map(p => p.name);
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        id: user.id, 
+        username: user.username, 
+        email: user.email,
+        role: user.role_name,
+        permissions: permissions
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+    );
+
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role_name,
+        permissions: permissions,
+        lastLogin: user.last_login
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Verify token endpoint
+app.get('/api/auth/verify', authenticateToken, async (req, res) => {
+  try {
+    // Get fresh user data
+    const result = await pool.query(`
+      SELECT u.*, r.name as role_name 
+      FROM users u 
+      JOIN roles r ON u.role_id = r.id 
+      WHERE u.id = $1 AND u.active = true
+    `, [req.user.id]);
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'User not found or inactive' });
+    }
+
+    const user = result.rows[0];
+
+    // Get current permissions
+    const permissionsResult = await pool.query(`
+      SELECT p.name, p.resource, p.action 
+      FROM permissions p
+      JOIN role_permissions rp ON p.id = rp.permission_id
+      WHERE rp.role_id = $1
+    `, [user.role_id]);
+
+    const permissions = permissionsResult.rows.map(p => p.name);
+
+    res.json({
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role_name,
+        permissions: permissions,
+        lastLogin: user.last_login
+      }
+    });
+  } catch (error) {
+    console.error('Token verification error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Logout endpoint (client-side token removal, but we can log it)
+app.post('/api/auth/logout', authenticateToken, async (req, res) => {
+  try {
+    // We could add token blacklisting here if needed
+    res.json({ message: 'Logged out successfully' });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // API Routes
-app.post('/api/upload', upload.single('file'), async (req, res) => {
+
+// Protected upload endpoint - requires admin role
+app.post('/api/upload', authenticateToken, requireRole('admin'), upload.single('file'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
@@ -333,7 +650,7 @@ app.get('/api/teams/:teamNumber/events', async (req, res) => {
 
     if (!teamResponse.ok) {
       const errorData = await teamResponse.json();
-      console.log('Team search response:', await teamResponse.text());  // Debug log
+      console.log('Team search response error:', errorData);  // Fixed: use errorData instead of re-reading body
       throw new Error(`RobotEvents API error: ${errorData.message || 'Failed to fetch team'}`);
     }
 
@@ -567,6 +884,266 @@ function getMatchTypeFromName(programName) {
   if (programName.includes('VEX V5') || programName.includes('VRC')) return 'VRC';
   return 'VRC'; // Default
 }
+
+// Admin Routes - All require admin role
+
+// Get all users
+app.get('/api/admin/users', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT u.id, u.username, u.email, u.active, u.last_login, u.created_at, u.updated_at,
+             r.name as role_name, r.id as role_id
+      FROM users u
+      JOIN roles r ON u.role_id = r.id
+      ORDER BY u.created_at DESC
+    `);
+
+    const users = result.rows.map(user => ({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: {
+        id: user.role_id,
+        name: user.role_name
+      },
+      active: user.active,
+      lastLogin: user.last_login,
+      createdAt: user.created_at,
+      updatedAt: user.updated_at
+    }));
+
+    res.json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'Error fetching users' });
+  }
+});
+
+// Create new user
+app.post('/api/admin/users', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    const { username, email, password, roleId } = req.body;
+
+    if (!username || !email || !password || !roleId) {
+      return res.status(400).json({ error: 'Username, email, password, and role are required' });
+    }
+
+    // Validate password
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+      return res.status(400).json({ error: passwordValidation.message });
+    }
+
+    // Check if username or email already exists
+    const existingUser = await pool.query(`
+      SELECT id FROM users WHERE username = $1 OR email = $2
+    `, [username, email]);
+
+    if (existingUser.rows.length > 0) {
+      return res.status(409).json({ error: 'Username or email already exists' });
+    }
+
+    // Verify role exists
+    const roleExists = await pool.query(`SELECT id FROM roles WHERE id = $1`, [roleId]);
+    if (roleExists.rows.length === 0) {
+      return res.status(400).json({ error: 'Invalid role ID' });
+    }
+
+    // Hash password and create user
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const result = await pool.query(`
+      INSERT INTO users (username, email, password_hash, role_id)
+      VALUES ($1, $2, $3, $4)
+      RETURNING id, username, email, active, created_at
+    `, [username, email, hashedPassword, roleId]);
+
+    res.status(201).json({
+      message: 'User created successfully',
+      user: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Error creating user:', error);
+    res.status(500).json({ error: 'Error creating user' });
+  }
+});
+
+// Update user
+app.put('/api/admin/users/:id', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { username, email, roleId, active, password } = req.body;
+
+    // Build dynamic update query
+    const updates = [];
+    const values = [];
+    let paramCount = 1;
+
+    if (username !== undefined) {
+      updates.push(`username = $${paramCount++}`);
+      values.push(username);
+    }
+    if (email !== undefined) {
+      updates.push(`email = $${paramCount++}`);
+      values.push(email);
+    }
+    if (roleId !== undefined) {
+      updates.push(`role_id = $${paramCount++}`);
+      values.push(roleId);
+    }
+    if (active !== undefined) {
+      updates.push(`active = $${paramCount++}`);
+      values.push(active);
+    }
+    if (password) {
+      const passwordValidation = validatePassword(password);
+      if (!passwordValidation.valid) {
+        return res.status(400).json({ error: passwordValidation.message });
+      }
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updates.push(`password_hash = $${paramCount++}`);
+      values.push(hashedPassword);
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ error: 'No valid fields to update' });
+    }
+
+    updates.push(`updated_at = CURRENT_TIMESTAMP`);
+    values.push(userId);
+
+    const query = `
+      UPDATE users 
+      SET ${updates.join(', ')}
+      WHERE id = $${paramCount}
+      RETURNING id, username, email, active, updated_at
+    `;
+
+    const result = await pool.query(query, values);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      message: 'User updated successfully',
+      user: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).json({ error: 'Error updating user' });
+  }
+});
+
+// Delete user (soft delete by setting active = false)
+app.delete('/api/admin/users/:id', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // Prevent deleting yourself
+    if (parseInt(userId) === req.user.id) {
+      return res.status(400).json({ error: 'Cannot delete your own account' });
+    }
+
+    const result = await pool.query(`
+      UPDATE users 
+      SET active = false, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $1
+      RETURNING id, username
+    `, [userId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      message: 'User deactivated successfully',
+      user: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ error: 'Error deleting user' });
+  }
+});
+
+// Get all roles with their permissions
+app.get('/api/admin/roles', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT r.id, r.name, r.description, r.active, r.created_at,
+             COALESCE(
+               json_agg(
+                 json_build_object(
+                   'id', p.id,
+                   'name', p.name,
+                   'description', p.description,
+                   'resource', p.resource,
+                   'action', p.action
+                 )
+               ) FILTER (WHERE p.id IS NOT NULL), 
+               '[]'
+             ) as permissions
+      FROM roles r
+      LEFT JOIN role_permissions rp ON r.id = rp.role_id
+      LEFT JOIN permissions p ON rp.permission_id = p.id
+      WHERE r.active = true
+      GROUP BY r.id, r.name, r.description, r.active, r.created_at
+      ORDER BY r.created_at ASC
+    `);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching roles:', error);
+    res.status(500).json({ error: 'Error fetching roles' });
+  }
+});
+
+// Get all permissions
+app.get('/api/admin/permissions', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT id, name, description, resource, action, created_at
+      FROM permissions
+      ORDER BY resource, action
+    `);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching permissions:', error);
+    res.status(500).json({ error: 'Error fetching permissions' });
+  }
+});
+
+// Update role permissions
+app.put('/api/admin/roles/:id/permissions', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    const roleId = req.params.id;
+    const { permissionIds } = req.body;
+
+    if (!Array.isArray(permissionIds)) {
+      return res.status(400).json({ error: 'permissionIds must be an array' });
+    }
+
+    await pool.query('BEGIN');
+
+    // Remove existing permissions
+    await pool.query(`DELETE FROM role_permissions WHERE role_id = $1`, [roleId]);
+
+    // Add new permissions
+    for (const permissionId of permissionIds) {
+      await pool.query(`
+        INSERT INTO role_permissions (role_id, permission_id) VALUES ($1, $2)
+      `, [roleId, permissionId]);
+    }
+
+    await pool.query('COMMIT');
+
+    res.json({ message: 'Role permissions updated successfully' });
+  } catch (error) {
+    await pool.query('ROLLBACK');
+    console.error('Error updating role permissions:', error);
+    res.status(500).json({ error: 'Error updating role permissions' });
+  }
+});
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

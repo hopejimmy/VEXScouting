@@ -5,6 +5,7 @@ import "./globals.css";
 import { ReactQueryProvider } from '@/components/providers/react-query-provider';
 import { FavoritesProvider } from '@/contexts/FavoritesContext';
 import { CompareProvider } from '@/contexts/CompareContext';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 const geist = Geist({
   variable: "--font-geist-sans",
@@ -32,11 +33,13 @@ export default function RootLayout({
         className={`${geist.variable} ${geistMono.variable} antialiased min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50`}
       >
         <ReactQueryProvider>
-          <FavoritesProvider>
-            <CompareProvider>
-              {children}
-            </CompareProvider>
-          </FavoritesProvider>
+          <AuthProvider>
+            <FavoritesProvider>
+              <CompareProvider>
+                {children}
+              </CompareProvider>
+            </FavoritesProvider>
+          </AuthProvider>
         </ReactQueryProvider>
       </body>
     </html>
