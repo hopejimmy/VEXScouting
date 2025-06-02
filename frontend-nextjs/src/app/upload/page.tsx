@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import type { Program } from '@/types/skills';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
-export default function UploadPage() {
+function UploadPageContent() {
     const [file, setFile] = useState<File | null>(null);
     const [selectedMatchType, setSelectedMatchType] = useState<string>('VRC');
     const [status, setStatus] = useState<string>('');
@@ -189,5 +190,13 @@ export default function UploadPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function UploadPage() {
+    return (
+        <ProtectedRoute requiredPermission="upload:create">
+            <UploadPageContent />
+        </ProtectedRoute>
     );
 } 
