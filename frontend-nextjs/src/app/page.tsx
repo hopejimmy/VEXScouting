@@ -19,6 +19,8 @@ interface TeamsResponse {
   total: number;
 }
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+
 async function searchTeams(query: string, matchType?: string): Promise<TeamsResponse> {
   if (!query.trim()) {
     // Return empty results when no search query
@@ -29,7 +31,7 @@ async function searchTeams(query: string, matchType?: string): Promise<TeamsResp
   params.append('q', query);
   if (matchType) params.append('matchType', matchType);
 
-  const response = await fetch(`http://localhost:3000/api/search?${params.toString()}`);
+  const response = await fetch(`${API_BASE_URL}/api/search?${params.toString()}`);
   if (!response.ok) {
     throw new Error('Failed to search teams');
   }
@@ -48,7 +50,7 @@ export default function Home() {
   const { data: programs = [] } = useQuery<Program[]>({
     queryKey: ['programs'],
     queryFn: async () => {
-      const response = await fetch('http://localhost:3000/api/programs');
+      const response = await fetch(`${API_BASE_URL}/api/programs`);
       if (!response.ok) {
         throw new Error('Failed to fetch programs');
       }

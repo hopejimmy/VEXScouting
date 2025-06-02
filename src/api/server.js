@@ -30,7 +30,15 @@ const PORT = process.env.PORT || 3000;
 const { Pool } = pg;
 
 // Middleware
-app.use(cors());
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? [process.env.FRONTEND_URL, 'https://localhost:3001', 'http://localhost:3001']
+    : ['http://localhost:3001', 'http://localhost:3000', 'http://127.0.0.1:3001'],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // JWT Authentication Middleware
@@ -62,13 +70,20 @@ function requireRole(role) {
 }
 
 // PostgreSQL connection configuration
-const pool = new Pool({
-  host: process.env.POSTGRES_HOST || 'localhost',
-  port: process.env.POSTGRES_PORT || 5432,
-  database: process.env.POSTGRES_DB || 'vexscouting',
-  user: process.env.POSTGRES_USER || 'postgres',
-  password: process.env.POSTGRES_PASSWORD || 'postgres',
-});
+const pool = new Pool(
+  process.env.DATABASE_URL 
+    ? {
+        connectionString: process.env.DATABASE_URL,
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+      }
+    : {
+        host: process.env.POSTGRES_HOST || 'localhost',
+        port: process.env.POSTGRES_PORT || 5432,
+        database: process.env.POSTGRES_DB || 'vexscouting',
+        user: process.env.POSTGRES_USER || 'postgres',
+        password: process.env.POSTGRES_PASSWORD || 'postgres',
+      }
+);
 
 // Initialize database schema
 async function initializeDatabase() {
