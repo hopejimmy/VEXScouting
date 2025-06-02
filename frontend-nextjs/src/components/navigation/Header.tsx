@@ -48,14 +48,14 @@ export function Header() {
       label: 'Favorites',
       path: '/favorites',
       count: favorites.length,
-      permission: 'teams:favorites',
+      permission: null, // Always visible - no login required
     },
     {
       icon: GitCompare,
       label: 'Compare',
       path: '/compare',
       count: compareList.length,
-      permission: 'teams:compare',
+      permission: null, // Always visible - no login required
     },
     {
       icon: Upload,

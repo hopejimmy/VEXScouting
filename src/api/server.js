@@ -175,7 +175,11 @@ async function initializeDatabase() {
       ['roles:create', 'Create roles', 'roles', 'create'],
       ['roles:update', 'Update roles', 'roles', 'update'],
       ['roles:delete', 'Delete roles', 'roles', 'delete'],
-      ['admin:access', 'Access admin panel', 'admin', 'access']
+      ['admin:access', 'Access admin panel', 'admin', 'access'],
+      ['admin:users', 'Manage users in admin panel', 'admin', 'users'],
+      ['admin:roles', 'Manage roles in admin panel', 'admin', 'roles'],
+      ['admin:settings', 'Manage system settings', 'admin', 'settings'],
+      ['admin:database', 'View database status', 'admin', 'database']
     ];
 
     for (const [name, description, resource, action] of permissions) {
@@ -646,7 +650,7 @@ app.get('/api/teams/:teamNumber/events', async (req, res) => {
 
     if (!teamResponse.ok) {
       const errorData = await teamResponse.json();
-      console.log('Team search response:', await teamResponse.text());  // Debug log
+      console.log('Team search response error:', errorData);  // Fixed: use errorData instead of re-reading body
       throw new Error(`RobotEvents API error: ${errorData.message || 'Failed to fetch team'}`);
     }
 

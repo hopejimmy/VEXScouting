@@ -1,6 +1,6 @@
 # VEX Scouting Platform
 
-A professional, modern web application for scouting and analyzing VEX Robotics teams worldwide. Built with Next.js 14, TypeScript, and Tailwind CSS for a beautiful, responsive user experience.
+A professional, modern web application for scouting and analyzing VEX Robotics teams worldwide. Built with Next.js 14, TypeScript, and Tailwind CSS for a beautiful, responsive user experience with comprehensive admin panel and role-based authentication.
 
 ![VEX Scouting Platform](https://img.shields.io/badge/VEX-Scouting-blue?style=for-the-badge&logo=robot)
 ![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js)
@@ -8,8 +8,44 @@ A professional, modern web application for scouting and analyzing VEX Robotics t
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=flat-square&logo=tailwind-css)
 ![Express.js](https://img.shields.io/badge/Express.js-4-green?style=flat-square&logo=express)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue?style=flat-square&logo=postgresql)
+![JWT](https://img.shields.io/badge/JWT-Authentication-orange?style=flat-square&logo=jsonwebtokens)
 
 ## ✨ Features
+
+### 🔐 **Authentication & User Management**
+- **JWT-based authentication** with secure login/logout functionality
+- **Role-based access control** (Admin, Guest roles with extensible permission system)
+- **Secure password requirements** with validation (minimum 6 characters, uppercase, number, special character)
+- **Session management** with configurable token expiration
+- **Protected routes** with permission-based access control
+- **Demo credentials** for quick testing (admin/Admin123!)
+
+### 👑 **Comprehensive Admin Panel**
+- **User Management Dashboard**:
+  - Create, edit, and manage user accounts
+  - Role assignment and user activation/deactivation
+  - Search and filter users by username, email, or role
+  - User activity tracking (creation date, last login)
+  - Bulk user operations and secure password management
+
+- **Role & Permissions Management**:
+  - Create and manage custom roles with granular permissions
+  - Permission system organized by categories (Admin, Data, Teams)
+  - Visual permission assignment with expandable role cards
+  - Pre-configured roles: Administrator, Coach, Scout
+  - Real-time permission updates and validation
+
+- **System Settings**:
+  - General settings (site name, admin email, maintenance mode)
+  - API configuration (RobotEvents API token, season settings)
+  - Security settings (JWT expiration, session timeout)
+  - System maintenance toggles and configuration
+
+- **Database Status & Monitoring**:
+  - Real-time database health monitoring
+  - Performance metrics (query times, connections, uptime)
+  - Table statistics and maintenance tools
+  - Backup status and optimization controls
 
 ### 🔍 **Team Search & Discovery**
 - **Real-time search** by team number or name with intelligent debouncing
@@ -52,6 +88,14 @@ A professional, modern web application for scouting and analyzing VEX Robotics t
 - **Interactive comparison cards** with remove/favorite actions and match type badges
 - **Performance analytics** including rank, scores, and skills breakdown
 - **Filter-aware comparison** showing counts of filtered vs total teams
+
+### 📤 **Secure Data Upload** (Admin Only)
+- **Protected upload system** requiring admin authentication
+- **CSV file processing** with automatic validation and error handling
+- **Competition type detection** and categorization
+- **Bulk data operations** with transaction safety
+- **Upload progress tracking** and detailed feedback
+- **Data integrity validation** ensuring database consistency
 
 ### 🎯 **Competition Type Management**
 - **Multi-competition support** for VEX IQ, VRC, and VEXU programs
@@ -212,7 +256,21 @@ VEXScouting/
 
 ## 🎯 Usage Guide
 
-### 1. **Searching for Teams**
+### 1. **Authentication & Access**
+- **Login**: Click "Sign In" in the header to access the login modal
+- **Demo Credentials**: Use `admin` / `Admin123!` for full admin access
+- **Admin Panel**: Once logged in as admin, access via the "Admin Panel" navigation item
+- **Role-Based Access**: Different features available based on user role (Admin vs Guest)
+- **Session Management**: Automatic token refresh and secure logout
+
+### 2. **Admin Panel Management**
+- **User Management**: Create, edit, and manage user accounts with role assignment
+- **Role & Permissions**: Configure granular permissions organized by categories
+- **System Settings**: Manage site configuration, API settings, and security options
+- **Database Monitoring**: View real-time database health and performance metrics
+- **Maintenance Tools**: Access database optimization and cleanup functions
+
+### 3. **Searching for Teams**
 - Use the search bar on the home page
 - Type team numbers (e.g., "1234A") or team names
 - **Filter by competition type** using the dropdown (All Types, VEX IQ, VRC, VEXU)
@@ -220,7 +278,7 @@ VEXScouting/
 - **Search state persists** when navigating to team details and back
 - **URL parameters** allow sharing filtered search results
 
-### 2. **Managing Favorites**
+### 4. **Managing Favorites**
 - Click the **heart icon** on any team card to add/remove favorites
 - Access your favorites via the navigation menu
 - **Filter favorites by competition type** for focused analysis
@@ -229,7 +287,7 @@ VEXScouting/
 - Use "Clear All" to remove all favorites at once
 - **Empty state handling** for both no favorites and no filtered results
 
-### 3. **Comparing Teams**
+### 5. **Comparing Teams**
 - Click the **compare icon** on team cards (up to 4 teams)
 - Navigate to the Compare page to see side-by-side analysis
 - **Filter comparison list by competition type** for fair comparisons
@@ -238,21 +296,21 @@ VEXScouting/
 - Remove teams individually or clear all comparisons
 - **Competition-aware comparison** ensures like-for-like analysis
 
-### 4. **Team Details**
+### 6. **Team Details**
 - Click on any team card to view detailed information
 - See comprehensive skills breakdown and performance data
 - View team events for different VRC seasons using the season selector
 - **Return to previous search state** using the back button with preserved filters
 - Navigate back using the back button
 
-### 5. **Season Selection**
+### 7. **Season Selection**
 - Use the dropdown in the team events section to select different VRC seasons
 - View past and upcoming events specific to the selected season
 - Events display venue, location, dates, and division information
 - System defaults to the current VRC season ("High Stakes")
 
-### 6. **Data Upload**
-- Navigate to the upload page
+### 8. **Data Upload** (Admin Only)
+- Navigate to the upload page (requires admin authentication)
 - Select a CSV file containing VEX team data
 - File should include columns for:
   - Team Number
@@ -278,6 +336,7 @@ VEXScouting/
 
 The backend provides the following REST API endpoints:
 
+### Public Endpoints
 - `GET /api/search?q={query}&matchType={type}` - Search teams by number or name with optional competition type filter
 - `GET /api/teams?matchType={type}` - Get all teams with optional competition type filter
 - `GET /api/teams/{teamNumber}` - Get detailed team information
@@ -285,14 +344,31 @@ The backend provides the following REST API endpoints:
 - `GET /api/teams/{teamNumber}/events/{eventId}/awards` - Get awards for a team at a specific event
 - `GET /api/seasons` - Get list of VRC seasons
 - `GET /api/programs` - Get list of VEX competition programs (VEX IQ, VRC, VEXU)
-- `POST /api/upload` - Upload CSV data with automatic competition type processing
 - `GET /api/health` - Health check endpoint
+
+### Authentication Endpoints
+- `POST /api/auth/login` - User login with username/password
+- `GET /api/auth/verify` - Verify JWT token and get current user info
+- `POST /api/auth/logout` - User logout (client-side token removal)
+
+### Protected Endpoints (Require Authentication)
+- `POST /api/upload` - Upload CSV data (Admin only)
+
+### Admin Endpoints (Require Admin Role)
+- `GET /api/admin/users` - Get all users with role information
+- `POST /api/admin/users` - Create new user account
+- `PUT /api/admin/users/{id}` - Update user account
+- `DELETE /api/admin/users/{id}` - Deactivate user account
+- `GET /api/admin/roles` - Get all roles with permissions
+- `GET /api/admin/permissions` - Get all available permissions
+- `PUT /api/admin/roles/{id}/permissions` - Update role permissions
 
 ## 🗄️ Database Management
 
 ### Database Schema
 The application uses PostgreSQL with the following enhanced schema:
 
+#### Skills Standings Table
 ```sql
 CREATE TABLE skills_standings (
     teamNumber TEXT PRIMARY KEY,
@@ -318,28 +394,83 @@ CREATE TABLE skills_standings (
 CREATE INDEX idx_skills_standings_matchtype ON skills_standings(matchtype);
 ```
 
-### Competition Type Support
-The application now supports multiple VEX competition programs:
+#### Authentication Tables
+```sql
+-- Roles table
+CREATE TABLE roles (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) UNIQUE NOT NULL,
+    description TEXT,
+    active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-- **VEX IQ**: Elementary and middle school robotics
-- **VRC (V5RC)**: High school robotics competition
-- **VEXU**: University-level robotics competition
+-- Permissions table
+CREATE TABLE permissions (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    description TEXT,
+    resource VARCHAR(50) NOT NULL,
+    action VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-### Data Import
-The application supports importing team data via CSV files with automatic competition type detection. Use the upload feature in the UI or the `/api/upload` endpoint to import data.
+-- Users table
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role_id INTEGER REFERENCES roles(id),
+    active BOOLEAN DEFAULT true,
+    last_login TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Role permissions junction table
+CREATE TABLE role_permissions (
+    role_id INTEGER REFERENCES roles(id) ON DELETE CASCADE,
+    permission_id INTEGER REFERENCES permissions(id) ON DELETE CASCADE,
+    granted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (role_id, permission_id)
+);
+```
+
+### Default Setup
+The application automatically creates:
+- **Default Roles**: Admin (full access), Guest (limited access)
+- **Default Permissions**: Organized by categories (Admin, Data, Teams)
+- **Default Admin User**: Username `admin`, Password `Admin123!`
+- **Permission Assignments**: Admin role gets all permissions, Guest role gets basic access
 
 ### Environment Variables
-The following environment variables can be configured:
+The following environment variables must be configured:
 
 ```env
+# Database Configuration
 POSTGRES_HOST=localhost      # PostgreSQL host
-POSTGRES_PORT=5432          # PostgreSQL port
+POSTGRES_PORT=5432          # PostgreSQL port  
 POSTGRES_DB=vexscouting     # Database name
 POSTGRES_USER=postgres      # Database user
 POSTGRES_PASSWORD=password  # Database password
+
+# Server Configuration
 PORT=3000                   # API server port
-ROBOTEVENTS_API_KEY=key     # RobotEvents API key for production
-CURRENT_SEASON_ID=190        # Default VRC season ID
+
+# Authentication (Required)
+JWT_SECRET=your-secret-key  # JWT signing secret (required for auth)
+JWT_EXPIRES_IN=7d          # Token expiration (default: 7 days)
+
+# Admin Account Setup
+ADMIN_USERNAME=admin        # Default admin username
+ADMIN_PASSWORD=Admin123!    # Default admin password
+ADMIN_EMAIL=admin@vexscouting.com  # Default admin email
+
+# External APIs
+ROBOTEVENTS_API_TOKEN=key   # RobotEvents API token for production
+CURRENT_SEASON_ID=190       # Default VRC season ID
 ```
 
 ## 🎨 Design System
@@ -352,6 +483,7 @@ CURRENT_SEASON_ID=190        # Default VRC season ID
   - **VEXU**: Purple (`bg-purple-100 text-purple-700 border-purple-200`)
 - **Secondary**: Light blue (`blue-100`, `blue-700`)
 - **Accent**: Red for favorites (`red-500`), Green for success (`green-600`)
+- **Admin Panel**: Color-coded headers (Blue, Purple, Green, Orange)
 - **Neutral**: Gray scale for text and backgrounds
 
 ### Typography
@@ -364,6 +496,9 @@ CURRENT_SEASON_ID=190        # Default VRC season ID
 - **Cards**: Glass morphism with backdrop blur and competition type indicators
 - **Buttons**: Gradient primary, ghost secondary with proper hover states
 - **Badges**: Colored backgrounds with proper contrast and competition type styling
+- **Admin Interface**: Professional dashboard styling with consistent spacing
+- **Forms**: Clean form layouts with validation feedback
+- **Modals**: Centered overlays with backdrop blur
 - **Animations**: Smooth, purposeful motion with stagger effects
 - **Dropdowns**: Clean, accessible select components for filtering
 - **Filter Controls**: Consistent styling across all pages
@@ -374,7 +509,8 @@ This project has been cleaned and optimized for development:
 
 ### ✅ **What's Included**
 - **Modern Next.js frontend** with TypeScript and Tailwind CSS
-- **Express.js backend** with PostgreSQL database
+- **Express.js backend** with PostgreSQL database and JWT authentication
+- **Comprehensive admin panel** with user and role management
 - **RobotEvents API integration** for team events and seasons
 - **Database utilities** for data management
 - **Comprehensive documentation** and setup guides
@@ -407,18 +543,37 @@ npm run build
 
 ### Environment Variables
 ```bash
-# Backend
-PORT=3000                    # Server port (optional, defaults to 3000)
-ROBOTEVENTS_API_KEY=key      # RobotEvents API key for production
-CURRENT_SEASON_ID=190        # Default VRC season ID
+# Backend (Production)
+DATABASE_URL=postgres://user:pass@host:port/db  # PostgreSQL connection string
+JWT_SECRET=your-production-secret-key           # Strong secret for JWT signing
+ROBOTEVENTS_API_TOKEN=your-api-token           # RobotEvents API key
+CURRENT_SEASON_ID=190                          # Default VRC season ID
 
-# Frontend (for production)
-NEXT_PUBLIC_API_URL=your-api-url  # Backend API URL
+# Frontend (Production)
+NEXT_PUBLIC_API_URL=https://your-api-url.com   # Backend API URL
 ```
 
 ## 🔧 Troubleshooting
 
 ### Common Issues
+
+#### Authentication Issues
+```bash
+# Check JWT secret is set
+echo $JWT_SECRET
+
+# Verify token in browser localStorage
+# Open browser dev tools > Application > Local Storage
+
+# Clear authentication state
+localStorage.removeItem('auth_token')
+```
+
+#### Admin Access Issues
+- **Default credentials**: `admin` / `Admin123!`
+- **Check user role**: Must be assigned 'admin' role
+- **Verify permissions**: Admin role needs proper permissions
+- **Database initialization**: Ensure database has been properly initialized
 
 #### Port Already in Use (EADDRINUSE)
 ```bash
@@ -434,14 +589,14 @@ npm run dev -- -p 3002
 
 #### Database Issues
 ```bash
-# Verify database exists
-ls -la data/skills.db
+# Check database connection
+psql -U postgres -d vexscouting -c "SELECT NOW();"
 
-# Reinitialize database
-node src/utils/setupDatabase.js
+# Reinitialize database tables
+# Tables are automatically created on server startup
 
-# Test database connection
-node src/utils/dbTest.ts
+# Check table structure
+psql -U postgres -d vexscouting -c "\dt"
 ```
 
 #### Frontend Build Issues
@@ -462,7 +617,8 @@ npm run dev
 - Ensure backend is running on port 3000
 - Check `http://localhost:3000/api/health` for backend status
 - Verify no CORS issues in browser console
-- Make sure your RobotEvents API key is correctly configured
+- Make sure your RobotEvents API token is correctly configured
+- Check JWT token is being sent in Authorization header
 
 ## 🤝 Contributing
 
