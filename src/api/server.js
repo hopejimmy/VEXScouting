@@ -73,32 +73,56 @@ function requireRole(role) {
   };
 }
 
-// PostgreSQL connection configuration with improved Railway support
+// PostgreSQL connection configuration with Railway support
 let pool;
 try {
   if (process.env.DATABASE_URL) {
-    console.log('🔗 Using DATABASE_URL connection string');
+    // Production/Railway environment - use DATABASE_URL
+    console.log('🔗 Using Railway DATABASE_URL connection string');
+    console.log('🌍 Environment: production');
+    console.log('🔗 Database: Railway PostgreSQL');
+    
     pool = new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+      ssl: {
+        rejectUnauthorized: false // Required for Railway's SSL certificates
+      }
     });
-  } else {
+  } else if (process.env.POSTGRES_HOST) {
+    // Development environment - use individual variables
     console.log('🔗 Using individual database environment variables');
+    console.log('🌍 Environment: development');
+    console.log('🔗 Database: Local connection');
+    
     pool = new Pool({
       host: process.env.POSTGRES_HOST || 'localhost',
-      port: process.env.POSTGRES_PORT || 5432,
+      port: parseInt(process.env.POSTGRES_PORT) || 5432,
       database: process.env.POSTGRES_DB || 'vexscouting',
       user: process.env.POSTGRES_USER || 'postgres',
       password: process.env.POSTGRES_PASSWORD || 'postgres',
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+      ssl: false // No SSL for local development
+    });
+  } else {
+    // Fallback to default local PostgreSQL
+    console.log('🔗 Using default local PostgreSQL configuration');
+    console.log('🌍 Environment: development (fallback)');
+    console.log('🔗 Database: Local default');
+    
+    pool = new Pool({
+      host: 'localhost',
+      port: 5432,
+      database: 'vexscouting',
+      user: 'postgres',
+      password: 'postgres',
+      ssl: false
     });
   }
 } catch (error) {
   console.error('❌ Database pool creation error:', error);
-  process.exit(1);
+  throw new Error(`Database configuration failed: ${error.message}`);
 }
 
-// Test database connection
+// Test database connection with better error handling
 async function testDatabaseConnection() {
   try {
     console.log('🔍 Testing database connection...');
@@ -108,7 +132,15 @@ async function testDatabaseConnection() {
     client.release();
     return true;
   } catch (error) {
-    console.error('❌ Database connection failed:', error);
+    console.error('❌ Database connection failed:', error.message);
+    console.error('🔧 Please check your database configuration and ensure the database server is running');
+    
+    if (process.env.DATABASE_URL) {
+      console.error('🔧 Railway DATABASE_URL format should be: postgresql://user:password@host:port/database');
+    } else {
+      console.error('🔧 For local development, ensure PostgreSQL is running on localhost:5432');
+    }
+    
     return false;
   }
 }
@@ -315,8 +347,52 @@ async function startApplication() {
   }
 }
 
+// Start server with proper error handling
+async function startServer() {
+  try {
+    // Initialize database first
+    await startApplication();
+    
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
+      console.log(`📊 API endpoints available at http://0.0.0.0:${PORT}/api`);
+      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🔗 Database: ${process.env.DATABASE_URL ? 'Railway PostgreSQL' : 'Local connection'}`);
+    });
+
+    // Handle server startup errors
+    server.on('error', (err) => {
+      console.error('❌ Server startup error:', err);
+      if (err.code === 'EADDRINUSE') {
+        console.error(`🔧 Port ${PORT} is already in use. Please close other applications using this port or change the PORT environment variable.`);
+      }
+      process.exit(1);
+    });
+
+    // Graceful shutdown
+    process.on('SIGINT', () => {
+      console.log('\n🛑 Shutting down server...');
+      pool.end();
+      console.log('Database connection closed.');
+      process.exit(0);
+    });
+
+    process.on('SIGTERM', () => {
+      console.log('\n🛑 Received SIGTERM, shutting down gracefully...');
+      pool.end();
+      console.log('Database connection closed.');
+      process.exit(0);
+    });
+
+    return server;
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
 // Start the application
-startApplication();
+startServer();
 
 // Configure multer for file upload
 const upload = multer({ dest: 'uploads/' });
@@ -1265,26 +1341,4 @@ app.use((err, req, res, next) => {
 // 404 handler - This must be LAST
 app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
-});
-
-// Start server
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
-  console.log(`📊 API endpoints available at http://0.0.0.0:${PORT}/api`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔗 Database: ${process.env.DATABASE_URL ? 'Connected via DATABASE_URL' : 'Local connection'}`);
-});
-
-// Handle server startup errors
-server.on('error', (err) => {
-  console.error('❌ Server startup error:', err);
-  process.exit(1);
-});
-
-// Graceful shutdown
-process.on('SIGINT', () => {
-  console.log('\n🛑 Shutting down server...');
-  pool.end();
-  console.log('Database connection closed.');
-  process.exit(0);
 }); 
