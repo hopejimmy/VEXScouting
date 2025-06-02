@@ -20,9 +20,13 @@ dotenv.config({ path: path.join(__dirname, '../..', '.env') });
 
 // Debug: Print environment variables (excluding sensitive data)
 console.log('Environment variables loaded:', {
+  NODE_ENV: process.env.NODE_ENV,
+  PORT: process.env.PORT,
   CURRENT_SEASON_ID: process.env.CURRENT_SEASON_ID,
   hasApiToken: !!process.env.ROBOTEVENTS_API_TOKEN,
-  hasJwtSecret: !!process.env.JWT_SECRET
+  hasJwtSecret: !!process.env.JWT_SECRET,
+  hasDatabaseUrl: !!process.env.DATABASE_URL,
+  hasPostgresHost: !!process.env.POSTGRES_HOST
 });
 
 const app = express();
@@ -69,25 +73,57 @@ function requireRole(role) {
   };
 }
 
-// PostgreSQL connection configuration
-const pool = new Pool(
-  process.env.DATABASE_URL 
-    ? {
-        connectionString: process.env.DATABASE_URL,
-        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-      }
-    : {
-        host: process.env.POSTGRES_HOST || 'localhost',
-        port: process.env.POSTGRES_PORT || 5432,
-        database: process.env.POSTGRES_DB || 'vexscouting',
-        user: process.env.POSTGRES_USER || 'postgres',
-        password: process.env.POSTGRES_PASSWORD || 'postgres',
-      }
-);
+// PostgreSQL connection configuration with improved Railway support
+let pool;
+try {
+  if (process.env.DATABASE_URL) {
+    console.log('🔗 Using DATABASE_URL connection string');
+    pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    });
+  } else {
+    console.log('🔗 Using individual database environment variables');
+    pool = new Pool({
+      host: process.env.POSTGRES_HOST || 'localhost',
+      port: process.env.POSTGRES_PORT || 5432,
+      database: process.env.POSTGRES_DB || 'vexscouting',
+      user: process.env.POSTGRES_USER || 'postgres',
+      password: process.env.POSTGRES_PASSWORD || 'postgres',
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    });
+  }
+} catch (error) {
+  console.error('❌ Database pool creation error:', error);
+  process.exit(1);
+}
+
+// Test database connection
+async function testDatabaseConnection() {
+  try {
+    console.log('🔍 Testing database connection...');
+    const client = await pool.connect();
+    const result = await client.query('SELECT NOW()');
+    console.log('✅ Database connection successful:', result.rows[0]);
+    client.release();
+    return true;
+  } catch (error) {
+    console.error('❌ Database connection failed:', error);
+    return false;
+  }
+}
 
 // Initialize database schema
 async function initializeDatabase() {
   try {
+    console.log('📊 Initializing database schema...');
+    
+    // First test the connection
+    const connected = await testDatabaseConnection();
+    if (!connected) {
+      throw new Error('Database connection test failed');
+    }
+
     // Create skills_standings table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS skills_standings (
@@ -204,61 +240,83 @@ async function initializeDatabase() {
       `, [name, description, resource, action]);
     }
 
-    // Get role IDs
-    const adminRole = await pool.query(`SELECT id FROM roles WHERE name = 'admin'`);
-    const guestRole = await pool.query(`SELECT id FROM roles WHERE name = 'guest'`);
-
-    if (adminRole.rows.length > 0 && guestRole.rows.length > 0) {
-      const adminRoleId = adminRole.rows[0].id;
-      const guestRoleId = guestRole.rows[0].id;
-
-      // Assign all permissions to admin role
-      const allPermissions = await pool.query(`SELECT id FROM permissions`);
-      for (const permission of allPermissions.rows) {
+    // Assign all permissions to admin role
+    const adminRoleResult = await pool.query(`SELECT id FROM roles WHERE name = 'admin'`);
+    const permissionsResult = await pool.query(`SELECT id FROM permissions`);
+    
+    if (adminRoleResult.rows.length > 0) {
+      const adminRoleId = adminRoleResult.rows[0].id;
+      for (const permission of permissionsResult.rows) {
         await pool.query(`
           INSERT INTO role_permissions (role_id, permission_id) VALUES ($1, $2)
           ON CONFLICT (role_id, permission_id) DO NOTHING
         `, [adminRoleId, permission.id]);
       }
+    }
 
-      // Assign limited permissions to guest role
-      const guestPermissions = await pool.query(`
-        SELECT id FROM permissions WHERE name IN ('teams:search', 'teams:compare', 'teams:favorites')
-      `);
-      for (const permission of guestPermissions.rows) {
-        await pool.query(`
-          INSERT INTO role_permissions (role_id, permission_id) VALUES ($1, $2)
-          ON CONFLICT (role_id, permission_id) DO NOTHING
-        `, [guestRoleId, permission.id]);
-      }
-
-      // Create default admin user if it doesn't exist
-      const adminExists = await pool.query(`SELECT id FROM users WHERE username = $1`, [
-        process.env.ADMIN_USERNAME || 'admin'
-      ]);
-
-      if (adminExists.rows.length === 0) {
-        const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'Admin123!', 10);
-        await pool.query(`
-          INSERT INTO users (username, email, password_hash, role_id) VALUES ($1, $2, $3, $4)
-        `, [
-          process.env.ADMIN_USERNAME || 'admin',
-          process.env.ADMIN_EMAIL || 'admin@vexscouting.com',
-          hashedPassword,
-          adminRoleId
-        ]);
-        console.log('Default admin user created');
+    // Assign basic permissions to guest role
+    const guestRoleResult = await pool.query(`SELECT id FROM roles WHERE name = 'guest'`);
+    const basicPermissions = ['teams:search', 'teams:compare', 'teams:favorites'];
+    
+    if (guestRoleResult.rows.length > 0) {
+      const guestRoleId = guestRoleResult.rows[0].id;
+      for (const permName of basicPermissions) {
+        const permResult = await pool.query(`SELECT id FROM permissions WHERE name = $1`, [permName]);
+        if (permResult.rows.length > 0) {
+          await pool.query(`
+            INSERT INTO role_permissions (role_id, permission_id) VALUES ($1, $2)
+            ON CONFLICT (role_id, permission_id) DO NOTHING
+          `, [guestRoleId, permResult.rows[0].id]);
+        }
       }
     }
 
-    console.log('Database schema initialized successfully');
+    // Create default admin user if no admin exists
+    const adminCheck = await pool.query(`
+      SELECT u.* FROM users u 
+      JOIN roles r ON u.role_id = r.id 
+      WHERE r.name = 'admin' AND u.active = true
+    `);
+
+    if (adminCheck.rows.length === 0) {
+      const hashedPassword = await bcrypt.hash('admin123!', 10);
+      const adminRoleId = adminRoleResult.rows[0].id;
+      
+      await pool.query(`
+        INSERT INTO users (username, email, password_hash, role_id, active)
+        VALUES ('admin', 'admin@vexscouting.com', $1, $2, true)
+      `, [hashedPassword, adminRoleId]);
+      
+      console.log('Default admin user created');
+    }
+
+    console.log('✅ Database schema initialized successfully');
   } catch (error) {
-    console.error('Error initializing database schema:', error);
+    console.error('❌ Error initializing database schema:', error);
+    throw error; // Re-throw to handle at startup level
   }
 }
 
-// Initialize database on startup
-initializeDatabase();
+// Initialize database on startup with proper error handling
+async function startApplication() {
+  try {
+    await initializeDatabase();
+    console.log('🎉 Application initialization completed successfully');
+  } catch (error) {
+    console.error('❌ Database initialization failed:', error.message);
+    console.error('⚠️  Server will continue to run, but database operations may fail');
+    console.error('🔧 Please check your database configuration and environment variables');
+    
+    // In production, we might want to fail fast, but for debugging we'll continue
+    if (process.env.NODE_ENV === 'production' && !process.env.ALLOW_DB_FAIL) {
+      console.error('💥 Exiting due to database connection failure in production');
+      process.exit(1);
+    }
+  }
+}
+
+// Start the application
+startApplication();
 
 // Configure multer for file upload
 const upload = multer({ dest: 'uploads/' });
