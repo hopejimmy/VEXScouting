@@ -109,11 +109,17 @@ try {
     console.log('🌍 Environment: production');
     console.log('🔗 Database: Railway PostgreSQL');
     
+    // Check if using Railway's private network
+    const isPrivateNetwork = process.env.DATABASE_URL.includes('railway.internal');
+    
     pool = new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl: {
+      ssl: isPrivateNetwork ? false : {
         rejectUnauthorized: false // Required for Railway's SSL certificates
-      }
+      },
+      connectionTimeoutMillis: 10000, // 10 second timeout
+      idleTimeoutMillis: 30000, // 30 seconds idle before closing connection
+      max: 20 // Maximum pool size
     });
   } else if (process.env.POSTGRES_HOST) {
     // Development environment - use individual variables
