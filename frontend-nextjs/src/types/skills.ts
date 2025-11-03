@@ -59,6 +59,33 @@ export interface TeamEvent {
   awards?: Award[]; // Optional awards for this event
 }
 
+export interface EventRanking {
+  eventRank: number;
+  teamNumber: string;
+  teamName: string;
+  worldRank: number;
+  combinedScore: number;
+  autonomousSkills: number;
+  driverSkills: number;
+  highestAutonomousSkills: number;
+  highestDriverSkills: number;
+  organization: string;
+  region: string;
+  country: string;
+  matchType: string;
+}
+
+export interface EventRankingsResponse {
+  eventId: number;
+  eventName: string;
+  matchType: string;
+  rankings: EventRanking[];
+  total: number;
+  teamsInEvent: number;
+  teamsWithRankings: number;
+  teamsWithoutRankings: number;
+}
+
 export interface Award {
   id: number;
   title: string;

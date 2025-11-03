@@ -209,6 +209,7 @@ export default function TeamDetailPage() {
               error={eventsError}
               onSeasonChange={handleSeasonChange}
               currentSeasonId={selectedSeasonId}
+              matchType={team.matchType}
             />
 
             {/* Team Information */}
