@@ -60,6 +60,9 @@ export function RankingsTable({ rankings, highlightTeam }: RankingsTableProps) {
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
                 Team
               </th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                Grade
+              </th>
               <th 
                 className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100"
                 onClick={() => handleSort('worldRank')}
@@ -132,6 +135,20 @@ export function RankingsTable({ rankings, highlightTeam }: RankingsTableProps) {
                       <span className="font-semibold text-gray-900">{team.teamNumber}</span>
                       <span className="text-sm text-gray-600">{team.teamName}</span>
                     </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <Badge 
+                      variant="secondary"
+                      className={
+                        team.grade === 'Middle School' 
+                          ? 'bg-purple-100 text-purple-700 border-purple-300' 
+                          : team.grade === 'High School'
+                          ? 'bg-green-100 text-green-700 border-green-300'
+                          : 'bg-gray-100 text-gray-600'
+                      }
+                    >
+                      {team.grade === 'Middle School' ? 'MS' : team.grade === 'High School' ? 'HS' : 'N/A'}
+                    </Badge>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <Badge 

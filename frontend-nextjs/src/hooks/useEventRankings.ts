@@ -3,12 +3,13 @@ import type { EventRankingsResponse } from '@/types/skills';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-export function useEventRankings(eventId: string, matchType: string = 'VRC') {
+export function useEventRankings(eventId: string, matchType: string = 'VRC', grade?: string) {
   return useQuery<EventRankingsResponse>({
-    queryKey: ['event-rankings', eventId, matchType],
+    queryKey: ['event-rankings', eventId, matchType, grade],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (matchType) params.append('matchType', matchType);
+      if (grade && grade !== 'All') params.append('grade', grade);
       
       const response = await fetch(
         `${API_BASE_URL}/api/events/${eventId}/rankings?${params.toString()}`

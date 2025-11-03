@@ -73,17 +73,25 @@ export interface EventRanking {
   region: string;
   country: string;
   matchType: string;
+  grade: string;
 }
 
 export interface EventRankingsResponse {
   eventId: number;
   eventName: string;
   matchType: string;
+  grade: string;
   rankings: EventRanking[];
   total: number;
   teamsInEvent: number;
+  totalTeamsInEvent: number;
   teamsWithRankings: number;
   teamsWithoutRankings: number;
+  gradeBreakdown: {
+    'High School': number;
+    'Middle School': number;
+    'Unknown': number;
+  };
 }
 
 export interface Award {

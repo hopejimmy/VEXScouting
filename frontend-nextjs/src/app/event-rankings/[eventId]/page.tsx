@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useEventRankings } from '@/hooks/useEventRankings';
 import { RankingsTable } from '@/components/event-rankings/RankingsTable';
 import { Header } from '@/components/navigation/Header';
@@ -20,8 +21,10 @@ export default function EventRankingsPage() {
   const matchType = searchParams.get('matchType') || 'VRC';
   const returnUrl = searchParams.get('returnUrl') || '/';
   const highlightTeam = searchParams.get('highlightTeam') || undefined;
+  
+  const [selectedGrade, setSelectedGrade] = useState<string>('All');
 
-  const { data, isLoading, error } = useEventRankings(eventId, matchType);
+  const { data, isLoading, error } = useEventRankings(eventId, matchType, selectedGrade);
 
   const handleBack = () => {
     router.push(returnUrl);
@@ -31,11 +34,12 @@ export default function EventRankingsPage() {
     if (!data || !data.rankings) return;
     
     // Create CSV content
-    const headers = ['Event Rank', 'Team Number', 'Team Name', 'World Rank', 'Combined Score', 'Auto Skills', 'Driver Skills', 'Organization', 'Region'];
+    const headers = ['Event Rank', 'Team Number', 'Team Name', 'Grade', 'World Rank', 'Combined Score', 'Auto Skills', 'Driver Skills', 'Organization', 'Region'];
     const rows = data.rankings.map(team => [
       team.eventRank,
       team.teamNumber,
       team.teamName,
+      team.grade,
       team.worldRank,
       team.combinedScore,
       team.highestAutonomousSkills,
@@ -107,14 +111,45 @@ export default function EventRankingsPage() {
           >
             {/* Event Header */}
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                {data.eventName}
-              </h1>
-              <div className="flex items-center space-x-4 text-gray-600">
-                <Badge className="bg-blue-100 text-blue-700 border-blue-200">
-                  {data.matchType}
-                </Badge>
-                <span className="text-sm">Event ID: {data.eventId}</span>
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                    {data.eventName}
+                  </h1>
+                  <div className="flex items-center space-x-4 text-gray-600">
+                    <Badge className="bg-blue-100 text-blue-700 border-blue-200">
+                      {data.matchType}
+                    </Badge>
+                    <span className="text-sm">Event ID: {data.eventId}</span>
+                  </div>
+                </div>
+                
+                {/* Grade Filter */}
+                {data.gradeBreakdown && (data.gradeBreakdown['High School'] > 0 || data.gradeBreakdown['Middle School'] > 0) && (
+                  <div className="flex flex-col items-end space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Filter by Grade:</label>
+                    <Select value={selectedGrade} onValueChange={setSelectedGrade}>
+                      <SelectTrigger className="w-[200px]">
+                        <SelectValue placeholder="Select grade" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="All">
+                          All ({data.totalTeamsInEvent})
+                        </SelectItem>
+                        {data.gradeBreakdown['High School'] > 0 && (
+                          <SelectItem value="High School">
+                            High School ({data.gradeBreakdown['High School']})
+                          </SelectItem>
+                        )}
+                        {data.gradeBreakdown['Middle School'] > 0 && (
+                          <SelectItem value="Middle School">
+                            Middle School ({data.gradeBreakdown['Middle School']})
+                          </SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
             </div>
 
