@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useEventRankings } from '@/hooks/useEventRankings';
 import { RankingsTable } from '@/components/event-rankings/RankingsTable';
-import Header from '@/components/navigation/Header';
+import { Header } from '@/components/navigation/Header';
 
 export default function EventRankingsPage() {
   const params = useParams();
