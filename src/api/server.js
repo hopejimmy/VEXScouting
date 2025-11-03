@@ -803,6 +803,109 @@ app.get('/api/search', async (req, res) => {
   }
 });
 
+// Get event rankings - teams in a specific event with their world rankings
+app.get('/api/events/:eventId/rankings', async (req, res) => {
+  const { eventId } = req.params;
+  const { matchType } = req.query;
+  
+  try {
+    const apiToken = process.env.ROBOTEVENTS_API_TOKEN;
+    
+    if (!apiToken) {
+      return res.status(500).json({ error: 'RobotEvents API token not configured' });
+    }
+    
+    // Step 1: Fetch teams registered for this event from RobotEvents API
+    const teamsResponse = await fetch(
+      `https://www.robotevents.com/api/v2/events/${eventId}/teams`,
+      {
+        headers: {
+          'Authorization': `Bearer ${apiToken}`,
+          'Accept': 'application/json'
+        }
+      }
+    );
+    
+    if (!teamsResponse.ok) {
+      throw new Error(`RobotEvents API error: ${teamsResponse.status}`);
+    }
+    
+    const teamsData = await teamsResponse.json();
+    const eventInfo = teamsData.meta?.event;
+    const teams = teamsData.data || [];
+    
+    // Extract team numbers
+    const teamNumbers = teams.map(team => team.number);
+    
+    if (teamNumbers.length === 0) {
+      return res.json({
+        eventId: parseInt(eventId),
+        eventName: eventInfo?.name || 'Unknown Event',
+        matchType: matchType || 'VRC',
+        rankings: [],
+        total: 0,
+        teamsInEvent: 0,
+        teamsWithRankings: 0
+      });
+    }
+    
+    // Step 2: Query local database for world rankings of these teams
+    let query = `
+      SELECT * FROM skills_standings 
+      WHERE teamNumber = ANY($1)
+    `;
+    let params = [teamNumbers];
+    
+    if (matchType) {
+      query += ' AND matchType = $2';
+      params.push(matchType);
+    }
+    
+    // Sort by: 1) Combined Score 2) Auto Skills 3) Driver Skills 4) World Rank
+    query += `
+      ORDER BY 
+        score DESC,
+        highestAutonomousSkills DESC,
+        highestDriverSkills DESC,
+        rank ASC
+    `;
+    
+    const result = await pool.query(query, params);
+    
+    // Step 3: Transform data and add event rank
+    const rankings = result.rows.map((team, index) => ({
+      eventRank: index + 1,
+      teamNumber: team.teamnumber,
+      teamName: team.teamname,
+      worldRank: team.rank,
+      combinedScore: team.score,
+      autonomousSkills: team.autonomousskills,
+      driverSkills: team.driverskills,
+      highestAutonomousSkills: team.highestautonomousskills,
+      highestDriverSkills: team.highestdriverskills,
+      organization: team.organization,
+      region: team.eventregion,
+      country: team.countryregion,
+      matchType: team.matchtype
+    }));
+    
+    res.json({
+      eventId: parseInt(eventId),
+      eventName: eventInfo?.name || 'Unknown Event',
+      matchType: matchType || 'VRC',
+      rankings,
+      total: rankings.length,
+      teamsInEvent: teamNumbers.length,
+      teamsWithRankings: rankings.length,
+      teamsWithoutRankings: teamNumbers.length - rankings.length
+    });
+    
+  } catch (error) {
+    console.error('Error fetching event rankings:', error);
+    res.status(500).json({ error: 'Failed to fetch event rankings', details: error.message });
+  }
+});
+
 // Get team events for the current season
 app.get('/api/teams/:teamNumber/events', async (req, res) => {
   try {

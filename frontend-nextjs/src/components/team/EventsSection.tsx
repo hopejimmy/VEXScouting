@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Calendar, MapPin } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -18,6 +19,7 @@ interface EventsSectionProps {
   error: Error | null;
   onSeasonChange: (seasonId: string) => void;
   currentSeasonId: string;
+  matchType?: string;
 }
 
 export function EventsSection({ 
@@ -26,13 +28,26 @@ export function EventsSection({
   isLoading, 
   error, 
   onSeasonChange,
-  currentSeasonId 
+  currentSeasonId,
+  matchType = 'VRC'
 }: EventsSectionProps) {
+  const router = useRouter();
   const { data: seasons, isLoading: isSeasonsLoading } = useSeasons();
   
   // Fetch awards for all events
   const eventIds = events.map(event => event.id);
   const { data: awardsMap, isLoading: isAwardsLoading } = useMultipleTeamAwards(teamNumber, eventIds);
+  
+  // Handle event card click
+  const handleEventClick = (event: TeamEvent) => {
+    const confirmed = window.confirm(
+      `Would you like to see the world skills rankings for all teams competing in "${event.name}"?`
+    );
+    
+    if (confirmed) {
+      router.push(`/event-rankings/${event.id}?matchType=${matchType}&returnUrl=/team/${teamNumber}`);
+    }
+  };
 
   if (isLoading) {
     return <EventsSkeleton />;
@@ -84,7 +99,11 @@ export function EventsSection({
             const eventAwards = awardsMap?.[event.id] || [];
             
             return (
-              <Card key={event.id} className="hover:shadow-lg transition-shadow">
+              <Card 
+                key={event.id} 
+                className="hover:shadow-lg transition-shadow cursor-pointer hover:border-blue-300"
+                onClick={() => handleEventClick(event)}
+              >
                 <CardHeader>
                   <CardTitle className="flex justify-between items-start">
                     <span>{event.name}</span>
