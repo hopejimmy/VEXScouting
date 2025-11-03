@@ -806,7 +806,7 @@ app.get('/api/search', async (req, res) => {
 // Get event rankings - teams in a specific event with their world rankings
 app.get('/api/events/:eventId/rankings', async (req, res) => {
   const { eventId } = req.params;
-  const { matchType } = req.query;
+  const { matchType, grade } = req.query; // Add grade filter
   
   try {
     const apiToken = process.env.ROBOTEVENTS_API_TOKEN;
@@ -815,27 +815,64 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
       return res.status(500).json({ error: 'RobotEvents API token not configured' });
     }
     
-    // Step 1: Fetch teams registered for this event from RobotEvents API
-    const teamsResponse = await fetch(
-      `https://www.robotevents.com/api/v2/events/${eventId}/teams`,
-      {
-        headers: {
-          'Authorization': `Bearer ${apiToken}`,
-          'Accept': 'application/json'
-        }
-      }
-    );
+    // Step 1: Fetch ALL teams registered for this event from RobotEvents API (with pagination)
+    let allTeams = [];
+    let eventInfo = null;
+    let currentPage = 1;
+    let hasMorePages = true;
     
-    if (!teamsResponse.ok) {
-      throw new Error(`RobotEvents API error: ${teamsResponse.status}`);
+    while (hasMorePages) {
+      const teamsResponse = await fetch(
+        `https://www.robotevents.com/api/v2/events/${eventId}/teams?page=${currentPage}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${apiToken}`,
+            'Accept': 'application/json'
+          }
+        }
+      );
+      
+      if (!teamsResponse.ok) {
+        throw new Error(`RobotEvents API error: ${teamsResponse.status}`);
+      }
+      
+      const teamsData = await teamsResponse.json();
+      
+      // Store event info from first page
+      if (currentPage === 1) {
+        eventInfo = teamsData.meta?.event;
+      }
+      
+      // Add teams from this page
+      const pageTeams = teamsData.data || [];
+      allTeams = allTeams.concat(pageTeams);
+      
+      // Check if there are more pages
+      const meta = teamsData.meta || {};
+      hasMorePages = meta.current_page < meta.last_page;
+      currentPage++;
     }
     
-    const teamsData = await teamsResponse.json();
-    const eventInfo = teamsData.meta?.event;
-    const teams = teamsData.data || [];
+    console.log(`Fetched ${allTeams.length} teams for event ${eventId} across ${currentPage - 1} page(s)`);
+    
+    // Create a map of team number to grade
+    const teamGradeMap = {};
+    allTeams.forEach(team => {
+      teamGradeMap[team.number] = team.grade || 'Unknown';
+    });
+    
+    // Filter by grade if specified
+    let filteredTeams = allTeams;
+    if (grade) {
+      const validGrades = ['High School', 'Middle School'];
+      if (validGrades.includes(grade)) {
+        filteredTeams = allTeams.filter(team => team.grade === grade);
+        console.log(`Filtered to ${filteredTeams.length} ${grade} teams out of ${allTeams.length} total`);
+      }
+    }
     
     // Extract team numbers
-    const teamNumbers = teams.map(team => team.number);
+    const teamNumbers = filteredTeams.map(team => team.number);
     
     if (teamNumbers.length === 0) {
       return res.json({
@@ -872,7 +909,7 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
     
     const result = await pool.query(query, params);
     
-    // Step 3: Transform data and add event rank
+    // Step 3: Transform data and add event rank + grade
     const rankings = result.rows.map((team, index) => ({
       eventRank: index + 1,
       teamNumber: team.teamnumber,
@@ -886,18 +923,29 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
       organization: team.organization,
       region: team.eventregion,
       country: team.countryregion,
-      matchType: team.matchtype
+      matchType: team.matchtype,
+      grade: teamGradeMap[team.teamnumber] || 'Unknown'
     }));
+    
+    // Calculate grade statistics
+    const gradeStats = {
+      'High School': allTeams.filter(t => t.grade === 'High School').length,
+      'Middle School': allTeams.filter(t => t.grade === 'Middle School').length,
+      'Unknown': allTeams.filter(t => !t.grade || (t.grade !== 'High School' && t.grade !== 'Middle School')).length
+    };
     
     res.json({
       eventId: parseInt(eventId),
       eventName: eventInfo?.name || 'Unknown Event',
       matchType: matchType || 'VRC',
+      grade: grade || 'All',
       rankings,
       total: rankings.length,
-      teamsInEvent: teamNumbers.length,
+      teamsInEvent: filteredTeams.length,
+      totalTeamsInEvent: allTeams.length,
       teamsWithRankings: rankings.length,
-      teamsWithoutRankings: teamNumbers.length - rankings.length
+      teamsWithoutRankings: filteredTeams.length - rankings.length,
+      gradeBreakdown: gradeStats
     });
     
   } catch (error) {
