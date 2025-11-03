@@ -45,7 +45,7 @@ export function EventsSection({
     );
     
     if (confirmed) {
-      router.push(`/event-rankings/${event.id}?matchType=${matchType}&returnUrl=/team/${teamNumber}`);
+      router.push(`/event-rankings/${event.id}?matchType=${matchType}&eventName=${encodeURIComponent(event.name)}&returnUrl=/team/${teamNumber}`);
     }
   };
 
