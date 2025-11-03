@@ -815,27 +815,48 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
       return res.status(500).json({ error: 'RobotEvents API token not configured' });
     }
     
-    // Step 1: Fetch teams registered for this event from RobotEvents API
-    const teamsResponse = await fetch(
-      `https://www.robotevents.com/api/v2/events/${eventId}/teams`,
-      {
-        headers: {
-          'Authorization': `Bearer ${apiToken}`,
-          'Accept': 'application/json'
-        }
-      }
-    );
+    // Step 1: Fetch ALL teams registered for this event from RobotEvents API (with pagination)
+    let allTeams = [];
+    let eventInfo = null;
+    let currentPage = 1;
+    let hasMorePages = true;
     
-    if (!teamsResponse.ok) {
-      throw new Error(`RobotEvents API error: ${teamsResponse.status}`);
+    while (hasMorePages) {
+      const teamsResponse = await fetch(
+        `https://www.robotevents.com/api/v2/events/${eventId}/teams?page=${currentPage}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${apiToken}`,
+            'Accept': 'application/json'
+          }
+        }
+      );
+      
+      if (!teamsResponse.ok) {
+        throw new Error(`RobotEvents API error: ${teamsResponse.status}`);
+      }
+      
+      const teamsData = await teamsResponse.json();
+      
+      // Store event info from first page
+      if (currentPage === 1) {
+        eventInfo = teamsData.meta?.event;
+      }
+      
+      // Add teams from this page
+      const pageTeams = teamsData.data || [];
+      allTeams = allTeams.concat(pageTeams);
+      
+      // Check if there are more pages
+      const meta = teamsData.meta || {};
+      hasMorePages = meta.current_page < meta.last_page;
+      currentPage++;
     }
     
-    const teamsData = await teamsResponse.json();
-    const eventInfo = teamsData.meta?.event;
-    const teams = teamsData.data || [];
+    console.log(`Fetched ${allTeams.length} teams for event ${eventId} across ${currentPage - 1} page(s)`);
     
     // Extract team numbers
-    const teamNumbers = teams.map(team => team.number);
+    const teamNumbers = allTeams.map(team => team.number);
     
     if (teamNumbers.length === 0) {
       return res.json({
