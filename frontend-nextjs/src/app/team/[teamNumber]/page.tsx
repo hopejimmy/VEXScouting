@@ -19,6 +19,7 @@ import { useTeamEvents } from '@/hooks/useTeamEvents';
 import { SkillsSection } from '@/components/team/SkillsSection';
 import { EventsSection } from '@/components/team/EventsSection';
 import { Separator } from '@/components/ui/separator';
+import { CURRENT_SEASON_ID } from '@/config/seasons';
 
 export default function TeamDetailPage() {
   const params = useParams();
@@ -26,7 +27,7 @@ export default function TeamDetailPage() {
   const searchParams = useSearchParams();
   const teamNumber = params.teamNumber as string;
   const [mounted, setMounted] = useState(false);
-  const [selectedSeasonId, setSelectedSeasonId] = useState('190'); // Default to High Stakes
+  const [selectedSeasonId, setSelectedSeasonId] = useState(CURRENT_SEASON_ID); // Default to current season
   
   useEffect(() => {
     setMounted(true);
