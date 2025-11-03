@@ -189,10 +189,10 @@ async function initializeDatabase() {
       throw new Error('Database connection test failed');
     }
 
-    // Create skills_standings table
+    // Create skills_standings table with composite primary key
     await pool.query(`
       CREATE TABLE IF NOT EXISTS skills_standings (
-        teamNumber TEXT PRIMARY KEY,
+        teamNumber TEXT NOT NULL,
         teamName TEXT,
         organization TEXT,
         eventRegion TEXT,
@@ -207,8 +207,9 @@ async function initializeDatabase() {
         highestDriverTimestamp TEXT,
         highestAutonomousStopTime INTEGER,
         highestDriverStopTime INTEGER,
-        matchType TEXT DEFAULT 'VRC',
-        lastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        matchType TEXT NOT NULL DEFAULT 'VRC',
+        lastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (teamNumber, matchType)
       )
     `);
 
@@ -620,14 +621,14 @@ app.post('/api/upload', authenticateToken, requireRole('admin'), upload.single('
             matchType: matchType
           };
 
-          // Upsert query using ON CONFLICT
+          // Upsert query using ON CONFLICT with composite key
           await pool.query(`
             INSERT INTO skills_standings (
               teamNumber, teamName, organization, eventRegion, countryRegion,
               rank, score, autonomousSkills, driverSkills,
               highestAutonomousSkills, highestDriverSkills, matchType
             ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-            ON CONFLICT (teamNumber) DO UPDATE SET
+            ON CONFLICT (teamNumber, matchType) DO UPDATE SET
               teamName = EXCLUDED.teamName,
               organization = EXCLUDED.organization,
               eventRegion = EXCLUDED.eventRegion,
@@ -638,7 +639,6 @@ app.post('/api/upload', authenticateToken, requireRole('admin'), upload.single('
               driverSkills = EXCLUDED.driverSkills,
               highestAutonomousSkills = EXCLUDED.highestAutonomousSkills,
               highestDriverSkills = EXCLUDED.highestDriverSkills,
-              matchType = EXCLUDED.matchType,
               lastUpdated = CURRENT_TIMESTAMP
           `, [
             mappedRecord.teamNumber,
