@@ -21,10 +21,14 @@ export default function EventRankingsPage() {
   const matchType = searchParams.get('matchType') || 'VRC';
   const returnUrl = searchParams.get('returnUrl') || '/';
   const highlightTeam = searchParams.get('highlightTeam') || undefined;
+  const eventNameFromUrl = searchParams.get('eventName') || null;
   
   const [selectedGrade, setSelectedGrade] = useState<string>('All');
 
   const { data, isLoading, error } = useEventRankings(eventId, matchType, selectedGrade);
+  
+  // Use event name from URL if available, otherwise use data from API
+  const displayEventName = eventNameFromUrl || data?.eventName || 'Event Rankings';
 
   const handleBack = () => {
     router.push(returnUrl);
@@ -114,7 +118,7 @@ export default function EventRankingsPage() {
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                    {data.eventName}
+                    {displayEventName}
                   </h1>
                   <div className="flex items-center space-x-4 text-gray-600">
                     <Badge className="bg-blue-100 text-blue-700 border-blue-200">
