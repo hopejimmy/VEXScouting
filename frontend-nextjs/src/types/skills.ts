@@ -17,6 +17,7 @@ export interface Team {
   highestAutonomousStopTime: number;
   highestDriverStopTime: number;
   matchType: string;
+  lastUpdated?: string;
   // Computed properties for backward compatibility
   region?: string;
   skills?: SkillsData;

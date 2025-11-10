@@ -41,6 +41,27 @@ function SkillsError() {
   );
 }
 
+// Helper function to format timestamp for display
+function formatTimestamp(timestamp: string | undefined | null): string {
+  if (!timestamp || timestamp === '' || timestamp === '0') {
+    return 'N/A';
+  }
+  
+  try {
+    const date = new Date(timestamp);
+    if (isNaN(date.getTime())) {
+      return 'N/A';
+    }
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  } catch {
+    return 'N/A';
+  }
+}
+
 export function SkillsSection({ teamNumber, team, isLoading, error }: SkillsSectionProps) {
   if (isLoading) {
     return <SkillsSkeleton />;
@@ -65,6 +86,7 @@ export function SkillsSection({ teamNumber, team, isLoading, error }: SkillsSect
         <span>Skills Performance</span>
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Autonomous Skills Card */}
         <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
           <CardHeader className="text-center">
             <CardTitle className="text-blue-700">Autonomous Skills</CardTitle>
@@ -73,10 +95,15 @@ export function SkillsSection({ teamNumber, team, isLoading, error }: SkillsSect
             <div className="text-4xl font-bold text-blue-900 mb-2">
               {team.autonomousSkills}
             </div>
-            <p className="text-sm text-blue-600">Points</p>
+            <p className="text-sm text-blue-600 mb-3">Points</p>
+            {/* Timestamp when autonomous run was recorded */}
+            <p className="text-xs text-blue-500/70">
+              Recorded: {formatTimestamp(team.highestAutonomousTimestamp)}
+            </p>
           </CardContent>
         </Card>
 
+        {/* Driver Skills Card */}
         <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
           <CardHeader className="text-center">
             <CardTitle className="text-purple-700">Driver Skills</CardTitle>
@@ -85,10 +112,15 @@ export function SkillsSection({ teamNumber, team, isLoading, error }: SkillsSect
             <div className="text-4xl font-bold text-purple-900 mb-2">
               {team.driverSkills}
             </div>
-            <p className="text-sm text-purple-600">Points</p>
+            <p className="text-sm text-purple-600 mb-3">Points</p>
+            {/* Timestamp when driver run was recorded */}
+            <p className="text-xs text-purple-500/70">
+              Recorded: {formatTimestamp(team.highestDriverTimestamp)}
+            </p>
           </CardContent>
         </Card>
 
+        {/* Total Score Card */}
         <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
           <CardHeader className="text-center">
             <CardTitle className="text-green-700">Total Score</CardTitle>
@@ -97,7 +129,11 @@ export function SkillsSection({ teamNumber, team, isLoading, error }: SkillsSect
             <div className="text-4xl font-bold text-green-900 mb-2">
               {team.score}
             </div>
-            <p className="text-sm text-green-600">Combined Points</p>
+            <p className="text-sm text-green-600 mb-3">Combined Points</p>
+            {/* Database last updated timestamp */}
+            <p className="text-xs text-green-500/70">
+              Data updated: {formatTimestamp(team.lastUpdated)}
+            </p>
           </CardContent>
         </Card>
       </div>
