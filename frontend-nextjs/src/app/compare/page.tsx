@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipProvider } from '@/components/ui/tooltip';
 import { Header } from '@/components/navigation/Header';
+import { Footer } from '@/components/navigation/Footer';
 import { useCompare } from '@/contexts/CompareContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { useQuery } from '@tanstack/react-query';
@@ -224,6 +225,9 @@ export default function ComparePage() {
           </>
         )}
       </main>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
