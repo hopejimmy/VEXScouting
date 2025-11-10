@@ -965,10 +965,11 @@ app.get('/api/teams/:teamNumber/events', async (req, res) => {
     const apiToken = process.env.ROBOTEVENTS_API_TOKEN;
 
     // Map matchType to RobotEvents program ID
+    // CRITICAL: Verified from RobotEvents API on 2025-11-10
     const programMap = {
-      'VRC': '1',
-      'VEXIQ': '4',
-      'VEXU': '41'
+      'VRC': '1',      // VEX V5 Robotics Competition
+      'VEXIQ': '41',   // VEX IQ Robotics Competition (NOT 4!)
+      'VEXU': '4'      // VEX U Robotics Competition (NOT 41!)
     };
 
     // Get program ID from matchType, default to VRC if not provided
@@ -1067,10 +1068,11 @@ app.get('/api/teams/:teamNumber/events/:eventId/awards', async (req, res) => {
     const apiToken = process.env.ROBOTEVENTS_API_TOKEN;
 
     // Map matchType to RobotEvents program ID
+    // CRITICAL: Verified from RobotEvents API on 2025-11-10
     const programMap = {
-      'VRC': '1',
-      'VEXIQ': '4',
-      'VEXU': '41'
+      'VRC': '1',      // VEX V5 Robotics Competition
+      'VEXIQ': '41',   // VEX IQ Robotics Competition (NOT 4!)
+      'VEXU': '4'      // VEX U Robotics Competition (NOT 41!)
     };
 
     // Get program ID from matchType, default to VRC if not provided
@@ -1155,10 +1157,11 @@ app.get('/api/seasons', async (req, res) => {
     }
 
     // Map matchType to RobotEvents program ID
+    // CRITICAL: Verified from RobotEvents API on 2025-11-10
     const programMap = {
-      'VRC': '1',
-      'VEXIQ': '4',
-      'VEXU': '41'
+      'VRC': '1',      // VEX V5 Robotics Competition
+      'VEXIQ': '41',   // VEX IQ Robotics Competition (NOT 4!)
+      'VEXU': '4'      // VEX U Robotics Competition (NOT 41!)
     };
 
     // Default to VRC if no matchType specified (backward compatibility)
