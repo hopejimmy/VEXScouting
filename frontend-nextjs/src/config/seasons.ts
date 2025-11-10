@@ -31,33 +31,48 @@ export const VRC_SEASON_IDS = {
 
 /**
  * Historical VEXIQ season IDs for reference only
+ * VERIFIED from RobotEvents API on 2025-11-10
  */
 export const VEXIQ_SEASON_IDS = {
-  MIX_AND_MATCH: '198',  // 2025-2026 (estimated - verify in RobotEvents)
-  RAPID_RELAY: '196',    // 2024-2025
-  FULL_VOLUME: '187',    // 2023-2024
+  MIX_AND_MATCH: '196',  // 2025-2026 - VERIFIED ✅
+  RAPID_RELAY: '189',    // 2024-2025
+  FULL_VOLUME: '180',    // 2023-2024
+} as const;
+
+/**
+ * Historical VEXU season IDs for reference only
+ * VERIFIED from RobotEvents API on 2025-11-10
+ */
+export const VEXU_SEASON_IDS = {
+  PUSH_BACK: '198',      // 2025-2026 - VERIFIED ✅
+  HIGH_STAKES: '191',    // 2024-2025
+  OVER_UNDER: '182',     // 2023-2024
 } as const;
 
 /**
  * Program-specific season information
  * NOTE: This is dynamically fetched from RobotEvents API
  * These constants are for reference only
+ * VERIFIED from RobotEvents API on 2025-11-10
  */
 export const CURRENT_SEASONS_BY_PROGRAM = {
   VRC: {
     name: 'Push Back',
     years: '2025-2026',
-    id: '197'
+    id: '197',
+    programId: '1'
   },
   VEXIQ: {
     name: 'Mix & Match',
     years: '2025-2026',
-    id: '198' // Auto-detected from API
+    id: '196',           // VERIFIED ✅
+    programId: '41'      // CRITICAL: Program ID is 41, not 4!
   },
   VEXU: {
     name: 'Push Back',
     years: '2025-2026',
-    id: '197' // Same as VRC
+    id: '198',           // VERIFIED ✅
+    programId: '4'       // CRITICAL: Program ID is 4, not 41!
   }
 } as const;
 
