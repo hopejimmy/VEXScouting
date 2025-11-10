@@ -56,6 +56,11 @@ const corsOptions = {
       if (origin.includes('.vercel.app')) {
         return callback(null, true);
       }
+      
+      // Allow custom domains
+      if (origin.includes('vexscouting.ca')) {
+        return callback(null, true);
+      }
     }
     
     if (allowedOrigins.includes(origin)) {
