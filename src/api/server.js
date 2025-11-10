@@ -958,21 +958,31 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
 app.get('/api/teams/:teamNumber/events', async (req, res) => {
   try {
     const { teamNumber } = req.params;
-    const { season } = req.query;
+    const { season, matchType } = req.query;
     
     // Get the current season ID and API token from environment
     const seasonId = season || process.env.CURRENT_SEASON_ID || '190'; // Use query param or default to High Stakes
     const apiToken = process.env.ROBOTEVENTS_API_TOKEN;
 
-    console.log('Using season ID:', seasonId); // Debug log
+    // Map matchType to RobotEvents program ID
+    const programMap = {
+      'VRC': '1',
+      'VEXIQ': '4',
+      'VEXU': '41'
+    };
+
+    // Get program ID from matchType, default to VRC if not provided
+    const programId = matchType && programMap[matchType] ? programMap[matchType] : '1';
+
+    console.log(`Fetching team ${teamNumber} for program: ${matchType || 'VRC'} (ID: ${programId}), season: ${seasonId}`);
 
     if (!apiToken) {
       throw new Error('RobotEvents API token not configured');
     }
 
-    // First get the team ID by searching for the team
+    // First get the team ID by searching for the team with the correct program
     const teamResponse = await fetch(
-      `https://www.robotevents.com/api/v2/teams?number[]=${encodeURIComponent(teamNumber.toUpperCase())}&program[]=1`,
+      `https://www.robotevents.com/api/v2/teams?number[]=${encodeURIComponent(teamNumber.toUpperCase())}&program[]=${programId}`,
       {
         headers: {
           'Authorization': `Bearer ${apiToken}`,
@@ -1053,15 +1063,28 @@ app.get('/api/teams/:teamNumber/events', async (req, res) => {
 app.get('/api/teams/:teamNumber/events/:eventId/awards', async (req, res) => {
   try {
     const { teamNumber, eventId } = req.params;
+    const { matchType } = req.query;
     const apiToken = process.env.ROBOTEVENTS_API_TOKEN;
+
+    // Map matchType to RobotEvents program ID
+    const programMap = {
+      'VRC': '1',
+      'VEXIQ': '4',
+      'VEXU': '41'
+    };
+
+    // Get program ID from matchType, default to VRC if not provided
+    const programId = matchType && programMap[matchType] ? programMap[matchType] : '1';
+
+    console.log(`Fetching awards for team ${teamNumber} at event ${eventId} for program: ${matchType || 'VRC'} (ID: ${programId})`);
 
     if (!apiToken) {
       throw new Error('RobotEvents API token not configured');
     }
 
-    // First get the team ID by searching for the team
+    // First get the team ID by searching for the team with the correct program
     const teamResponse = await fetch(
-      `https://www.robotevents.com/api/v2/teams?number[]=${encodeURIComponent(teamNumber.toUpperCase())}&program[]=1`,
+      `https://www.robotevents.com/api/v2/teams?number[]=${encodeURIComponent(teamNumber.toUpperCase())}&program[]=${programId}`,
       {
         headers: {
           'Authorization': `Bearer ${apiToken}`,
