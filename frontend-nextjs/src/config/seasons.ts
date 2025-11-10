@@ -1,18 +1,27 @@
 /**
- * VEX Robotics Competition Season Configuration
+ * VEX Robotics Season Configuration
  * 
- * Update this file when a new season starts to automatically
- * update the default season across the application.
+ * NOTE: As of the dynamic season implementation, seasons are now automatically
+ * fetched from the RobotEvents API based on the team's program (VRC, VEXIQ, VEXU).
+ * 
+ * The system automatically:
+ * - Detects the current season for each program
+ * - Returns the most recent season as default
+ * - No manual updates needed when new seasons release
+ * 
+ * This file is kept for reference and backward compatibility only.
  */
-
-export const CURRENT_SEASON_ID = '197'; // VRC 2025-2026: Push Back
-export const CURRENT_SEASON_NAME = 'Push Back';
-export const CURRENT_SEASON_YEARS = '2025-2026';
 
 /**
- * Historical season IDs for reference
+ * @deprecated - Seasons are now fetched dynamically from RobotEvents API
+ * The current season is automatically detected as the most recent season
+ * for each program (VRC, VEXIQ, VEXU)
  */
-export const SEASON_IDS = {
+
+/**
+ * Historical VRC season IDs for reference only
+ */
+export const VRC_SEASON_IDS = {
   PUSH_BACK: '197',      // 2025-2026
   HIGH_STAKES: '190',    // 2024-2025
   OVER_UNDER: '181',     // 2023-2024
@@ -21,13 +30,34 @@ export const SEASON_IDS = {
 } as const;
 
 /**
- * Season display names
+ * Historical VEXIQ season IDs for reference only
  */
-export const SEASON_NAMES = {
-  '197': 'Push Back (2025-2026)',
-  '190': 'High Stakes (2024-2025)',
-  '181': 'Over Under (2023-2024)',
-  '173': 'Spin Up (2022-2023)',
-  '154': 'Tipping Point (2021-2022)',
+export const VEXIQ_SEASON_IDS = {
+  MIX_AND_MATCH: '198',  // 2025-2026 (estimated - verify in RobotEvents)
+  RAPID_RELAY: '196',    // 2024-2025
+  FULL_VOLUME: '187',    // 2023-2024
+} as const;
+
+/**
+ * Program-specific season information
+ * NOTE: This is dynamically fetched from RobotEvents API
+ * These constants are for reference only
+ */
+export const CURRENT_SEASONS_BY_PROGRAM = {
+  VRC: {
+    name: 'Push Back',
+    years: '2025-2026',
+    id: '197'
+  },
+  VEXIQ: {
+    name: 'Mix & Match',
+    years: '2025-2026',
+    id: '198' // Auto-detected from API
+  },
+  VEXU: {
+    name: 'Push Back',
+    years: '2025-2026',
+    id: '197' // Same as VRC
+  }
 } as const;
 
