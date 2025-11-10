@@ -19,7 +19,7 @@ import { useTeamEvents } from '@/hooks/useTeamEvents';
 import { SkillsSection } from '@/components/team/SkillsSection';
 import { EventsSection } from '@/components/team/EventsSection';
 import { Separator } from '@/components/ui/separator';
-import { CURRENT_SEASON_ID } from '@/config/seasons';
+import { useSeasons } from '@/hooks/useSeasons';
 
 export default function TeamDetailPage() {
   const params = useParams();
@@ -27,18 +27,31 @@ export default function TeamDetailPage() {
   const searchParams = useSearchParams();
   const teamNumber = params.teamNumber as string;
   const [mounted, setMounted] = useState(false);
-  const [selectedSeasonId, setSelectedSeasonId] = useState(CURRENT_SEASON_ID); // Default to current season
+  const [selectedSeasonId, setSelectedSeasonId] = useState<string | null>(null);
   
   useEffect(() => {
     setMounted(true);
   }, []);
   
   const { data: team, isLoading: isTeamLoading, error: teamError } = useTeam(teamNumber);
+  
+  // Fetch seasons for the team's specific program (VRC, VEXIQ, or VEXU)
+  // This ensures we get the correct seasons for the team's program
+  const { data: seasons, isLoading: isSeasonsLoading } = useSeasons(team?.matchType);
+  
+  // Auto-select current season when seasons load
+  // The seasons array is sorted by most recent first, so seasons[0] = current season
+  useEffect(() => {
+    if (seasons && seasons.length > 0 && selectedSeasonId === null) {
+      setSelectedSeasonId(seasons[0].id.toString());
+    }
+  }, [seasons, selectedSeasonId]);
+  
   // CRITICAL: Pass matchType to useTeamEvents to prevent race condition
-  // Only fetch events when we have the team data with matchType
+  // Only fetch events when we have the team data with matchType AND a selected season
   const { data: events, isLoading: isEventsLoading, error: eventsError } = useTeamEvents(
     teamNumber, 
-    selectedSeasonId, 
+    selectedSeasonId || '', 
     team?.matchType
   );
 
@@ -216,6 +229,8 @@ export default function TeamDetailPage() {
               onSeasonChange={handleSeasonChange}
               currentSeasonId={selectedSeasonId}
               matchType={team.matchType}
+              seasons={seasons}
+              isSeasonsLoading={isSeasonsLoading}
             />
 
             {/* Team Information */}

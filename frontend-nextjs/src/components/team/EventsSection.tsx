@@ -9,8 +9,14 @@ import { EventsSkeleton } from './EventsSkeleton';
 import { EventsError } from './EventsError';
 import { AwardsBadge } from './AwardsBadge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useSeasons } from '@/hooks/useSeasons';
 import { useMultipleTeamAwards } from '@/hooks/useAwards';
+
+interface Season {
+  id: number;
+  name: string;
+  start: string;
+  end: string;
+}
 
 interface EventsSectionProps {
   teamNumber: string;
@@ -18,8 +24,10 @@ interface EventsSectionProps {
   isLoading: boolean;
   error: Error | null;
   onSeasonChange: (seasonId: string) => void;
-  currentSeasonId: string;
+  currentSeasonId: string | null;
   matchType?: string;
+  seasons?: Season[];
+  isSeasonsLoading?: boolean;
 }
 
 export function EventsSection({ 
@@ -29,10 +37,11 @@ export function EventsSection({
   error, 
   onSeasonChange,
   currentSeasonId,
-  matchType = 'VRC'
+  matchType = 'VRC',
+  seasons = [],
+  isSeasonsLoading = false
 }: EventsSectionProps) {
   const router = useRouter();
-  const { data: seasons, isLoading: isSeasonsLoading } = useSeasons();
   
   // Fetch awards for all events
   // CRITICAL: Pass matchType to prevent race condition and ensure correct program filtering

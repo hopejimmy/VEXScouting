@@ -1143,17 +1143,31 @@ app.get('/api/teams/:teamNumber/events/:eventId/awards', async (req, res) => {
   }
 });
 
-// Get VRC seasons
+// Get seasons for a specific program (VRC, VEXIQ, VEXU)
+// Query param: matchType (VRC, VEXIQ, VEXU) - defaults to VRC for backward compatibility
 app.get('/api/seasons', async (req, res) => {
   try {
+    const { matchType } = req.query;
     const apiToken = process.env.ROBOTEVENTS_API_TOKEN;
 
     if (!apiToken) {
       throw new Error('RobotEvents API token not configured');
     }
 
+    // Map matchType to RobotEvents program ID
+    const programMap = {
+      'VRC': '1',
+      'VEXIQ': '4',
+      'VEXU': '41'
+    };
+
+    // Default to VRC if no matchType specified (backward compatibility)
+    const programId = matchType && programMap[matchType] ? programMap[matchType] : '1';
+    
+    console.log(`Fetching seasons for program: ${matchType || 'VRC'} (ID: ${programId})`);
+
     const response = await fetch(
-      'https://www.robotevents.com/api/v2/seasons?program[]=1', // Filter for VRC program
+      `https://www.robotevents.com/api/v2/seasons?program[]=${programId}`,
       {
         headers: {
           'Authorization': `Bearer ${apiToken}`,
@@ -1170,6 +1184,7 @@ app.get('/api/seasons', async (req, res) => {
     const data = await response.json();
     
     // Transform and sort seasons (most recent first)
+    // The first season in the array will be the CURRENT season for that program
     const seasons = data.data
       .map(season => ({
         id: season.id,
