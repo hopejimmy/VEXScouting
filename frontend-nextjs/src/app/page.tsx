@@ -12,6 +12,7 @@ import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { useCompare } from '@/contexts/CompareContext';
 import { Header } from '@/components/navigation/Header';
+import { Footer } from '@/components/navigation/Footer';
 import type { Team, Program } from '@/types/skills';
 
 // Force dynamic rendering for pages that use searchParams
@@ -207,24 +208,111 @@ function HomeContent() {
           </form>
         </motion.div>
 
-        {/* Results */}
+        {/* Features & Marketing Section - shown when no search query, hidden when results appear */}
         {!hasQuery && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="text-center"
+            className="space-y-10"
           >
-            <Card className="p-12 border-gray-200 bg-white/60 backdrop-blur-sm">
-              <div className="text-gray-400 mb-4">
-                <Search className="w-16 h-16 mx-auto mb-4" />
+            {/* Platform Stats Dashboard */}
+            <div className="grid grid-cols-3 gap-6 max-w-3xl mx-auto">
+              <div className="text-center">
+                <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+                  10,000+
+                </div>
+                <div className="text-sm text-gray-600 mt-1">Teams Tracked</div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                Welcome to VEX Scouting
-              </h3>
-              <p className="text-gray-600 max-w-md mx-auto">
-                Enter a team number or name in the search box above to find teams and view their performance data across different VEX competitions.
-              </p>
+              <div className="text-center">
+                <div className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-purple-700 bg-clip-text text-transparent">
+                  3
+                </div>
+                <div className="text-sm text-gray-600 mt-1">Programs Supported</div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">
+                  500+
+                </div>
+                <div className="text-sm text-gray-600 mt-1">Events Monitored</div>
+              </div>
+            </div>
+
+            {/* Core Features Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Feature 1: Instant Team Search */}
+              <Card className="p-6 hover:shadow-lg transition-shadow border-blue-200 bg-gradient-to-br from-blue-50 to-white">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                    <Search className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <h4 className="text-lg font-semibold text-gray-900">Instant Rankings</h4>
+                </div>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Search any team instantly to view world skills rankings, autonomous and driver scores, 
+                  and complete competition history across all seasons.
+                </p>
+              </Card>
+
+              {/* Feature 2: Team Comparison */}
+              <Card className="p-6 hover:shadow-lg transition-shadow border-purple-200 bg-gradient-to-br from-purple-50 to-white">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center">
+                    <GitCompare className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <h4 className="text-lg font-semibold text-gray-900">Compare Teams</h4>
+                </div>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Compare up to 4 teams side-by-side. Analyze strengths, identify weaknesses, 
+                  and find competitive advantages to improve your strategy.
+                </p>
+              </Card>
+
+              {/* Feature 3: Event Scouting */}
+              <Card className="p-6 hover:shadow-lg transition-shadow border-green-200 bg-gradient-to-br from-green-50 to-white">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
+                    <Trophy className="w-6 h-6 text-green-600" />
+                  </div>
+                  <h4 className="text-lg font-semibold text-gray-900">Scout Events</h4>
+                </div>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  View complete event rankings and scout your opponents. See all competing teams, 
+                  their skills scores, and prepare winning strategies before match day.
+                </p>
+              </Card>
+            </div>
+
+            {/* Why VEX Scouting Benefits */}
+            <Card className="p-8 border-gray-200 bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50">
+              <div className="text-center max-w-3xl mx-auto">
+                <h4 className="text-xl font-semibold text-gray-900 mb-6">
+                  Why Choose VEX Scouting?
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="text-center">
+                    <div className="text-2xl mb-2">⚡</div>
+                    <div className="font-semibold text-blue-700 mb-2">Real-time Data</div>
+                    <p className="text-sm text-gray-600">
+                      Up-to-date skills rankings and competition results
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl mb-2">🎯</div>
+                    <div className="font-semibold text-purple-700 mb-2">Multi-Program Support</div>
+                    <p className="text-sm text-gray-600">
+                      Track VRC, VEXIQ, and VEXU teams in one unified platform
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl mb-2">📊</div>
+                    <div className="font-semibold text-green-700 mb-2">Advanced Analytics</div>
+                    <p className="text-sm text-gray-600">
+                      Deep insights into team performance and competitive trends
+                    </p>
+                  </div>
+                </div>
+              </div>
             </Card>
           </motion.div>
         )}
@@ -314,6 +402,9 @@ function HomeContent() {
           </motion.div>
         )}
       </main>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

@@ -20,6 +20,7 @@ import { SkillsSection } from '@/components/team/SkillsSection';
 import { EventsSection } from '@/components/team/EventsSection';
 import { Separator } from '@/components/ui/separator';
 import { useSeasons } from '@/hooks/useSeasons';
+import { Footer } from '@/components/navigation/Footer';
 
 export default function TeamDetailPage() {
   const params = useParams();
@@ -284,6 +285,9 @@ export default function TeamDetailPage() {
           </motion.div>
         )}
       </main>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
