@@ -197,14 +197,26 @@ export default function TeamDetailPage() {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center space-x-4">
-                <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200 text-lg px-4 py-2">
-                  Rank #{team.rank}
-                </Badge>
-                <Badge className={getMatchTypeBadgeColor(team.matchType)} variant="outline">
-                  {team.matchType}
-                </Badge>
-                <TeamActions team={team} />
+              <div className="flex flex-col items-end space-y-2">
+                <div className="flex items-center space-x-4">
+                  <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200 text-lg px-4 py-2">
+                    Rank #{team.rank}
+                  </Badge>
+                  <Badge className={getMatchTypeBadgeColor(team.matchType)} variant="outline">
+                    {team.matchType}
+                  </Badge>
+                  <TeamActions team={team} />
+                </div>
+                {/* Last Updated Timestamp */}
+                {team.lastUpdated && (
+                  <p className="text-xs text-gray-500">
+                    Data updated: {new Date(team.lastUpdated).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </p>
+                )}
               </div>
             </div>
 
