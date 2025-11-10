@@ -84,7 +84,7 @@ export function EventsSection({
         </h2>
         
         <Select
-          value={currentSeasonId}
+          value={currentSeasonId || undefined}
           onValueChange={onSeasonChange}
           disabled={isSeasonsLoading}
         >
