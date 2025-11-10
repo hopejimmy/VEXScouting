@@ -34,7 +34,13 @@ export default function TeamDetailPage() {
   }, []);
   
   const { data: team, isLoading: isTeamLoading, error: teamError } = useTeam(teamNumber);
-  const { data: events, isLoading: isEventsLoading, error: eventsError } = useTeamEvents(teamNumber, selectedSeasonId);
+  // CRITICAL: Pass matchType to useTeamEvents to prevent race condition
+  // Only fetch events when we have the team data with matchType
+  const { data: events, isLoading: isEventsLoading, error: eventsError } = useTeamEvents(
+    teamNumber, 
+    selectedSeasonId, 
+    team?.matchType
+  );
 
   const handleBackClick = () => {
     const returnUrl = searchParams.get('returnUrl');

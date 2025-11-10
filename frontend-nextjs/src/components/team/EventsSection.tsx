@@ -35,8 +35,13 @@ export function EventsSection({
   const { data: seasons, isLoading: isSeasonsLoading } = useSeasons();
   
   // Fetch awards for all events
+  // CRITICAL: Pass matchType to prevent race condition and ensure correct program filtering
   const eventIds = events.map(event => event.id);
-  const { data: awardsMap, isLoading: isAwardsLoading } = useMultipleTeamAwards(teamNumber, eventIds);
+  const { data: awardsMap, isLoading: isAwardsLoading } = useMultipleTeamAwards(
+    teamNumber, 
+    eventIds, 
+    matchType
+  );
   
   // Handle event card click
   const handleEventClick = (event: TeamEvent) => {
