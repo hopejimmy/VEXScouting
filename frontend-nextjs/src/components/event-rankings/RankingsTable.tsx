@@ -137,18 +137,25 @@ export function RankingsTable({ rankings, highlightTeam }: RankingsTableProps) {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <Badge 
-                      variant="secondary"
-                      className={
-                        team.grade === 'Middle School' 
-                          ? 'bg-purple-100 text-purple-700 border-purple-300' 
-                          : team.grade === 'High School'
-                          ? 'bg-green-100 text-green-700 border-green-300'
-                          : 'bg-gray-100 text-gray-600'
+                    {(() => {
+                      let gradeClass = 'bg-gray-100 text-gray-600';
+                      let gradeLabel = 'N/A';
+                      if (team.grade === 'High School') {
+                        gradeClass = 'bg-green-100 text-green-700 border-green-300';
+                        gradeLabel = 'HS';
+                      } else if (team.grade === 'Middle School') {
+                        gradeClass = 'bg-purple-100 text-purple-700 border-purple-300';
+                        gradeLabel = 'MS';
+                      } else if (team.grade === 'Elementary School') {
+                        gradeClass = 'bg-blue-100 text-blue-700 border-blue-300';
+                        gradeLabel = 'ES';
                       }
-                    >
-                      {team.grade === 'Middle School' ? 'MS' : team.grade === 'High School' ? 'HS' : 'N/A'}
-                    </Badge>
+                      return (
+                        <Badge variant="secondary" className={gradeClass}>
+                          {gradeLabel}
+                        </Badge>
+                      );
+                    })()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <Badge 

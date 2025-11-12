@@ -860,6 +860,8 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
     
     console.log(`Fetched ${allTeams.length} teams for event ${eventId} across ${currentPage - 1} page(s)`);
     
+    const validGrades = ['High School', 'Middle School', 'Elementary School'];
+
     // Create a map of team number to grade
     const teamGradeMap = {};
     allTeams.forEach(team => {
@@ -869,7 +871,6 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
     // Filter by grade if specified
     let filteredTeams = allTeams;
     if (grade) {
-      const validGrades = ['High School', 'Middle School'];
       if (validGrades.includes(grade)) {
         filteredTeams = allTeams.filter(team => team.grade === grade);
         console.log(`Filtered to ${filteredTeams.length} ${grade} teams out of ${allTeams.length} total`);
@@ -936,7 +937,8 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
     const gradeStats = {
       'High School': allTeams.filter(t => t.grade === 'High School').length,
       'Middle School': allTeams.filter(t => t.grade === 'Middle School').length,
-      'Unknown': allTeams.filter(t => !t.grade || (t.grade !== 'High School' && t.grade !== 'Middle School')).length
+      'Elementary School': allTeams.filter(t => t.grade === 'Elementary School').length,
+      'Unknown': allTeams.filter(t => !validGrades.includes(t.grade || '')).length
     };
     
     res.json({
