@@ -91,6 +91,7 @@ export interface EventRankingsResponse {
   gradeBreakdown: {
     'High School': number;
     'Middle School': number;
+    'Elementary School': number;
     'Unknown': number;
   };
 }

@@ -129,7 +129,11 @@ export default function EventRankingsPage() {
                 </div>
                 
                 {/* Grade Filter */}
-                {data.gradeBreakdown && (data.gradeBreakdown['High School'] > 0 || data.gradeBreakdown['Middle School'] > 0) && (
+                {data.gradeBreakdown && (
+                  data.gradeBreakdown['High School'] > 0 ||
+                  data.gradeBreakdown['Middle School'] > 0 ||
+                  data.gradeBreakdown['Elementary School'] > 0
+                ) && (
                   <div className="flex flex-col items-end space-y-2">
                     <label className="text-sm font-medium text-gray-700">Filter by Grade:</label>
                     <Select value={selectedGrade} onValueChange={setSelectedGrade}>
@@ -148,6 +152,11 @@ export default function EventRankingsPage() {
                         {data.gradeBreakdown['Middle School'] > 0 && (
                           <SelectItem value="Middle School">
                             Middle School ({data.gradeBreakdown['Middle School']})
+                          </SelectItem>
+                        )}
+                        {data.gradeBreakdown['Elementary School'] > 0 && (
+                          <SelectItem value="Elementary School">
+                            Elementary School ({data.gradeBreakdown['Elementary School']})
                           </SelectItem>
                         )}
                       </SelectContent>
