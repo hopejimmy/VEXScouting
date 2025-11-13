@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Database, Activity, HardDrive, Users, FileText, RefreshCw, AlertTriangle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Database, Activity, HardDrive, Users, FileText, RefreshCw, AlertTriangle, CheckCircle, Play, Code } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
@@ -32,6 +32,15 @@ function DatabaseStatusContent() {
   const [stats, setStats] = useState<DatabaseStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  
+  // SQL Query Runner state
+  const [query, setQuery] = useState('');
+  const [queryResult, setQueryResult] = useState<any>(null);
+  const [queryError, setQueryError] = useState<string | null>(null);
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [queryMode, setQueryMode] = useState<'SELECT' | 'WRITE'>('SELECT');
+  const [schema, setSchema] = useState<any[]>([]);
+  const [showSchema, setShowSchema] = useState(false);
 
   useEffect(() => {
     fetchDatabaseStats();
@@ -92,6 +101,89 @@ function DatabaseStatusContent() {
         console.error('Failed to create backup:', error);
       }
     }
+  };
+
+  // SQL Query Runner functions
+  const fetchSchema = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/admin/database/schema`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch schema');
+      }
+      
+      const data = await response.json();
+      setSchema(data.columns || []);
+      setShowSchema(true);
+    } catch (error) {
+      console.error('Error fetching schema:', error);
+      alert('Failed to load table schema');
+    }
+  };
+
+  const executeQuery = async () => {
+    if (!query.trim()) {
+      setQueryError('Query cannot be empty');
+      return;
+    }
+    
+    setIsExecuting(true);
+    setQueryError(null);
+    setQueryResult(null);
+    
+    try {
+      const token = localStorage.getItem('authToken');
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const endpoint = queryMode === 'SELECT' 
+        ? `${baseUrl}/api/admin/database/query` 
+        : `${baseUrl}/api/admin/database/execute`;
+      
+      const body = queryMode === 'SELECT'
+        ? { query, limit: 1000 }
+        : { query, confirm: 'EXECUTE' };
+      
+      if (queryMode === 'WRITE') {
+        const operation = query.trim().toUpperCase().split(' ')[0];
+        if (!confirm(`Are you sure you want to execute this ${operation} query? This action cannot be undone.`)) {
+          setIsExecuting(false);
+          return;
+        }
+      }
+      
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(body)
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        setQueryError(data.error || data.details || 'Query execution failed');
+        setQueryResult(null);
+      } else {
+        setQueryResult(data);
+        setQueryError(null);
+      }
+    } catch (error: any) {
+      setQueryError(error.message || 'Error executing query');
+      setQueryResult(null);
+    } finally {
+      setIsExecuting(false);
+    }
+  };
+
+  const loadExampleQuery = (example: string) => {
+    setQuery(example);
+    setQueryMode('SELECT');
   };
 
   const formatDate = (dateString: string) => {
@@ -328,6 +420,223 @@ function DatabaseStatusContent() {
                     <p className="text-xs text-gray-500">Rebuild database indexes for optimal query performance</p>
                   </button>
                 </div>
+              </div>
+            </div>
+
+            {/* SQL Query Runner - skills_standings table only */}
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900">SQL Query Runner</h2>
+                    <p className="text-sm text-gray-600">Execute SQL queries on skills_standings table (read-only and write operations)</p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={fetchSchema}
+                      className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors flex items-center space-x-1"
+                    >
+                      <Code className="w-4 h-4" />
+                      <span>View Schema</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-6 space-y-4">
+                {/* Query Mode Toggle */}
+                <div className="flex items-center space-x-2 border-b border-gray-200 pb-4">
+                  <button
+                    onClick={() => {
+                      setQueryMode('SELECT');
+                      setQueryError(null);
+                      setQueryResult(null);
+                    }}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                      queryMode === 'SELECT'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    SELECT (Read)
+                  </button>
+                  <button
+                    onClick={() => {
+                      setQueryMode('WRITE');
+                      setQueryError(null);
+                      setQueryResult(null);
+                    }}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                      queryMode === 'WRITE'
+                        ? 'bg-orange-600 text-white'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    INSERT/UPDATE/DELETE (Write)
+                  </button>
+                </div>
+
+                {/* Example Queries */}
+                <div className="flex flex-wrap gap-2">
+                  <span className="text-sm font-medium text-gray-700">Quick Examples:</span>
+                  <button
+                    onClick={() => loadExampleQuery("SELECT * FROM skills_standings WHERE matchType = 'VRC' LIMIT 10;")}
+                    className="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors"
+                  >
+                    Select VRC Teams
+                  </button>
+                  <button
+                    onClick={() => loadExampleQuery("SELECT * FROM skills_standings WHERE matchType = 'VRC' ORDER BY score DESC LIMIT 10;")}
+                    className="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors"
+                  >
+                    Top 10 VRC Teams
+                  </button>
+                  <button
+                    onClick={() => loadExampleQuery("SELECT COUNT(*) as total, matchType FROM skills_standings GROUP BY matchType;")}
+                    className="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors"
+                  >
+                    Count by MatchType
+                  </button>
+                  {queryMode === 'WRITE' && (
+                    <button
+                      onClick={() => loadExampleQuery("DELETE FROM skills_standings WHERE matchType = 'VRC' AND teamNumber = '12345A';")}
+                      className="px-2 py-1 text-xs bg-orange-50 text-orange-700 rounded hover:bg-orange-100 transition-colors"
+                    >
+                      Delete Example
+                    </button>
+                  )}
+                </div>
+
+                {/* Query Editor */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    SQL Query {queryMode === 'WRITE' && <span className="text-orange-600 font-bold">(Write Mode - Use with caution)</span>}
+                  </label>
+                  <textarea
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder={`Enter your ${queryMode} query here...\n\nExample SELECT:\nSELECT * FROM skills_standings WHERE matchType = 'VRC' LIMIT 10;\n\nExample DELETE:\nDELETE FROM skills_standings WHERE matchType = 'VRC' AND teamName = 'Duplicate Team';\n\nNote: Only queries on skills_standings table are allowed.`}
+                    className="w-full h-48 px-4 py-3 border border-gray-300 rounded-md font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    spellCheck={false}
+                  />
+                  <div className="mt-2 flex items-center justify-between">
+                    <p className="text-xs text-gray-500">
+                      {queryMode === 'SELECT' 
+                        ? 'Read-only queries. Results limited to 5000 rows. Only skills_standings table is allowed.'
+                        : 'Write queries require confirmation. Dangerous operations (DROP, TRUNCATE, ALTER) are blocked. Only skills_standings table is allowed.'}
+                    </p>
+                    <button
+                      onClick={executeQuery}
+                      disabled={isExecuting || !query.trim()}
+                      className={`px-4 py-2 rounded-md text-sm font-medium flex items-center space-x-2 transition-colors ${
+                        queryMode === 'WRITE'
+                          ? 'bg-orange-600 hover:bg-orange-700 text-white disabled:bg-orange-400'
+                          : 'bg-blue-600 hover:bg-blue-700 text-white disabled:bg-blue-400'
+                      } disabled:cursor-not-allowed`}
+                    >
+                      <Play className="w-4 h-4" />
+                      <span>{isExecuting ? 'Executing...' : 'Execute Query'}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Schema Display */}
+                {showSchema && schema.length > 0 && (
+                  <div className="bg-gray-50 border border-gray-200 rounded-md p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-sm font-semibold text-gray-900">skills_standings Table Schema</h3>
+                      <button
+                        onClick={() => setShowSchema(false)}
+                        className="text-xs text-gray-500 hover:text-gray-700"
+                      >
+                        Hide
+                      </button>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full text-xs">
+                        <thead className="bg-gray-100">
+                          <tr>
+                            <th className="px-3 py-2 text-left font-medium text-gray-700">Column Name</th>
+                            <th className="px-3 py-2 text-left font-medium text-gray-700">Data Type</th>
+                            <th className="px-3 py-2 text-left font-medium text-gray-700">Nullable</th>
+                            <th className="px-3 py-2 text-left font-medium text-gray-700">Default</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {schema.map((col: any, idx: number) => (
+                            <tr key={idx} className="hover:bg-gray-50">
+                              <td className="px-3 py-2 font-mono text-gray-900">{col.column_name}</td>
+                              <td className="px-3 py-2 text-gray-700">{col.data_type}</td>
+                              <td className="px-3 py-2 text-gray-700">{col.is_nullable === 'YES' ? 'Yes' : 'No'}</td>
+                              <td className="px-3 py-2 text-gray-700 font-mono">{col.column_default || '-'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* Error Display */}
+                {queryError && (
+                  <div className="bg-red-50 border border-red-200 rounded-md p-4">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <AlertTriangle className="w-5 h-5 text-red-600" />
+                      <h3 className="text-sm font-medium text-red-800">Query Error</h3>
+                    </div>
+                    <p className="text-sm text-red-700">{queryError}</p>
+                  </div>
+                )}
+
+                {/* Results Display */}
+                {queryResult && (
+                  <div className="space-y-4">
+                    <div className="bg-green-50 border border-green-200 rounded-md p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <CheckCircle className="w-5 h-5 text-green-600" />
+                          <h3 className="text-sm font-medium text-green-800">Query Executed Successfully</h3>
+                        </div>
+                        <div className="text-sm text-green-700">
+                          {queryResult.message} • {queryResult.executionTime}
+                          {queryResult.rowCount !== undefined && ` • ${queryResult.rowCount} row(s)`}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {queryResult.rows && queryResult.rows.length > 0 && (
+                      <div className="overflow-x-auto border border-gray-200 rounded-md">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              {queryResult.columns.map((col: string) => (
+                                <th key={col} className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                  {col}
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {queryResult.rows.slice(0, 100).map((row: any, idx: number) => (
+                              <tr key={idx} className="hover:bg-gray-50">
+                                {queryResult.columns.map((col: string) => (
+                                  <td key={col} className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap">
+                                    {row[col] !== null && row[col] !== undefined ? String(row[col]) : <span className="text-gray-400">NULL</span>}
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        {queryResult.rows.length > 100 && (
+                          <div className="px-4 py-2 bg-gray-50 text-sm text-gray-600 border-t border-gray-200">
+                            Showing first 100 of {queryResult.rows.length} rows
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
