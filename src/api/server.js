@@ -1564,6 +1564,245 @@ app.get('/api', (req, res) => {
   });
 });
 
+// SQL Query Runner for skills_standings table - Admin only
+// Helper function to detect dangerous SQL operations
+function isDangerousQuery(query) {
+  const upperQuery = query.trim().toUpperCase();
+  const dangerousPatterns = [
+    /DROP\s+TABLE/i,
+    /DROP\s+DATABASE/i,
+    /TRUNCATE\s+TABLE/i,
+    /ALTER\s+TABLE/i,
+    /CREATE\s+TABLE/i,
+    /CREATE\s+DATABASE/i,
+    /GRANT/i,
+    /REVOKE/i,
+  ];
+  
+  return dangerousPatterns.some(pattern => pattern.test(upperQuery));
+}
+
+// Helper function to ensure query only operates on skills_standings table
+function validateSkillsStandingsQuery(query) {
+  const upperQuery = query.trim().toUpperCase();
+  
+  // Check for SELECT queries
+  if (upperQuery.startsWith('SELECT')) {
+    // Must have FROM skills_standings
+    if (!upperQuery.includes('FROM SKILLS_STANDINGS')) {
+      return { valid: false, error: 'SELECT queries must reference skills_standings table only' };
+    }
+    // Check for JOINs to other tables
+    const joinMatches = upperQuery.match(/JOIN\s+(\w+)/gi);
+    if (joinMatches) {
+      for (const join of joinMatches) {
+        const tableName = join.replace(/JOIN\s+/i, '').trim();
+        if (tableName.toUpperCase() !== 'SKILLS_STANDINGS') {
+          return { valid: false, error: `Query joins with table ${tableName}. Only skills_standings is allowed.` };
+        }
+      }
+    }
+  }
+  
+  // Check for UPDATE queries
+  if (upperQuery.startsWith('UPDATE')) {
+    // Must be UPDATE skills_standings
+    const updateMatch = upperQuery.match(/UPDATE\s+(\w+)/i);
+    if (!updateMatch || updateMatch[1].toUpperCase() !== 'SKILLS_STANDINGS') {
+      return { valid: false, error: 'UPDATE queries must target skills_standings table only' };
+    }
+  }
+  
+  // Check for DELETE queries
+  if (upperQuery.startsWith('DELETE')) {
+    // Must be DELETE FROM skills_standings
+    if (!upperQuery.includes('FROM SKILLS_STANDINGS')) {
+      return { valid: false, error: 'DELETE queries must target skills_standings table only' };
+    }
+  }
+  
+  // Check for INSERT queries
+  if (upperQuery.startsWith('INSERT')) {
+    // Must be INSERT INTO skills_standings
+    if (!upperQuery.includes('INTO SKILLS_STANDINGS')) {
+      return { valid: false, error: 'INSERT queries must target skills_standings table only' };
+    }
+  }
+  
+  return { valid: true };
+}
+
+// Execute SELECT queries on skills_standings (read-only, safe)
+app.post('/api/admin/database/query', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    const { query, limit = 1000 } = req.body;
+    
+    if (!query || typeof query !== 'string') {
+      return res.status(400).json({ error: 'Query is required and must be a string' });
+    }
+    
+    const trimmedQuery = query.trim();
+    
+    if (!trimmedQuery) {
+      return res.status(400).json({ error: 'Query cannot be empty' });
+    }
+    
+    // Check for dangerous operations
+    if (isDangerousQuery(trimmedQuery)) {
+      return res.status(403).json({ 
+        error: 'Dangerous query detected. This operation is not allowed for security reasons.',
+        blockedOperations: ['DROP TABLE', 'TRUNCATE', 'ALTER TABLE', 'CREATE TABLE', 'GRANT', 'REVOKE']
+      });
+    }
+    
+    // Only allow SELECT queries for read operations
+    const upperQuery = trimmedQuery.toUpperCase();
+    if (!upperQuery.startsWith('SELECT')) {
+      return res.status(400).json({ 
+        error: 'Only SELECT queries are allowed. Use /api/admin/database/execute for INSERT/UPDATE/DELETE.' 
+      });
+    }
+    
+    // Validate that query only operates on skills_standings
+    const validation = validateSkillsStandingsQuery(trimmedQuery);
+    if (!validation.valid) {
+      return res.status(400).json({ error: validation.error });
+    }
+    
+    // Add LIMIT if not present (prevent large result sets)
+    let finalQuery = trimmedQuery;
+    if (!upperQuery.includes('LIMIT')) {
+      finalQuery = `${trimmedQuery} LIMIT ${Math.min(parseInt(limit) || 1000, 5000)}`;
+    }
+    
+    // Execute query with timeout
+    const startTime = Date.now();
+    const result = await pool.query(finalQuery);
+    const executionTime = Date.now() - startTime;
+    
+    res.json({
+      success: true,
+      query: finalQuery,
+      rows: result.rows,
+      rowCount: result.rows.length,
+      executionTime: `${executionTime}ms`,
+      columns: result.rows.length > 0 ? Object.keys(result.rows[0]) : [],
+      message: `Query executed successfully. Returned ${result.rows.length} row(s).`
+    });
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ 
+      error: 'Error executing query', 
+      details: error.message,
+      hint: error.hint || null
+    });
+  }
+});
+
+// Execute INSERT/UPDATE/DELETE queries on skills_standings (requires confirmation)
+app.post('/api/admin/database/execute', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    const { query, confirm } = req.body;
+    
+    if (!query || typeof query !== 'string') {
+      return res.status(400).json({ error: 'Query is required and must be a string' });
+    }
+    
+    if (!confirm || confirm !== 'EXECUTE') {
+      return res.status(400).json({ 
+        error: 'Execution not confirmed. Send { confirm: "EXECUTE" } in request body.' 
+      });
+    }
+    
+    const trimmedQuery = query.trim();
+    
+    if (!trimmedQuery) {
+      return res.status(400).json({ error: 'Query cannot be empty' });
+    }
+    
+    // Check for dangerous operations
+    if (isDangerousQuery(trimmedQuery)) {
+      return res.status(403).json({ 
+        error: 'Dangerous query detected. This operation is not allowed for security reasons.',
+        blockedOperations: ['DROP TABLE', 'TRUNCATE', 'ALTER TABLE', 'CREATE TABLE', 'GRANT', 'REVOKE']
+      });
+    }
+    
+    // Only allow INSERT, UPDATE, DELETE
+    const upperQuery = trimmedQuery.toUpperCase();
+    const allowedOperations = ['INSERT', 'UPDATE', 'DELETE'];
+    const operation = allowedOperations.find(op => upperQuery.startsWith(op));
+    
+    if (!operation) {
+      return res.status(400).json({ 
+        error: `Only ${allowedOperations.join(', ')} operations are allowed. Use /api/admin/database/query for SELECT.` 
+      });
+    }
+    
+    // Validate that query only operates on skills_standings
+    const validation = validateSkillsStandingsQuery(trimmedQuery);
+    if (!validation.valid) {
+      return res.status(400).json({ error: validation.error });
+    }
+    
+    // Execute query in transaction
+    await pool.query('BEGIN');
+    
+    try {
+      const startTime = Date.now();
+      const result = await pool.query(trimmedQuery);
+      const executionTime = Date.now() - startTime;
+      
+      await pool.query('COMMIT');
+      
+      res.json({
+        success: true,
+        query: trimmedQuery,
+        operation,
+        rowCount: result.rowCount || 0,
+        executionTime: `${executionTime}ms`,
+        message: `${operation} query executed successfully. ${result.rowCount || 0} row(s) affected.`
+      });
+    } catch (error) {
+      await pool.query('ROLLBACK');
+      throw error;
+    }
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ 
+      error: 'Error executing query', 
+      details: error.message,
+      hint: error.hint || null
+    });
+  }
+});
+
+// Get skills_standings table schema
+app.get('/api/admin/database/schema', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    const schemaQuery = `
+      SELECT 
+        column_name,
+        data_type,
+        is_nullable,
+        column_default
+      FROM information_schema.columns
+      WHERE table_name = 'skills_standings'
+      ORDER BY ordinal_position
+    `;
+    
+    const result = await pool.query(schemaQuery);
+    
+    res.json({
+      tableName: 'skills_standings',
+      columns: result.rows
+    });
+  } catch (error) {
+    console.error('Error fetching schema:', error);
+    res.status(500).json({ error: 'Error fetching table schema', details: error.message });
+  }
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
