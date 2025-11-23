@@ -682,14 +682,25 @@ app.post('/api/upload', authenticateToken, requireRole('admin'), upload.single('
 // Get all teams
 app.get('/api/teams', async (req, res) => {
   try {
-    const { matchType } = req.query;
+    const { matchType, teams: teamsParam } = req.query;
 
     let query = 'SELECT * FROM skills_standings';
     let params = [];
+    let conditions = [];
 
     if (matchType) {
-      query += ' WHERE matchtype = $1';
+      conditions.push(`matchtype = $${params.length + 1}`);
       params.push(matchType);
+    }
+
+    if (teamsParam) {
+      const teamList = teamsParam.split(',').map(t => t.trim());
+      conditions.push(`teamNumber = ANY($${params.length + 1})`);
+      params.push(teamList);
+    }
+
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
     }
 
     query += ' ORDER BY rank';
