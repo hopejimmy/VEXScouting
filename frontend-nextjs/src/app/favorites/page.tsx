@@ -38,6 +38,36 @@ export default function FavoritesPage() {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
+  // Fetch fresh data for favorites
+  const { data: freshFavorites } = useQuery<Team[]>({
+    queryKey: ['favorites-fresh', favorites.map(f => f.teamNumber).join(',')],
+    queryFn: async () => {
+      if (favorites.length === 0) return [];
+
+      const teamNumbers = favorites.map(f => f.teamNumber).join(',');
+      const response = await fetch(`${API_BASE_URL}/api/teams?teams=${encodeURIComponent(teamNumbers)}`);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch fresh favorite data');
+      }
+
+      return response.json();
+    },
+    enabled: favorites.length > 0,
+    staleTime: 60 * 1000, // 1 minute
+  });
+
+  // Use fresh data if available, otherwise fall back to localStorage data
+  // We also need to preserve the order or just use the fresh list (which is ranked)
+  // But wait, the fresh list might contain multiple entries for the same team if they have different matchTypes?
+  // Actually the backend endpoint returns all matches. 
+  // If a team is in favorites, we probably want to show the version that was favorited (specific matchType) 
+  // OR show the latest best rank?
+  // The current favorites implementation stores the whole Team object including matchType.
+  // So we should probably match them up.
+
+  const displayFavorites = freshFavorites || favorites;
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -75,9 +105,9 @@ export default function FavoritesPage() {
   };
 
   // Filter favorites by match type
-  const filteredFavorites = selectedMatchType 
-    ? favorites.filter(team => team.matchType === selectedMatchType)
-    : favorites;
+  const filteredFavorites = selectedMatchType
+    ? displayFavorites.filter(team => team.matchType === selectedMatchType)
+    : displayFavorites;
 
   // Get match type badge color
   const getMatchTypeBadgeColor = (matchType: string) => {
@@ -108,13 +138,13 @@ export default function FavoritesPage() {
                 <span>Favorite Teams</span>
               </h1>
               <p className="text-gray-600">
-                {favorites.length === 0 
-                  ? "You haven't added any teams to your favorites yet." 
-                  : `You have ${favorites.length} favorite team${favorites.length === 1 ? '' : 's'}${filteredFavorites.length !== favorites.length ? ` (${filteredFavorites.length} shown)` : ''}.`
+                {favorites.length === 0
+                  ? "You haven't added any teams to your favorites yet."
+                  : `You have ${displayFavorites.length} favorite team${displayFavorites.length === 1 ? '' : 's'}${filteredFavorites.length !== displayFavorites.length ? ` (${filteredFavorites.length} shown)` : ''}.`
                 }
               </p>
             </div>
-            
+
             {/* Match Type Filter */}
             {favorites.length > 0 && (
               <div className="flex items-center gap-4">
@@ -194,8 +224,8 @@ export default function FavoritesPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
               >
-                <FavoriteTeamCard 
-                  team={team} 
+                <FavoriteTeamCard
+                  team={team}
                   onRemove={handleRemoveFavorite}
                   onCompare={handleCompareClick}
                   isInCompare={isInCompare(team.teamNumber)}
@@ -208,23 +238,23 @@ export default function FavoritesPage() {
           </motion.div>
         )}
       </main>
-      
+
       {/* Footer */}
       <Footer />
     </div>
   );
 }
 
-function FavoriteTeamCard({ 
-  team, 
-  onRemove, 
-  onCompare, 
-  isInCompare, 
-  canAddToCompare, 
+function FavoriteTeamCard({
+  team,
+  onRemove,
+  onCompare,
+  isInCompare,
+  canAddToCompare,
   onClick,
   getMatchTypeBadgeColor
-}: { 
-  team: Team; 
+}: {
+  team: Team;
   onRemove: (teamNumber: string, e: React.MouseEvent) => void;
   onCompare: (team: Team, e: React.MouseEvent) => void;
   isInCompare: boolean;
@@ -233,7 +263,7 @@ function FavoriteTeamCard({
   getMatchTypeBadgeColor: (matchType: string) => string;
 }) {
   return (
-    <Card 
+    <Card
       className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 bg-white/80 backdrop-blur-sm border-gray-200 cursor-pointer group"
       onClick={onClick}
     >
@@ -265,11 +295,10 @@ function FavoriteTeamCard({
                 variant="ghost"
                 onClick={(e) => onCompare(team, e)}
                 disabled={!canAddToCompare && !isInCompare}
-                className={`h-8 w-8 p-0 ${
-                  isInCompare 
-                    ? 'text-blue-500 hover:text-blue-600' 
-                    : 'text-gray-400 hover:text-blue-500'
-                }`}
+                className={`h-8 w-8 p-0 ${isInCompare
+                  ? 'text-blue-500 hover:text-blue-600'
+                  : 'text-gray-400 hover:text-blue-500'
+                  }`}
               >
                 <GitCompare className="h-4 w-4" />
               </Button>
@@ -285,7 +314,7 @@ function FavoriteTeamCard({
           </div>
         </div>
       </CardHeader>
-      
+
       <CardContent className="pt-0">
         <div className="space-y-3">
           <div className="flex items-center justify-between">
@@ -294,11 +323,11 @@ function FavoriteTeamCard({
               {team.matchType}
             </Badge>
           </div>
-          
+
           <div className="flex items-center text-sm text-gray-500">
             <span>{team.eventRegion}, {team.country}</span>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-3 pt-3 border-t border-gray-100">
             <div className="text-center">
               <div className="text-lg font-bold text-blue-600">{team.autonomousSkills}</div>
