@@ -38,35 +38,35 @@ const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
+
     const allowedOrigins = [
       'http://localhost:3001',
-      'http://localhost:3000', 
+      'http://localhost:3000',
       'http://127.0.0.1:3001',
       'https://localhost:3001'
     ];
-    
+
     if (process.env.NODE_ENV === 'production') {
       // Add production frontend URL if configured
       if (process.env.FRONTEND_URL) {
         allowedOrigins.push(process.env.FRONTEND_URL);
       }
-      
+
       // Allow all Vercel deployment URLs (both main and preview deployments)
       if (origin.includes('.vercel.app')) {
         return callback(null, true);
       }
-      
+
       // Allow custom domains
       if (origin.includes('vexscouting.ca')) {
         return callback(null, true);
       }
     }
-    
+
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    
+
     console.log('CORS blocked origin:', origin);
     return callback(new Error('Not allowed by CORS'));
   },
@@ -113,10 +113,10 @@ try {
     console.log('🔗 Using Railway DATABASE_URL connection string');
     console.log('🌍 Environment: production');
     console.log('🔗 Database: Railway PostgreSQL');
-    
+
     // Check if using Railway's private network
     const isPrivateNetwork = process.env.DATABASE_URL.includes('railway.internal');
-    
+
     pool = new Pool({
       connectionString: process.env.DATABASE_URL,
       ssl: isPrivateNetwork ? false : {
@@ -131,7 +131,7 @@ try {
     console.log('🔗 Using individual database environment variables');
     console.log('🌍 Environment: development');
     console.log('🔗 Database: Local connection');
-    
+
     pool = new Pool({
       host: process.env.POSTGRES_HOST || 'localhost',
       port: parseInt(process.env.POSTGRES_PORT) || 5432,
@@ -145,7 +145,7 @@ try {
     console.log('🔗 Using default local PostgreSQL configuration');
     console.log('🌍 Environment: development (fallback)');
     console.log('🔗 Database: Local default');
-    
+
     pool = new Pool({
       host: 'localhost',
       port: 5432,
@@ -172,13 +172,13 @@ async function testDatabaseConnection() {
   } catch (error) {
     console.error('❌ Database connection failed:', error.message);
     console.error('🔧 Please check your database configuration and ensure the database server is running');
-    
+
     if (process.env.DATABASE_URL) {
       console.error('🔧 Railway DATABASE_URL format should be: postgresql://user:password@host:port/database');
     } else {
       console.error('🔧 For local development, ensure PostgreSQL is running on localhost:5432');
     }
-    
+
     return false;
   }
 }
@@ -187,7 +187,7 @@ async function testDatabaseConnection() {
 async function initializeDatabase() {
   try {
     console.log('📊 Initializing database schema...');
-    
+
     // First test the connection
     const connected = await testDatabaseConnection();
     if (!connected) {
@@ -314,7 +314,7 @@ async function initializeDatabase() {
     // Assign all permissions to admin role
     const adminRoleResult = await pool.query(`SELECT id FROM roles WHERE name = 'admin'`);
     const permissionsResult = await pool.query(`SELECT id FROM permissions`);
-    
+
     if (adminRoleResult.rows.length > 0) {
       const adminRoleId = adminRoleResult.rows[0].id;
       for (const permission of permissionsResult.rows) {
@@ -328,7 +328,7 @@ async function initializeDatabase() {
     // Assign basic permissions to guest role
     const guestRoleResult = await pool.query(`SELECT id FROM roles WHERE name = 'guest'`);
     const basicPermissions = ['teams:search', 'teams:compare', 'teams:favorites'];
-    
+
     if (guestRoleResult.rows.length > 0) {
       const guestRoleId = guestRoleResult.rows[0].id;
       for (const permName of basicPermissions) {
@@ -352,12 +352,12 @@ async function initializeDatabase() {
     if (adminCheck.rows.length === 0) {
       const hashedPassword = await bcrypt.hash('admin123!', 10);
       const adminRoleId = adminRoleResult.rows[0].id;
-      
+
       await pool.query(`
         INSERT INTO users (username, email, password_hash, role_id, active)
         VALUES ('admin', 'admin@vexscouting.com', $1, $2, true)
       `, [hashedPassword, adminRoleId]);
-      
+
       console.log('Default admin user created');
     }
 
@@ -377,7 +377,7 @@ async function startApplication() {
     console.error('❌ Database initialization failed:', error.message);
     console.error('⚠️  Server will continue to run, but database operations may fail');
     console.error('🔧 Please check your database configuration and environment variables');
-    
+
     // In production, we might want to fail fast, but for debugging we'll continue
     if (process.env.NODE_ENV === 'production' && !process.env.ALLOW_DB_FAIL) {
       console.error('💥 Exiting due to database connection failure in production');
@@ -391,7 +391,7 @@ async function startServer() {
   try {
     // Initialize database first
     await startApplication();
-    
+
     const server = app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
       console.log(`📊 API endpoints available at http://0.0.0.0:${PORT}/api`);
@@ -503,9 +503,9 @@ app.post('/api/auth/login', async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { 
-        id: user.id, 
-        username: user.username, 
+      {
+        id: user.id,
+        username: user.username,
         email: user.email,
         role: user.role_name,
         permissions: permissions
@@ -662,11 +662,11 @@ app.post('/api/upload', authenticateToken, requireRole('admin'), upload.single('
         }
 
         await pool.query('COMMIT');
-        
+
         // Clean up uploaded file
         fs.unlinkSync(req.file.path);
-        
-        res.json({ 
+
+        res.json({
           message: `CSV data processed successfully for ${matchType}`,
           recordsProcessed: results.length,
           matchType: matchType
@@ -683,19 +683,19 @@ app.post('/api/upload', authenticateToken, requireRole('admin'), upload.single('
 app.get('/api/teams', async (req, res) => {
   try {
     const { matchType } = req.query;
-    
+
     let query = 'SELECT * FROM skills_standings';
     let params = [];
-    
+
     if (matchType) {
       query += ' WHERE matchtype = $1';
       params.push(matchType);
     }
-    
+
     query += ' ORDER BY rank';
-    
+
     const result = await pool.query(query, params);
-    
+
     // Transform the response to use camelCase property names
     const teams = result.rows.map(team => ({
       teamNumber: team.teamnumber,
@@ -768,16 +768,16 @@ app.get('/api/search', async (req, res) => {
   try {
     let query = 'SELECT * FROM skills_standings WHERE (teamNumber ILIKE $1 OR teamName ILIKE $1)';
     let params = [`%${q}%`];
-    
+
     if (matchType) {
       query += ' AND matchtype = $2';  // Use lowercase 'matchtype' column name
       params.push(matchType);
     }
-    
+
     query += ' ORDER BY rank';
-    
+
     const result = await pool.query(query, params);
-    
+
     // Transform the response to use camelCase property names
     const teams = result.rows.map(team => ({
       teamNumber: team.teamnumber,
@@ -800,7 +800,7 @@ app.get('/api/search', async (req, res) => {
       matchType: team.matchtype || 'VRC',
       lastUpdated: team.lastupdated
     }));
-    
+
     res.json({ teams, total: teams.length });
   } catch (error) {
     console.error('Error searching teams:', error);
@@ -812,20 +812,20 @@ app.get('/api/search', async (req, res) => {
 app.get('/api/events/:eventId/rankings', async (req, res) => {
   const { eventId } = req.params;
   const { matchType, grade } = req.query; // Add grade filter
-  
+
   try {
     const apiToken = process.env.ROBOTEVENTS_API_TOKEN;
-    
+
     if (!apiToken) {
       return res.status(500).json({ error: 'RobotEvents API token not configured' });
     }
-    
+
     // Step 1: Fetch ALL teams registered for this event from RobotEvents API (with pagination)
     let allTeams = [];
     let eventInfo = null;
     let currentPage = 1;
     let hasMorePages = true;
-    
+
     while (hasMorePages) {
       const teamsResponse = await fetch(
         `https://www.robotevents.com/api/v2/events/${eventId}/teams?page=${currentPage}`,
@@ -836,30 +836,30 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
           }
         }
       );
-      
+
       if (!teamsResponse.ok) {
         throw new Error(`RobotEvents API error: ${teamsResponse.status}`);
       }
-      
+
       const teamsData = await teamsResponse.json();
-      
+
       // Store event info from first page
       if (currentPage === 1) {
         eventInfo = teamsData.meta?.event;
       }
-      
+
       // Add teams from this page
       const pageTeams = teamsData.data || [];
       allTeams = allTeams.concat(pageTeams);
-      
+
       // Check if there are more pages
       const meta = teamsData.meta || {};
       hasMorePages = meta.current_page < meta.last_page;
       currentPage++;
     }
-    
+
     console.log(`Fetched ${allTeams.length} teams for event ${eventId} across ${currentPage - 1} page(s)`);
-    
+
     const validGrades = ['High School', 'Middle School', 'Elementary School'];
 
     // Create a map of team number to grade
@@ -867,7 +867,7 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
     allTeams.forEach(team => {
       teamGradeMap[team.number] = team.grade || 'Unknown';
     });
-    
+
     // Filter by grade if specified
     let filteredTeams = allTeams;
     if (grade) {
@@ -876,10 +876,10 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
         console.log(`Filtered to ${filteredTeams.length} ${grade} teams out of ${allTeams.length} total`);
       }
     }
-    
+
     // Extract team numbers
     const teamNumbers = filteredTeams.map(team => team.number);
-    
+
     if (teamNumbers.length === 0) {
       return res.json({
         eventId: parseInt(eventId),
@@ -891,19 +891,19 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
         teamsWithRankings: 0
       });
     }
-    
+
     // Step 2: Query local database for world rankings of these teams
     let query = `
       SELECT * FROM skills_standings 
       WHERE teamNumber = ANY($1)
     `;
     let params = [teamNumbers];
-    
+
     if (matchType) {
       query += ' AND matchType = $2';
       params.push(matchType);
     }
-    
+
     // Sort by: 1) Combined Score 2) Auto Skills 3) Driver Skills 4) World Rank
     query += `
       ORDER BY 
@@ -912,9 +912,9 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
         highestDriverSkills DESC,
         rank ASC
     `;
-    
+
     const result = await pool.query(query, params);
-    
+
     // Step 3: Transform data and add event rank + grade
     const rankings = result.rows.map((team, index) => ({
       eventRank: index + 1,
@@ -932,7 +932,7 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
       matchType: team.matchtype,
       grade: teamGradeMap[team.teamnumber] || 'Unknown'
     }));
-    
+
     // Calculate grade statistics
     const gradeStats = {
       'High School': allTeams.filter(t => t.grade === 'High School').length,
@@ -940,7 +940,7 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
       'Elementary School': allTeams.filter(t => t.grade === 'Elementary School').length,
       'Unknown': allTeams.filter(t => !validGrades.includes(t.grade || '')).length
     };
-    
+
     res.json({
       eventId: parseInt(eventId),
       eventName: eventInfo?.name || 'Unknown Event',
@@ -954,7 +954,7 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
       teamsWithoutRankings: filteredTeams.length - rankings.length,
       gradeBreakdown: gradeStats
     });
-    
+
   } catch (error) {
     console.error('Error fetching event rankings:', error);
     res.status(500).json({ error: 'Failed to fetch event rankings', details: error.message });
@@ -966,7 +966,7 @@ app.get('/api/teams/:teamNumber/events', async (req, res) => {
   try {
     const { teamNumber } = req.params;
     const { season, matchType } = req.query;
-    
+
     // Get the current season ID and API token from environment
     const seasonId = season || process.env.CURRENT_SEASON_ID || '190'; // Use query param or default to High Stakes
     const apiToken = process.env.ROBOTEVENTS_API_TOKEN;
@@ -1007,16 +1007,16 @@ app.get('/api/teams/:teamNumber/events', async (req, res) => {
 
     const teamData = await teamResponse.json();
     console.log('Team search result:', teamData);  // Debug log
-    
+
     if (!teamData.data || teamData.data.length === 0) {
       throw new Error('Team not found');
     }
 
     const team = teamData.data[0];
-    
+
     // Get events for the specified season
     console.log(`Fetching events for team ${team.id} and season ${seasonId}`);
-    
+
     const eventsResponse = await fetch(
       `https://www.robotevents.com/api/v2/teams/${team.id}/events?season[]=${seasonId}`,
       {
@@ -1035,7 +1035,7 @@ app.get('/api/teams/:teamNumber/events', async (req, res) => {
 
     const eventsData = await eventsResponse.json();
     console.log('Events data:', JSON.stringify(eventsData, null, 2));
-    
+
     // Transform and sort events
     const events = (eventsData.data || []).map(event => {
       const startDate = new Date(event.start);
@@ -1053,16 +1053,152 @@ app.get('/api/teams/:teamNumber/events', async (req, res) => {
           region: event.location.region,
           country: event.location.country,
         },
-        divisions: event.divisions.map(d => d.name),
+        divisions: event.divisions.map(d => ({ id: d.id, name: d.name })),
         level: event.level,
         upcoming: startDate > now, // Event is upcoming only if it hasn't started yet
         type: event.event_type,
       };
     }).sort((a, b) => new Date(a.start) - new Date(b.start));
-    
+
     res.json(events);
   } catch (error) {
     console.error('Error fetching team events:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// New endpoint: Get matches for a team at a specific event division
+app.get('/api/teams/:teamNumber/events/:eventId/divisions/:divId/matches', async (req, res) => {
+  const { teamNumber, eventId, divId } = req.params;
+  const { matchType } = req.query;
+
+  try {
+    const apiToken = process.env.ROBOTEVENTS_API_TOKEN;
+    if (!apiToken) {
+      throw new Error('RobotEvents API token not configured');
+    }
+
+    // Map matchType to RobotEvents program ID
+    // CRITICAL: Verified from RobotEvents API on 2025-11-10
+    const programMap = {
+      'VRC': '1',
+      'VEXIQ': '41',
+      'VEXU': '4'
+    };
+
+    // Get program ID from matchType, default to VRC if not provided
+    const programId = matchType && programMap[matchType] ? programMap[matchType] : '1';
+
+    console.log(`Fetching matches for team ${teamNumber} at event ${eventId}, division ${divId}`);
+
+    // Step 1: Get Team ID
+    const teamResponse = await fetch(
+      `https://www.robotevents.com/api/v2/teams?number[]=${encodeURIComponent(teamNumber.toUpperCase())}&program[]=${programId}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${apiToken}`,
+          'Accept': 'application/json'
+        }
+      }
+    );
+
+    if (!teamResponse.ok) {
+      const errorData = await teamResponse.json();
+      throw new Error(`RobotEvents API error: ${errorData.message || 'Failed to fetch team'}`);
+    }
+
+    const teamData = await teamResponse.json();
+    if (!teamData.data || teamData.data.length === 0) {
+      throw new Error('Team not found');
+    }
+    const teamId = teamData.data[0].id;
+
+    // Step 2: Fetch matches for the specific division
+    const matchesResponse = await fetch(
+      `https://www.robotevents.com/api/v2/events/${eventId}/divisions/${divId}/matches?team[]=${teamId}&per_page=250`,
+      {
+        headers: {
+          'Authorization': `Bearer ${apiToken}`,
+          'Accept': 'application/json'
+        }
+      }
+    );
+
+    if (!matchesResponse.ok) {
+      // Handle 404 gracefully - return empty list
+      if (matchesResponse.status === 404) {
+        return res.json([]);
+      }
+      const errorData = await matchesResponse.json();
+      throw new Error(`RobotEvents API error: ${errorData.message || 'Failed to fetch matches'}`);
+    }
+
+    const matchesData = await matchesResponse.json();
+    const matches = matchesData.data || [];
+
+    if (matches.length === 0) {
+      return res.json([]);
+    }
+
+    // Step 3: Extract all unique team numbers involved in these matches
+    const teamNumbers = new Set();
+    matches.forEach(match => {
+      match.alliances.forEach(alliance => {
+        alliance.teams.forEach(team => {
+          if (team.team && team.team.name) {
+            teamNumbers.add(team.team.name); // RobotEvents API returns team number in 'name' field for team object
+          }
+        });
+      });
+    });
+
+    // Step 4: Fetch rankings for all these teams from internal database
+    const teamList = Array.from(teamNumbers);
+    if (teamList.length > 0) {
+      const placeholders = teamList.map((_, i) => `$${i + 2}`).join(',');
+      const query = `
+        SELECT teamNumber, rank, matchType 
+        FROM skills_standings 
+        WHERE matchType = $1 AND teamNumber IN (${placeholders})
+      `;
+
+      const rankingsResult = await pool.query(query, [matchType || 'VRC', ...teamList]);
+      const rankingsMap = new Map();
+      rankingsResult.rows.forEach(row => {
+        rankingsMap.set(row.teamnumber, row.rank);
+      });
+
+      // Step 5: Enrich matches with rankings
+      const enrichedMatches = matches.map(match => ({
+        id: match.id,
+        name: match.name,
+        round: match.round,
+        instance: match.instance,
+        matchnum: match.matchnum,
+        scheduled: match.scheduled,
+        started: match.started,
+        field: match.field,
+        alliances: match.alliances.map(alliance => ({
+          color: alliance.color,
+          score: alliance.score,
+          teams: alliance.teams.map(t => ({
+            team: {
+              id: t.team.id,
+              name: t.team.name,
+              rank: rankingsMap.get(t.team.name) || null
+            },
+            sitting: t.sitting
+          }))
+        }))
+      }));
+
+      res.json(enrichedMatches);
+    } else {
+      res.json(matches);
+    }
+
+  } catch (error) {
+    console.error('Error fetching matches:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -1108,13 +1244,13 @@ app.get('/api/teams/:teamNumber/events/:eventId/awards', async (req, res) => {
     }
 
     const teamData = await teamResponse.json();
-    
+
     if (!teamData.data || teamData.data.length === 0) {
       return res.json([]); // Return empty array if team not found
     }
 
     const team = teamData.data[0];
-    
+
     // Get awards for the team at the specific event
     const awardsResponse = await fetch(
       `https://www.robotevents.com/api/v2/events/${eventId}/awards?team[]=${team.id}`,
@@ -1133,7 +1269,7 @@ app.get('/api/teams/:teamNumber/events/:eventId/awards', async (req, res) => {
     }
 
     const awardsData = await awardsResponse.json();
-    
+
     // Transform awards data
     const awards = (awardsData.data || []).map(award => ({
       id: award.id,
@@ -1143,7 +1279,7 @@ app.get('/api/teams/:teamNumber/events/:eventId/awards', async (req, res) => {
       eventId: parseInt(eventId),
       teamId: team.id
     }));
-    
+
     res.json(awards);
   } catch (error) {
     console.error('Error fetching team awards:', error);
@@ -1173,7 +1309,7 @@ app.get('/api/seasons', async (req, res) => {
 
     // Default to VRC if no matchType specified (backward compatibility)
     const programId = matchType && programMap[matchType] ? programMap[matchType] : '1';
-    
+
     console.log(`Fetching seasons for program: ${matchType || 'VRC'} (ID: ${programId})`);
 
     const response = await fetch(
@@ -1192,7 +1328,7 @@ app.get('/api/seasons', async (req, res) => {
     }
 
     const data = await response.json();
-    
+
     // Transform and sort seasons (most recent first)
     // The first season in the array will be the CURRENT season for that program
     const seasons = data.data
@@ -1236,7 +1372,7 @@ app.get('/api/programs', async (req, res) => {
     }
 
     const data = await response.json();
-    
+
     // Filter for VEX programs and transform
     const vexPrograms = data.data
       .filter(program => program.name.includes('VEX'))
@@ -1533,7 +1669,7 @@ app.get('/api/health', (req, res) => {
 
 // Root endpoint for debugging
 app.get('/', (req, res) => {
-  res.json({ 
+  res.json({
     message: 'VEX Scouting API Server',
     status: 'running',
     timestamp: new Date().toISOString(),
@@ -1549,7 +1685,7 @@ app.get('/', (req, res) => {
 
 // API info endpoint - Must be after all other /api routes to avoid conflicts
 app.get('/api', (req, res) => {
-  res.json({ 
+  res.json({
     message: 'VEX Scouting API',
     version: '1.0.0',
     endpoints: [
@@ -1578,14 +1714,14 @@ function isDangerousQuery(query) {
     /GRANT/i,
     /REVOKE/i,
   ];
-  
+
   return dangerousPatterns.some(pattern => pattern.test(upperQuery));
 }
 
 // Helper function to ensure query only operates on skills_standings table
 function validateSkillsStandingsQuery(query) {
   const upperQuery = query.trim().toUpperCase();
-  
+
   // Check for SELECT queries
   if (upperQuery.startsWith('SELECT')) {
     // Must have FROM skills_standings
@@ -1603,7 +1739,7 @@ function validateSkillsStandingsQuery(query) {
       }
     }
   }
-  
+
   // Check for UPDATE queries
   if (upperQuery.startsWith('UPDATE')) {
     // Must be UPDATE skills_standings
@@ -1612,7 +1748,7 @@ function validateSkillsStandingsQuery(query) {
       return { valid: false, error: 'UPDATE queries must target skills_standings table only' };
     }
   }
-  
+
   // Check for DELETE queries
   if (upperQuery.startsWith('DELETE')) {
     // Must be DELETE FROM skills_standings
@@ -1620,7 +1756,7 @@ function validateSkillsStandingsQuery(query) {
       return { valid: false, error: 'DELETE queries must target skills_standings table only' };
     }
   }
-  
+
   // Check for INSERT queries
   if (upperQuery.startsWith('INSERT')) {
     // Must be INSERT INTO skills_standings
@@ -1628,7 +1764,7 @@ function validateSkillsStandingsQuery(query) {
       return { valid: false, error: 'INSERT queries must target skills_standings table only' };
     }
   }
-  
+
   return { valid: true };
 }
 
@@ -1636,50 +1772,50 @@ function validateSkillsStandingsQuery(query) {
 app.post('/api/admin/database/query', authenticateToken, requireRole('admin'), async (req, res) => {
   try {
     const { query, limit = 1000 } = req.body;
-    
+
     if (!query || typeof query !== 'string') {
       return res.status(400).json({ error: 'Query is required and must be a string' });
     }
-    
+
     const trimmedQuery = query.trim();
-    
+
     if (!trimmedQuery) {
       return res.status(400).json({ error: 'Query cannot be empty' });
     }
-    
+
     // Check for dangerous operations
     if (isDangerousQuery(trimmedQuery)) {
-      return res.status(403).json({ 
+      return res.status(403).json({
         error: 'Dangerous query detected. This operation is not allowed for security reasons.',
         blockedOperations: ['DROP TABLE', 'TRUNCATE', 'ALTER TABLE', 'CREATE TABLE', 'GRANT', 'REVOKE']
       });
     }
-    
+
     // Only allow SELECT queries for read operations
     const upperQuery = trimmedQuery.toUpperCase();
     if (!upperQuery.startsWith('SELECT')) {
-      return res.status(400).json({ 
-        error: 'Only SELECT queries are allowed. Use /api/admin/database/execute for INSERT/UPDATE/DELETE.' 
+      return res.status(400).json({
+        error: 'Only SELECT queries are allowed. Use /api/admin/database/execute for INSERT/UPDATE/DELETE.'
       });
     }
-    
+
     // Validate that query only operates on skills_standings
     const validation = validateSkillsStandingsQuery(trimmedQuery);
     if (!validation.valid) {
       return res.status(400).json({ error: validation.error });
     }
-    
+
     // Add LIMIT if not present (prevent large result sets)
     let finalQuery = trimmedQuery;
     if (!upperQuery.includes('LIMIT')) {
       finalQuery = `${trimmedQuery} LIMIT ${Math.min(parseInt(limit) || 1000, 5000)}`;
     }
-    
+
     // Execute query with timeout
     const startTime = Date.now();
     const result = await pool.query(finalQuery);
     const executionTime = Date.now() - startTime;
-    
+
     res.json({
       success: true,
       query: finalQuery,
@@ -1691,8 +1827,8 @@ app.post('/api/admin/database/query', authenticateToken, requireRole('admin'), a
     });
   } catch (error) {
     console.error('Error executing query:', error);
-    res.status(500).json({ 
-      error: 'Error executing query', 
+    res.status(500).json({
+      error: 'Error executing query',
       details: error.message,
       hint: error.hint || null
     });
@@ -1703,58 +1839,58 @@ app.post('/api/admin/database/query', authenticateToken, requireRole('admin'), a
 app.post('/api/admin/database/execute', authenticateToken, requireRole('admin'), async (req, res) => {
   try {
     const { query, confirm } = req.body;
-    
+
     if (!query || typeof query !== 'string') {
       return res.status(400).json({ error: 'Query is required and must be a string' });
     }
-    
+
     if (!confirm || confirm !== 'EXECUTE') {
-      return res.status(400).json({ 
-        error: 'Execution not confirmed. Send { confirm: "EXECUTE" } in request body.' 
+      return res.status(400).json({
+        error: 'Execution not confirmed. Send { confirm: "EXECUTE" } in request body.'
       });
     }
-    
+
     const trimmedQuery = query.trim();
-    
+
     if (!trimmedQuery) {
       return res.status(400).json({ error: 'Query cannot be empty' });
     }
-    
+
     // Check for dangerous operations
     if (isDangerousQuery(trimmedQuery)) {
-      return res.status(403).json({ 
+      return res.status(403).json({
         error: 'Dangerous query detected. This operation is not allowed for security reasons.',
         blockedOperations: ['DROP TABLE', 'TRUNCATE', 'ALTER TABLE', 'CREATE TABLE', 'GRANT', 'REVOKE']
       });
     }
-    
+
     // Only allow INSERT, UPDATE, DELETE
     const upperQuery = trimmedQuery.toUpperCase();
     const allowedOperations = ['INSERT', 'UPDATE', 'DELETE'];
     const operation = allowedOperations.find(op => upperQuery.startsWith(op));
-    
+
     if (!operation) {
-      return res.status(400).json({ 
-        error: `Only ${allowedOperations.join(', ')} operations are allowed. Use /api/admin/database/query for SELECT.` 
+      return res.status(400).json({
+        error: `Only ${allowedOperations.join(', ')} operations are allowed. Use /api/admin/database/query for SELECT.`
       });
     }
-    
+
     // Validate that query only operates on skills_standings
     const validation = validateSkillsStandingsQuery(trimmedQuery);
     if (!validation.valid) {
       return res.status(400).json({ error: validation.error });
     }
-    
+
     // Execute query in transaction
     await pool.query('BEGIN');
-    
+
     try {
       const startTime = Date.now();
       const result = await pool.query(trimmedQuery);
       const executionTime = Date.now() - startTime;
-      
+
       await pool.query('COMMIT');
-      
+
       res.json({
         success: true,
         query: trimmedQuery,
@@ -1769,8 +1905,8 @@ app.post('/api/admin/database/execute', authenticateToken, requireRole('admin'),
     }
   } catch (error) {
     console.error('Error executing query:', error);
-    res.status(500).json({ 
-      error: 'Error executing query', 
+    res.status(500).json({
+      error: 'Error executing query',
       details: error.message,
       hint: error.hint || null
     });
@@ -1790,9 +1926,9 @@ app.get('/api/admin/database/schema', authenticateToken, requireRole('admin'), a
       WHERE table_name = 'skills_standings'
       ORDER BY ordinal_position
     `;
-    
+
     const result = await pool.query(schemaQuery);
-    
+
     res.json({
       tableName: 'skills_standings',
       columns: result.rows

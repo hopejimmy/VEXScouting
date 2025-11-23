@@ -30,11 +30,11 @@ interface EventsSectionProps {
   isSeasonsLoading?: boolean;
 }
 
-export function EventsSection({ 
-  teamNumber, 
-  events, 
-  isLoading, 
-  error, 
+export function EventsSection({
+  teamNumber,
+  events,
+  isLoading,
+  error,
   onSeasonChange,
   currentSeasonId,
   matchType = 'VRC',
@@ -42,24 +42,41 @@ export function EventsSection({
   isSeasonsLoading = false
 }: EventsSectionProps) {
   const router = useRouter();
-  
+
   // Fetch awards for all events
   // CRITICAL: Pass matchType to prevent race condition and ensure correct program filtering
   const eventIds = events.map(event => event.id);
   const { data: awardsMap, isLoading: isAwardsLoading } = useMultipleTeamAwards(
-    teamNumber, 
-    eventIds, 
+    teamNumber,
+    eventIds,
     matchType
   );
-  
+
   // Handle event card click
   const handleEventClick = (event: TeamEvent) => {
-    const confirmed = window.confirm(
-      `Would you like to see the world skills rankings for all teams competing in "${event.name}"?`
-    );
-    
-    if (confirmed) {
-      router.push(`/event-rankings/${event.id}?matchType=${matchType}&eventName=${encodeURIComponent(event.name)}&returnUrl=/team/${teamNumber}`);
+    // If event is past (not upcoming), go to match list
+    if (!event.upcoming) {
+      // Use the first division ID if available, otherwise empty string (though backend should always provide it now)
+      const divisionId = event.divisions[0]?.id || '';
+
+      const params = new URLSearchParams({
+        divisionId: divisionId.toString(),
+        matchType,
+        eventName: event.name,
+        start: event.start,
+        end: event.end
+      });
+
+      router.push(`/team/${teamNumber}/event/${event.id}?${params.toString()}`);
+    } else {
+      // Existing behavior for upcoming events
+      const confirmed = window.confirm(
+        `Would you like to see the world skills rankings for all teams competing in "${event.name}"?`
+      );
+
+      if (confirmed) {
+        router.push(`/event-rankings/${event.id}?matchType=${matchType}&eventName=${encodeURIComponent(event.name)}&returnUrl=/team/${teamNumber}`);
+      }
     }
   };
 
@@ -82,7 +99,7 @@ export function EventsSection({
           <Calendar className="w-6 h-6" />
           <span>Season Events</span>
         </h2>
-        
+
         <Select
           value={currentSeasonId || undefined}
           onValueChange={onSeasonChange}
@@ -100,7 +117,7 @@ export function EventsSection({
           </SelectContent>
         </Select>
       </div>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {events.length === 0 ? (
           <Card>
@@ -111,10 +128,10 @@ export function EventsSection({
         ) : (
           events.map((event) => {
             const eventAwards = awardsMap?.[event.id] || [];
-            
+
             return (
-              <Card 
-                key={event.id} 
+              <Card
+                key={event.id}
                 className="hover:shadow-lg transition-shadow cursor-pointer hover:border-blue-300"
                 onClick={() => handleEventClick(event)}
               >
@@ -142,7 +159,7 @@ export function EventsSection({
                           .join(', ')}
                       </span>
                     </div>
-                    
+
                     {/* Awards Section */}
                     {!event.upcoming && (
                       <div className="space-y-2">
@@ -159,10 +176,10 @@ export function EventsSection({
                         ) : null}
                       </div>
                     )}
-                    
+
                     <div className="flex flex-wrap gap-2 mt-2">
                       {event.divisions.map((division) => (
-                        <Badge key={division} variant="outline">{division}</Badge>
+                        <Badge key={division.id} variant="outline">{division.name}</Badge>
                       ))}
                       <Badge variant="outline">{event.level}</Badge>
                       {event.type && <Badge variant="outline">{event.type}</Badge>}

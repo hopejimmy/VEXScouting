@@ -53,7 +53,7 @@ export interface TeamEvent {
     region: string;
     country: string;
   };
-  divisions: string[];
+  divisions: { id: number; name: string }[];
   level: string;
   upcoming: boolean;
   type: string;
