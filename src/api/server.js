@@ -11,6 +11,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { ensureTeamAnalysis, getTeamPerformance } from './services/analysis.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -222,6 +223,35 @@ async function initializeDatabase() {
     await pool.query(`
       ALTER TABLE skills_standings 
       ADD COLUMN IF NOT EXISTS matchType TEXT DEFAULT 'VRC'
+    `);
+
+    // Create events table for caching
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS events (
+        sku TEXT PRIMARY KEY,
+        name TEXT,
+        seasonId INTEGER,
+        start_date TIMESTAMP,
+        processed BOOLEAN DEFAULT false
+      )
+    `);
+
+    // Create team_event_stats table for performance metrics
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS team_event_stats (
+        team_number TEXT,
+        sku TEXT REFERENCES events(sku),
+        opr FLOAT,
+        dpr FLOAT,
+        ccwm FLOAT,
+        win_rate FLOAT,
+        rank INTEGER,
+        wins INTEGER,
+        losses INTEGER,
+        ties INTEGER,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (team_number, sku)
+      )
     `);
 
     // Create authentication tables
@@ -770,6 +800,42 @@ app.get('/api/teams/:teamNumber', async (req, res) => {
   } catch (error) {
     console.error('Error fetching team:', error);
     res.status(500).json({ error: 'Error fetching team' });
+  }
+});
+
+
+
+// Performance Analysis Endpoint
+app.get('/api/analysis/performance', async (req, res) => {
+  try {
+    const { teams } = req.query;
+    if (!teams) {
+      return res.status(400).json({ error: 'Teams parameter required (comma-separated list)' });
+    }
+
+    const teamList = teams.split(',').map(t => t.trim());
+    const seasonId = req.query.season || process.env.CURRENT_SEASON_ID || 197; // Default to current VRC season
+
+    // 1. Ensure caching (Trigger orchestrator)
+    if (process.env.ROBOTEVENTS_API_TOKEN) {
+      // Run in background or await? 
+      // Plan said: "First call: Should be slower (fetching events)." -> So await.
+      await Promise.all(teamList.map(team =>
+        ensureTeamAnalysis(pool, team, process.env.ROBOTEVENTS_API_TOKEN, seasonId)
+      ));
+    } else {
+      console.warn("ROBOTEVENTS_API_TOKEN missing. Skipping live fetch, returning cached only.");
+    }
+
+    // 2. Get calculated stats
+    const performanceData = await getTeamPerformance(pool, teamList, seasonId);
+
+    // 3. Return results
+    res.json(performanceData);
+
+  } catch (error) {
+    console.error('Analysis Error:', error);
+    res.status(500).json({ error: 'Error analyzing team performance' });
   }
 });
 
