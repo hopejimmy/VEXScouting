@@ -9,6 +9,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTeamMatches, Match } from '@/hooks/useTeamMatches';
+import { useTeamPerformance, PerformanceData } from '@/hooks/useTeamPerformance';
+import { MatchAnalysisCard } from '@/components/analysis/MatchAnalysisCard';
+import { useMemo } from 'react';
 import { Footer } from '@/components/navigation/Footer';
 
 export default function MatchListPage() {
@@ -54,6 +57,29 @@ export default function MatchListPage() {
         refetch,
         isRefetching
     } = useTeamMatches(teamNumber, eventId, divisionId, matchType, refetchInterval);
+
+    const [predictionMode, setPredictionMode] = useState(false);
+
+    // Collect all unique teams for batch fetching analysis
+    const allTeamNumbers = useMemo(() => {
+        if (!matches) return [];
+        const set = new Set<string>();
+        matches.forEach(m => {
+            m.alliances.forEach(a => a.teams.forEach(t => set.add(t.team.name)));
+        });
+        return Array.from(set);
+    }, [matches]);
+
+    // Fetch performance data only when prediction mode is active
+    const { data: performanceList } = useTeamPerformance(predictionMode ? allTeamNumbers : []);
+
+    const performanceMap = useMemo(() => {
+        const map: Record<string, PerformanceData> = {};
+        if (performanceList) {
+            performanceList.forEach(d => map[d.teamNumber] = d);
+        }
+        return map;
+    }, [performanceList]);
 
     const handleBackClick = () => {
         router.back();
@@ -117,6 +143,14 @@ export default function MatchListPage() {
                         </div>
 
                         <div className="flex items-center space-x-3">
+                            <Button
+                                variant={predictionMode ? "default" : "outline"}
+                                onClick={() => setPredictionMode(!predictionMode)}
+                                className={`flex items-center space-x-2 ${predictionMode ? 'bg-purple-600 hover:bg-purple-700' : ''}`}
+                            >
+                                <Trophy className="w-4 h-4" />
+                                <span>{predictionMode ? 'Hide Analysis' : 'Predict Matches'}</span>
+                            </Button>
                             <Button
                                 variant="outline"
                                 onClick={() => refetch()}
@@ -198,6 +232,8 @@ export default function MatchListPage() {
                                 key={match.id}
                                 match={match}
                                 teamNumber={teamNumber}
+                                predictionMode={predictionMode}
+                                performanceMap={performanceMap}
                             />
                         ))}
                     </motion.div>
@@ -208,7 +244,17 @@ export default function MatchListPage() {
     );
 }
 
-function MatchCard({ match, teamNumber }: { match: Match, teamNumber: string }) {
+function MatchCard({
+    match,
+    teamNumber,
+    predictionMode,
+    performanceMap
+}: {
+    match: Match,
+    teamNumber: string,
+    predictionMode: boolean,
+    performanceMap: Record<string, PerformanceData>
+}) {
     const redAlliance = match.alliances.find(a => a.color === 'red');
     const blueAlliance = match.alliances.find(a => a.color === 'blue');
 
@@ -282,8 +328,15 @@ function MatchCard({ match, teamNumber }: { match: Match, teamNumber: string }) 
                         </div>
                     </div>
                 </div>
+                {predictionMode && (
+                    <MatchAnalysisCard
+                        redAlliance={redAlliance?.teams.map(t => t.team.name) || []}
+                        blueAlliance={blueAlliance?.teams.map(t => t.team.name) || []}
+                        performanceMap={performanceMap}
+                    />
+                )}
             </CardContent>
-        </Card>
+        </Card >
     );
 }
 
