@@ -13,7 +13,9 @@ async function fetchAllPages(endpoint, token) {
     let lastPage = 1;
 
     do {
-        const response = await fetch(`${endpoint}?page=${currentPage}&per_page=250`, {
+        const separator = endpoint.includes('?') ? '&' : '?';
+        const url = `${endpoint}${separator}page=${currentPage}&per_page=250`;
+        const response = await fetch(url, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Accept': 'application/json'
@@ -21,6 +23,9 @@ async function fetchAllPages(endpoint, token) {
         });
 
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`API Error URL: ${endpoint}?page=${currentPage}&per_page=250`);
+            console.error(`API Error Body: ${errorText}`);
             throw new Error(`RobotEvents API Error: ${response.status} ${response.statusText}`);
         }
 
@@ -131,12 +136,40 @@ function calculateEventStats(matches, teams) {
 /**
  * Main function to process an event
  */
-export async function processEvent(pool, sku, apiKey) {
+export async function processEvent(pool, event, apiKey) {
     if (!apiKey) throw new Error("API Key required");
 
+    const { id, sku } = event;
+
     // 1. Fetch Event Info/Matches from RobotEvents
-    console.log(`Fetching matches for event ${sku}...`);
-    const matches = await fetchAllPages(`${ROBOTEVENTS_BASE_URL}/events/${sku}/matches`, apiKey);
+    console.log(`Fetching detailed info for event ${sku} (ID: ${id})...`);
+
+    // Fetch event details to get divisions
+    let eventDetails = event;
+    if (!event.divisions) {
+        const eventResponse = await fetchAllPages(`${ROBOTEVENTS_BASE_URL}/events/${id}`, apiKey);
+        // API returns object, not list? fetchAllPages expects paginated list?
+        // fetchAllPages handles "data" property.
+        // events/{id} returns the object directly usually.
+        // Let's use simple fetch for single object.
+        // Actually RobotEvents V2 events/{id} returns the object.
+        // Let's make a helper or just use fetch here.
+        const res = await fetch(`${ROBOTEVENTS_BASE_URL}/events/${id}`, {
+            headers: { 'Authorization': `Bearer ${apiKey}` }
+        });
+        eventDetails = await res.json();
+    }
+
+    const divisions = eventDetails.divisions || [];
+    let matches = [];
+
+    console.log(`Event ${sku} has ${divisions.length} divisions.`);
+
+    for (const div of divisions) {
+        console.log(`Fetching matches for Division ${div.name} (ID: ${div.id})...`);
+        const divMatches = await fetchAllPages(`${ROBOTEVENTS_BASE_URL}/events/${id}/divisions/${div.id}/matches`, apiKey);
+        matches = matches.concat(divMatches);
+    }
 
     // Filter for only 'scored' matches to ensure we only use valid data
     const scoredMatches = matches.filter(m => m.scored);
@@ -242,8 +275,8 @@ export async function ensureTeamAnalysis(pool, teamNumber, apiKey, seasonId) {
 
     // 1. Get Team ID (RobotEvents needs ID, not number, usually. But let's check if we can search by number)
     // Actually teams endpoint searches by number.
-    const teams = await fetchAllPages(`${ROBOTEVENTS_BASE_URL}/teams?number=${teamNumber}&my_season=${seasonId}`, apiKey);
-    if (teams.length === 0) return; // Team not found or no events
+    const teams = await fetchAllPages(`${ROBOTEVENTS_BASE_URL}/teams?number=${teamNumber}`, apiKey);
+    if (teams.length === 0) return;
     const teamId = teams[0].id;
 
     // 2. Get Team's Events for the Season
@@ -272,7 +305,7 @@ export async function ensureTeamAnalysis(pool, teamNumber, apiKey, seasonId) {
 
     for (const event of missingEvents) {
         try {
-            await processEvent(pool, event.sku, apiKey);
+            await processEvent(pool, event, apiKey);
         } catch (error) {
             console.error(`Failed to process event ${event.sku}:`, error.message);
             // Continue to next event even if one fails

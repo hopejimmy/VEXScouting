@@ -814,7 +814,7 @@ app.get('/api/analysis/performance', async (req, res) => {
     }
 
     const teamList = teams.split(',').map(t => t.trim());
-    const seasonId = process.env.CURRENT_SEASON_ID || 197; // Default to current VRC season
+    const seasonId = req.query.season || process.env.CURRENT_SEASON_ID || 197; // Default to current VRC season
 
     // 1. Ensure caching (Trigger orchestrator)
     if (process.env.ROBOTEVENTS_API_TOKEN) {
