@@ -30,10 +30,18 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Save favorites to localStorage whenever favorites change
+  // Save favorites to localStorage AND sync to backend tracking whenever favorites change
   useEffect(() => {
     if (mounted) {
       localStorage.setItem('vex-scouting-favorites', JSON.stringify(favorites));
+
+      // Auto-sync to backend for analysis background job
+      const teamNumbers = favorites.map(f => f.teamNumber);
+      fetch('/api/tracking/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teams: teamNumbers })
+      }).catch(err => console.error('Failed to sync tracked teams:', err));
     }
   }, [favorites, mounted]);
 
