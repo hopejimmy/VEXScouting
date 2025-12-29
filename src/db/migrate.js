@@ -3,15 +3,27 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const { Pool } = pg;
-const pool = new Pool({
-    host: process.env.POSTGRES_HOST || 'localhost',
-    user: process.env.POSTGRES_USER || 'postgres',
-    password: process.env.POSTGRES_PASSWORD || 'postgres',
-    database: process.env.POSTGRES_DB || 'vexscouting',
-    port: 5432,
-    // Railway often requires SSL for production connections
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-});
+// PostgreSQL connection configuration aligned with server.js
+let pool;
+if (process.env.DATABASE_URL) {
+    // Production/Railway environment - use DATABASE_URL
+    console.log('🔗 Using Railway DATABASE_URL for Migration');
+    const isPrivateNetwork = process.env.DATABASE_URL.includes('railway.internal');
+
+    pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        ssl: isPrivateNetwork ? false : { rejectUnauthorized: false }
+    });
+} else {
+    // Development environment
+    pool = new Pool({
+        host: process.env.POSTGRES_HOST || 'localhost',
+        user: process.env.POSTGRES_USER || 'postgres',
+        password: process.env.POSTGRES_PASSWORD || 'postgres',
+        database: process.env.POSTGRES_DB || 'vexscouting',
+        port: 5432
+    });
+}
 
 async function migrate() {
     try {
