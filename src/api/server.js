@@ -254,6 +254,14 @@ async function initializeDatabase() {
       )
     `);
 
+    // Create tracked_teams table for background analysis syncing
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS tracked_teams (
+        team_number VARCHAR(20) PRIMARY KEY,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     // Create authentication tables
     await pool.query(`
       CREATE TABLE IF NOT EXISTS roles (
@@ -816,19 +824,13 @@ app.get('/api/analysis/performance', async (req, res) => {
     const teamList = teams.split(',').map(t => t.trim());
     const seasonId = req.query.season || process.env.CURRENT_SEASON_ID || 197; // Default to current VRC season
 
-    // 1. Ensure caching (Trigger orchestrator)
-    if (process.env.ROBOTEVENTS_API_TOKEN) {
-      // Run in background or await? 
-      // Plan said: "First call: Should be slower (fetching events)." -> So await.
-      await Promise.all(teamList.map(team =>
-        ensureTeamAnalysis(pool, team, process.env.ROBOTEVENTS_API_TOKEN, seasonId)
-      ));
-    } else {
-      console.warn("ROBOTEVENTS_API_TOKEN missing. Skipping live fetch, returning cached only.");
-    }
+    // 1. Get calculated stats directly from DB (Background job handles updates)
+    // We NO LONGER fetch from RobotEvents in real-time to avoid 429 errors.
 
     // 2. Get calculated stats
     const performanceData = await getTeamPerformance(pool, teamList, seasonId);
+
+    console.log(`[Analysis] Returning performance data for ${teamList.length} teams:`, performanceData);
 
     // 3. Return results
     res.json(performanceData);
@@ -836,6 +838,38 @@ app.get('/api/analysis/performance', async (req, res) => {
   } catch (error) {
     console.error('Analysis Error:', error);
     res.status(500).json({ error: 'Error analyzing team performance' });
+  }
+});
+
+// Data Sync Endpoint: Updates tracked teams from frontend favorites
+app.post('/api/tracking/sync', async (req, res) => {
+  try {
+    const { teams } = req.body;
+
+    if (!Array.isArray(teams)) {
+      return res.status(400).json({ error: 'Teams must be an array of strings' });
+    }
+
+    if (teams.length > 0) {
+      // 1. Clear existing tracked teams (optional: modify this if you want multi-user favorites union)
+      // Since this is a single user preference sync for now, we can bulk insert/upsert.
+      // But actually, we want to maintain a global list of "interesting" teams.
+      // So basically checking if they exist is enough.
+
+      const values = teams.map((_, i) => `($${i + 1})`).join(',');
+      const query = `
+        INSERT INTO tracked_teams (team_number) 
+        VALUES ${values}
+        ON CONFLICT (team_number) DO NOTHING
+      `;
+
+      await pool.query(query, teams);
+    }
+
+    res.json({ message: 'Tracked teams synced successfully', count: teams.length });
+  } catch (error) {
+    console.error('Tracking Sync Error:', error);
+    res.status(500).json({ error: 'Failed to sync tracked teams' });
   }
 });
 
