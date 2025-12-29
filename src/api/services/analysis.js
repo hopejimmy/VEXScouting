@@ -67,21 +67,30 @@ function calculateEventStats(matches, teams) {
 
     // 3. Process Matches
     matches.forEach(match => {
-        if (!match.scored) return; // Skip unplayed matches
+        if (!match.scored && (!match.alliances || !match.alliances[0].score)) return;
 
-        const redTeams = match.alliances.red.team_objects.map(t => t.name);
-        const blueTeams = match.alliances.blue.team_objects.map(t => t.name);
-        const redScore = match.alliances.red.score;
-        const blueScore = match.alliances.blue.score;
+        // Helper to get alliance safely
+        const redAlliance = match.alliances.find(a => a.color === 'red');
+        const blueAlliance = match.alliances.find(a => a.color === 'blue');
+
+        if (!redAlliance || !blueAlliance) return;
+
+        // Correctly map from 'teams' array to names
+        const redTeams = (redAlliance.teams || []).map(t => t.team.name);
+        const blueTeams = (blueAlliance.teams || []).map(t => t.team.name);
+        const redScore = redAlliance.score;
+        const blueScore = blueAlliance.score;
 
         // Update Matrix A (Participation)
         // For standard 2v2 VRC:
         // A[i][j] increments if Team i and Team j played TOGETHER
         // Does NOT involve opponents.
 
-        [redTeams, blueTeams].forEach((allianceTeams, allianceIdx) => {
-            const score = allianceIdx === 0 ? redScore : blueScore;
-            const oppScore = allianceIdx === 0 ? blueScore : redScore;
+        [
+            { teams: redTeams, score: redScore, oppScore: blueScore },
+            { teams: blueTeams, score: blueScore, oppScore: redScore }
+        ].forEach(allianceData => {
+            const { teams: allianceTeams, score, oppScore } = allianceData;
             const margin = score - oppScore;
 
             for (let i = 0; i < allianceTeams.length; i++) {
@@ -113,7 +122,7 @@ function calculateEventStats(matches, teams) {
         dprResult = math.lusolve(A, B_dpr);
         ccwmResult = math.lusolve(A, B_ccwm);
     } catch (error) {
-        console.error("Matrix solve failed (likely singular matrix due to disconnected graph):", error);
+        // console.error("Matrix solve failed (likely singular matrix due to disconnected graph):", error);
         // Fallback: Return zeros or handle partially? 
         // For now return empty, meaning we can't calc useful stats for this event subset
         return {};
@@ -136,24 +145,17 @@ function calculateEventStats(matches, teams) {
 /**
  * Main function to process an event
  */
-export async function processEvent(pool, event, apiKey) {
+export async function processEvent(pool, event, apiKey, logFn = console.log) {
     if (!apiKey) throw new Error("API Key required");
 
     const { id, sku } = event;
 
     // 1. Fetch Event Info/Matches from RobotEvents
-    console.log(`Fetching detailed info for event ${sku} (ID: ${id})...`);
+    logFn(`Fetching detailed info for event ${sku} (ID: ${id})...`);
 
     // Fetch event details to get divisions
     let eventDetails = event;
     if (!event.divisions) {
-        const eventResponse = await fetchAllPages(`${ROBOTEVENTS_BASE_URL}/events/${id}`, apiKey);
-        // API returns object, not list? fetchAllPages expects paginated list?
-        // fetchAllPages handles "data" property.
-        // events/{id} returns the object directly usually.
-        // Let's use simple fetch for single object.
-        // Actually RobotEvents V2 events/{id} returns the object.
-        // Let's make a helper or just use fetch here.
         const res = await fetch(`${ROBOTEVENTS_BASE_URL}/events/${id}`, {
             headers: { 'Authorization': `Bearer ${apiKey}` }
         });
@@ -163,27 +165,37 @@ export async function processEvent(pool, event, apiKey) {
     const divisions = eventDetails.divisions || [];
     let matches = [];
 
-    console.log(`Event ${sku} has ${divisions.length} divisions.`);
+    logFn(`Event ${sku} has ${divisions.length} divisions.`);
 
     for (const div of divisions) {
-        console.log(`Fetching matches for Division ${div.name} (ID: ${div.id})...`);
+        logFn(`Fetching matches for Division ${div.name} (ID: ${div.id})...`);
         const divMatches = await fetchAllPages(`${ROBOTEVENTS_BASE_URL}/events/${id}/divisions/${div.id}/matches`, apiKey);
         matches = matches.concat(divMatches);
     }
 
     // Filter for only 'scored' matches to ensure we only use valid data
-    const scoredMatches = matches.filter(m => m.scored);
+    // API sometimes returns scored: false even if scores exist, so checks scores directly
+    const scoredMatches = matches.filter(m =>
+        m.scored ||
+        (m.alliances &&
+            m.alliances.length === 2 &&
+            m.alliances[0].score !== null &&
+            m.alliances[1].score !== null &&
+            (m.alliances[0].score > 0 || m.alliances[1].score > 0 || m.started))
+    );
 
     if (scoredMatches.length === 0) {
-        console.log(`No scored matches found for ${sku}`);
+        logFn(`No scored matches found for ${sku}`);
         return;
     }
 
     // 2. Identify all teams
     const teamSet = new Set();
     matches.forEach(m => {
-        m.alliances.red.team_objects.forEach(t => teamSet.add(t.name));
-        m.alliances.blue.team_objects.forEach(t => teamSet.add(t.name));
+        if (!m.alliances) return;
+        m.alliances.forEach(a => {
+            if (a.teams) a.teams.forEach(t => teamSet.add(t.team.name));
+        });
     });
     const teamList = Array.from(teamSet);
 
@@ -195,26 +207,41 @@ export async function processEvent(pool, event, apiKey) {
     teamList.forEach(t => basicStats[t] = { wins: 0, losses: 0, ties: 0 });
 
     scoredMatches.forEach(m => {
-        const redScore = m.alliances.red.score;
-        const blueScore = m.alliances.blue.score;
+        const redAlliance = m.alliances.find(a => a.color === 'red');
+        const blueAlliance = m.alliances.find(a => a.color === 'blue');
+
+        // Skip malformed matches
+        if (!redAlliance || !blueAlliance) return;
+
+        const redScore = redAlliance.score;
+        const blueScore = blueAlliance.score;
 
         let redResult = 'tie';
         if (redScore > blueScore) redResult = 'win';
         if (blueScore > redScore) redResult = 'loss';
 
         // Red teams
-        m.alliances.red.team_objects.forEach(t => {
-            if (redResult === 'win') basicStats[t.name].wins++;
-            else if (redResult === 'loss') basicStats[t.name].losses++;
-            else basicStats[t.name].ties++;
-        });
+        if (redAlliance.teams) {
+            redAlliance.teams.forEach(t => {
+                // Ensure name exists
+                if (t.team && t.team.name && basicStats[t.team.name]) {
+                    if (redResult === 'win') basicStats[t.team.name].wins++;
+                    else if (redResult === 'loss') basicStats[t.team.name].losses++;
+                    else basicStats[t.team.name].ties++;
+                }
+            });
+        }
 
         // Blue teams
-        m.alliances.blue.team_objects.forEach(t => {
-            if (redResult === 'loss') basicStats[t.name].wins++; // Blue wins if Red loses
-            else if (redResult === 'win') basicStats[t.name].losses++;
-            else basicStats[t.name].ties++;
-        });
+        if (blueAlliance.teams) {
+            blueAlliance.teams.forEach(t => {
+                if (t.team && t.team.name && basicStats[t.team.name]) {
+                    if (redResult === 'loss') basicStats[t.team.name].wins++; // Blue wins if Red loses
+                    else if (redResult === 'win') basicStats[t.team.name].losses++;
+                    else basicStats[t.team.name].ties++;
+                }
+            });
+        }
     });
 
     // 5. Save to Database
@@ -223,8 +250,6 @@ export async function processEvent(pool, event, apiKey) {
         await client.query('BEGIN');
 
         // Check if event exists, if not create it
-        // We assume start_date is passed or we fetch event details? 
-        // For now, let's just insert/ignore.
         await client.query(`
             INSERT INTO events (sku, processed, last_updated)
             VALUES ($1, true, CURRENT_TIMESTAMP)
@@ -258,7 +283,7 @@ export async function processEvent(pool, event, apiKey) {
         }
 
         await client.query('COMMIT');
-        console.log(`Successfully processed event ${sku}: Stats saved for ${teamList.length} teams.`);
+        logFn(`Successfully processed event ${sku}: Stats saved for ${teamList.length} teams.`);
     } catch (e) {
         await client.query('ROLLBACK');
         throw e;
@@ -270,13 +295,15 @@ export async function processEvent(pool, event, apiKey) {
 /**
  * Ensures a team's events are analyzed and cached
  */
-export async function ensureTeamAnalysis(pool, teamNumber, apiKey, seasonId) {
+export async function ensureTeamAnalysis(pool, teamNumber, apiKey, seasonId, logFn = console.log) {
     if (!apiKey) throw new Error("API Key required");
 
-    // 1. Get Team ID (RobotEvents needs ID, not number, usually. But let's check if we can search by number)
-    // Actually teams endpoint searches by number.
+    // 1. Get Team ID 
     const teams = await fetchAllPages(`${ROBOTEVENTS_BASE_URL}/teams?number=${teamNumber}`, apiKey);
-    if (teams.length === 0) return;
+    if (teams.length === 0) {
+        logFn(`Team ${teamNumber} not found.`);
+        return;
+    }
     const teamId = teams[0].id;
 
     // 2. Get Team's Events for the Season
@@ -301,13 +328,13 @@ export async function ensureTeamAnalysis(pool, teamNumber, apiKey, seasonId) {
     // 5. Process missing events
     const missingEvents = pastEvents.filter(e => !cachedSkus.has(e.sku));
 
-    console.log(`Team ${teamNumber}: Found ${pastEvents.length} past events, ${cachedSkus.size} cached. Processing ${missingEvents.length} new events.`);
+    logFn(`Team ${teamNumber}: Found ${pastEvents.length} past events, ${cachedSkus.size} cached. Processing ${missingEvents.length} new events.`);
 
     for (const event of missingEvents) {
         try {
-            await processEvent(pool, event, apiKey);
+            await processEvent(pool, event, apiKey, logFn);
         } catch (error) {
-            console.error(`Failed to process event ${event.sku}:`, error.message);
+            logFn(`Failed to process event ${event.sku}: ${error.message}`);
             // Continue to next event even if one fails
         }
     }
@@ -318,11 +345,8 @@ export async function ensureTeamAnalysis(pool, teamNumber, apiKey, seasonId) {
  */
 export async function getTeamPerformance(pool, teamNumbers, seasonId) {
     // 1. Get Avg OPR and Win Rate from DB
-    // We aggregate stats from all events in the season
     const placeholders = teamNumbers.map((_, i) => `$${i + 1}`).join(',');
 
-    // We need Max OPR for normalization. Let's assume a static max for now or query it.
-    // Static Max OPR ~ 30 (high), Max Skills ~ 400 (Season dynamic)
     const MAX_OPR = 30; // Approximation
     const MAX_SKILLS = 400; // Approximation
 
@@ -346,10 +370,6 @@ export async function getTeamPerformance(pool, teamNumbers, seasonId) {
         const winRate = parseFloat(row.avg_win_rate) || 0;
 
         // Formula: 50% OPR + 30% Skills + 20% Win Rate
-        // OPR Norm: (OPR / 30) * 50
-        // Skills Norm: (Skills / 400) * 30
-        // Win Rate Norm: WinRate * 20 (WinRate is 0-1) -> Wait, WinRate is 0.0-1.0. So 100% * 20 = 20. Correct.
-
         let normOpr = (opr / MAX_OPR) * 50;
         let normSkills = (skills / MAX_SKILLS) * 30;
         let normWinRate = winRate * 20;
@@ -377,4 +397,3 @@ export async function getTeamPerformance(pool, teamNumbers, seasonId) {
         };
     });
 }
-

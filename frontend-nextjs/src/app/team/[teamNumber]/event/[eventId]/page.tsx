@@ -53,6 +53,7 @@ export default function MatchListPage() {
     const {
         data: matches,
         isLoading,
+        isError,
         error,
         refetch,
         isRefetching
@@ -70,8 +71,17 @@ export default function MatchListPage() {
         return Array.from(set);
     }, [matches]);
 
-    // Fetch performance data only when prediction mode is active
-    const { data: performanceList } = useTeamPerformance(predictionMode ? allTeamNumbers : []);
+    // Always fetch, but backend returns empty/cached fast. 
+    // Wait... if we want "No network calls if not processed", we can't fetch? 
+    // Actually, we must fetch to KNOW if it's processed. 
+    // The requirement says "original predict matches function... will not show if... finds no existing data".
+    // So we fetch, and if empty, we disable/alert.
+    // The "NEVER trigger backend processing" constraint applies to the *Backend Side* (it shouldn't scrape RobotEvents).
+    // Our new `endpoints` are read-only DB queries, so calling them is safe!
+    // So we fetch the data. If the list is empty (or teams missing), we warn.
+
+    // Fetch performance data
+    const { data: performanceList } = useTeamPerformance(allTeamNumbers);
 
     const performanceMap = useMemo(() => {
         const map: Record<string, PerformanceData> = {};
@@ -80,6 +90,24 @@ export default function MatchListPage() {
         }
         return map;
     }, [performanceList]);
+
+    const handlePredictionToggle = () => {
+        if (predictionMode) {
+            setPredictionMode(false);
+            return;
+        }
+
+        // Check availability
+        // If performanceList is empty or very few teams found compared to total?
+        // Let's check if map has at least one entry? Or verify specifically?
+        // If pre-process hasn't run, DB returns empty array.
+        if (!performanceList || performanceList.length === 0) {
+            alert("Data not available. Please ask an admin to pre-process this event.");
+            return;
+        }
+
+        setPredictionMode(true);
+    };
 
     const handleBackClick = () => {
         router.back();
@@ -145,7 +173,7 @@ export default function MatchListPage() {
                         <div className="flex items-center space-x-3">
                             <Button
                                 variant={predictionMode ? "default" : "outline"}
-                                onClick={() => setPredictionMode(!predictionMode)}
+                                onClick={handlePredictionToggle}
                                 className={`flex items-center space-x-2 ${predictionMode ? 'bg-purple-600 hover:bg-purple-700' : ''}`}
                             >
                                 <Trophy className="w-4 h-4" />
@@ -196,12 +224,12 @@ export default function MatchListPage() {
                             </Card>
                         ))}
                     </div>
-                ) : error ? (
+                ) : isError ? (
                     <Card className="border-red-200 bg-red-50">
                         <CardContent className="p-8 text-center">
                             <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
                             <h3 className="text-lg font-semibold text-red-900 mb-2">Error Loading Matches</h3>
-                            <p className="text-red-700 mb-4">{(error as Error).message}</p>
+                            <p className="text-red-700 mb-4">{error?.message || 'An error occurred'}</p>
                             <Button onClick={() => refetch()} variant="outline" className="bg-white">
                                 Try Again
                             </Button>

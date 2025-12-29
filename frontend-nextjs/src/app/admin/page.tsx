@@ -38,6 +38,13 @@ function AdminDashboardContent() {
       path: '/admin/database',
       color: 'from-orange-500 to-orange-600',
     },
+    {
+      title: 'Team Analysis',
+      description: 'Manage background processing and tracked teams',
+      icon: Settings, // Reusing Settings icon or imported Activity/Terminal if available. Let's stick to Settings or similar.
+      path: '/admin/analysis',
+      color: 'from-pink-500 to-pink-600',
+    },
   ];
 
   return (
@@ -52,11 +59,11 @@ function AdminDashboardContent() {
             <ArrowLeft className="w-4 h-4 mr-1" />
             Back to Home
           </button>
-          
+
           <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
             <p className="text-gray-600">
-              Welcome back, <span className="font-semibold">{user?.username}</span>. 
+              Welcome back, <span className="font-semibold">{user?.username}</span>.
               Manage your VEX Scouting platform from here.
             </p>
           </div>

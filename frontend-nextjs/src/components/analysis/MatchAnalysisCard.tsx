@@ -1,7 +1,6 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-
 import { PerformanceData } from '@/hooks/useTeamPerformance';
 
 interface MatchAnalysisCardProps {
@@ -11,7 +10,6 @@ interface MatchAnalysisCardProps {
 }
 
 export function MatchAnalysisCard({ redAlliance, blueAlliance, performanceMap }: MatchAnalysisCardProps) {
-    // Helper to get stats safely
     const getStats = (teams: string[]) => {
         let totalStrength = 0;
         let totalOpr = 0;
@@ -28,15 +26,10 @@ export function MatchAnalysisCard({ redAlliance, blueAlliance, performanceMap }:
             }
         });
 
-        // Use averages (or sums for OPR? OPR is additive. Skills is best of? No, in match play 2v2, 
-        // usually Sum of OPR is score prediction. Strength is average quality.)
-        // But for Strength Score (0-100), Average makes sense for "Alliance Quality".
-        // For OPR, Sum makes sense.
-
         return {
             strength: count > 0 ? Math.round(totalStrength / count) : 0,
             opr: totalOpr.toFixed(1),
-            skills: count > 0 ? Math.round(totalSkills / count) : 0 // Avg skills for comparison
+            skills: count > 0 ? Math.round(totalSkills / count) : 0
         };
     };
 
@@ -63,36 +56,28 @@ export function MatchAnalysisCard({ redAlliance, blueAlliance, performanceMap }:
                     </Badge>
                 </div>
 
-                {/* Win Probability Bar */}
                 <div className="relative h-4 w-full bg-blue-100 rounded-full overflow-hidden mb-4 flex">
                     <div
                         className="h-full bg-red-500 transition-all duration-1000"
                         style={{ width: `${redWinProb}%` }}
                     />
-                    {/* Blue is automatic background */}
                 </div>
                 <div className="flex justify-between text-xs font-bold mb-4">
                     <span className="text-red-600">{redWinProb.toFixed(0)}%</span>
                     <span className="text-blue-600">{blueWinProb.toFixed(0)}%</span>
                 </div>
 
-                {/* Detailed Stats */}
                 <div className="grid grid-cols-3 gap-2 text-center text-sm">
-                    {/* Red Stats */}
                     <div className="space-y-2">
                         <div className="text-red-700 font-bold">{redStats.strength}</div>
                         <div className="text-gray-600">{redStats.opr}</div>
                         <div className="text-gray-600">{redStats.skills}</div>
                     </div>
-
-                    {/* Labels */}
                     <div className="space-y-2 text-gray-400 font-medium">
                         <div>STRENGTH</div>
                         <div>OPR (Sum)</div>
                         <div>SKILLS (Avg)</div>
                     </div>
-
-                    {/* Blue Stats */}
                     <div className="space-y-2">
                         <div className="text-blue-700 font-bold">{blueStats.strength}</div>
                         <div className="text-gray-600">{blueStats.opr}</div>
