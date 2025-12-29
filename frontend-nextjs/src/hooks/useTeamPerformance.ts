@@ -22,13 +22,16 @@ export function useTeamPerformance(teamNumbers: string[]) {
 
             const response = await fetch(`${API_BASE_URL}/api/analysis/performance?${params.toString()}`);
             if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error || 'Failed to fetch performance data');
+                // If 404 or other error, return empty list gracefully?
+                // The backend returns 500 if error.
+                // Let's just return empty array if it fails, so we don't crash UI.
+                console.error("Failed to fetch performance data");
+                return [];
             }
             return response.json();
         },
         enabled: teamNumbers.length > 0,
         staleTime: 5 * 60 * 1000, // 5 minutes
-        retry: false // Don't retry if analysis fails (e.g. timeout)
+        retry: false
     });
 }

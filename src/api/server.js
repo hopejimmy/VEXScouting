@@ -12,6 +12,7 @@ import { dirname } from 'path';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { ensureTeamAnalysis, getTeamPerformance } from './services/analysis.js';
+import { analysisWorker } from './services/analysis-worker.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -33,6 +34,12 @@ console.log('Environment variables loaded:', {
 const app = express();
 const PORT = process.env.PORT || 3000;
 const { Pool } = pg;
+
+// Debug Middleware: Log ALL requests
+app.use((req, res, next) => {
+  console.log(`[REQUEST] ${req.method} ${req.url} | Origin: ${req.headers.origin}`);
+  next();
+});
 
 // Middleware
 const corsOptions = {
@@ -232,6 +239,44 @@ async function initializeDatabase() {
         name TEXT,
         seasonId INTEGER,
         start_date TIMESTAMP,
+        processed BOOLEAN DEFAULT false,
+        last_updated TIMESTAMP
+      )
+    `);
+
+    // Create team_event_stats table for performance metrics
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS team_event_stats (
+        team_number TEXT,
+        sku TEXT REFERENCES events(sku),
+        opr FLOAT,
+        dpr FLOAT,
+        ccwm FLOAT,
+        win_rate FLOAT,
+        rank INTEGER,
+        wins INTEGER,
+        losses INTEGER,
+        ties INTEGER,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (team_number, sku)
+      )
+    `);
+
+    // Create tracked_teams table for background analysis syncing
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS tracked_teams (
+        team_number VARCHAR(20) PRIMARY KEY,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create events table for caching
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS events (
+        sku TEXT PRIMARY KEY,
+        name TEXT,
+        seasonId INTEGER,
+        start_date TIMESTAMP,
         processed BOOLEAN DEFAULT false
       )
     `);
@@ -415,6 +460,116 @@ async function startApplication() {
     }
   }
 }
+
+// --- Admin Analysis Endpoints ---
+
+// 1. Get Analysis Status
+app.get('/api/admin/analysis/status', authenticateToken, requireRole('admin'), (req, res) => {
+  res.json({
+    isRunning: analysisWorker.isRunning,
+    currentTeam: analysisWorker.currentTeam,
+    progress: analysisWorker.progress
+  });
+});
+
+// 2. Start Analysis
+app.post('/api/admin/analysis/start', authenticateToken, requireRole('admin'), (req, res) => {
+  console.log('[API] /start called'); // Debug Log
+  if (analysisWorker.isRunning) {
+    return res.status(400).json({ error: 'Analysis already running' });
+  }
+
+  const seasonId = process.env.CURRENT_SEASON_ID || 197;
+  const apiToken = process.env.ROBOTEVENTS_API_TOKEN;
+
+  if (!apiToken) return res.status(500).json({ error: 'API Token missing' });
+
+  // Start in background (don't await)
+  analysisWorker.start(pool, apiToken, seasonId);
+
+  res.json({ message: 'Analysis started' });
+});
+
+// 3. Stop Analysis
+app.post('/api/admin/analysis/stop', authenticateToken, requireRole('admin'), (req, res) => {
+  console.log('[API] /stop called'); // Debug Log
+  analysisWorker.requestStop();
+  res.json({ message: 'Stop requested' });
+});
+
+// 4. SSE Stream for Logs
+app.get('/api/admin/analysis/stream', (req, res) => {
+  console.log('[API] /stream connection attempt'); // Debug Log
+  // Custom Auth for SSE which doesn't support headers easily
+  const token = req.query.token;
+  if (!token) {
+    console.log('[API] /stream no token');
+    return res.status(401).json({ error: 'Token required' });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err || user.role !== 'admin') {
+      console.log('[API] /stream auth failed', err?.message);
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    console.log('[API] /stream connected for', user.username);
+
+    // Auth Success - Setup Stream
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
+
+    const sendEvent = (data) => {
+      res.write(`data: ${JSON.stringify(data)}\n\n`);
+    };
+
+    sendEvent({ type: 'info', message: `Connected to Analysis Stream` });
+
+    const onLog = (data) => sendEvent(data);
+    analysisWorker.on('log', onLog);
+
+    req.on('close', () => {
+      analysisWorker.off('log', onLog);
+    });
+  });
+});
+
+// 5. Manage Tracked Teams (Get)
+app.get('/api/admin/tracked-teams', authenticateToken, requireRole('admin'), async (req, res) => {
+  try {
+    console.log('[API] Fetching tracked teams...');
+    const result = await pool.query('SELECT team_number, created_at FROM tracked_teams ORDER BY created_at DESC');
+    console.log(`[API] Found ${result.rows.length} tracked teams:`, result.rows.map(r => r.team_number));
+    res.json(result.rows);
+  } catch (error) {
+    console.error('[API] Error fetching tracked teams:', error);
+    res.status(500).json({ error: 'Failed to fetch tracked teams' });
+  }
+});
+
+// 6. Manage Tracked Teams (Add/Remove)
+app.post('/api/admin/tracked-teams', authenticateToken, requireRole('admin'), async (req, res) => {
+  const { teamNumber, action } = req.body;
+  console.log(`[API] Tracked Teams Request: ${action} ${teamNumber}`);
+
+  if (!teamNumber) return res.status(400).json({ error: 'Team Number required' });
+
+  try {
+    if (action === 'add') {
+      await pool.query('INSERT INTO tracked_teams (team_number) VALUES ($1) ON CONFLICT DO NOTHING', [teamNumber]);
+      console.log(`[API] Added team ${teamNumber}`);
+    } else if (action === 'remove') {
+      await pool.query('DELETE FROM tracked_teams WHERE team_number = $1', [teamNumber]);
+      console.log(`[API] Removed team ${teamNumber}`);
+    }
+    res.json({ success: true });
+  } catch (error) {
+    console.error('[API] Tracked Teams Error:', error);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
 
 // Start server with proper error handling
 async function startServer() {
