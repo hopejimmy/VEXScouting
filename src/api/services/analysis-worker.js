@@ -16,14 +16,15 @@ class AnalysisWorker extends EventEmitter {
      * @param {string} apiToken RobotEvents API Token
      * @param {number} seasonId Season ID
      */
-    async start(pool, apiToken, seasonId) {
+    async start(pool, apiToken, seasonId, force = false) {
         if (this.isRunning) {
             return false; // Already running
         }
 
         this.isRunning = true;
         this.shouldStop = false;
-        this.emit('log', { type: 'info', message: '🚀 Starting Analysis Worker...' });
+        this.force = force;
+        this.emit('log', { type: 'info', message: `🚀 Starting Analysis Worker... (Force Refresh: ${force})` });
 
         try {
             // 1. Fetch tracked teams
@@ -65,7 +66,7 @@ class AnalysisWorker extends EventEmitter {
                     // Pass a custom logger that emits events back to this worker
                     await ensureTeamAnalysis(pool, teamNumber, apiToken, seasonId, (msg) => {
                         this.emit('log', { type: 'debug', message: `  > ${msg}` });
-                    });
+                    }, this.force);
 
                     this.emit('log', { type: 'success', message: `✅ Team ${teamNumber} processed.` });
 

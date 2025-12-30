@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Terminal, Plus, Trash2, StopCircle, PlayCircle, Loader2 } from 'lucide-react';
+import { Terminal, Plus, Trash2, StopCircle, PlayCircle, Loader2, Upload } from 'lucide-react';
 
 interface LogEntry {
     type: 'info' | 'warn' | 'error' | 'success' | 'process' | 'debug' | 'complete';
@@ -100,9 +100,45 @@ function AnalysisDashboard() {
             fetchTrackedTeams();
         } catch (e) {
             console.error(e);
-            alert('Failed to connect to server');
+            alert('Failed to add team');
         }
     };
+
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/admin/tracked-teams/upload`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                alert(`Error: ${err.error || 'Upload failed'}`);
+                return;
+            }
+
+            const data = await res.json();
+            alert(`Success! Found ${data.count} teams, Added ${data.added} new teams.`);
+            fetchTrackedTeams();
+        } catch (error) {
+            console.error(error);
+            alert('Upload error');
+        } finally {
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
+
 
     const removeTeam = async (team: string) => {
         if (!confirm(`Stop tracking ${team}?`)) return;
@@ -281,15 +317,33 @@ function AnalysisDashboard() {
                             <CardTitle className="text-lg">Tracked Teams ({trackedTeams.length})</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="flex gap-2 mb-4">
-                                <input
-                                    className="flex-1 border rounded px-3 py-2 uppercase"
-                                    placeholder="Team #"
-                                    value={newTeam}
-                                    onChange={e => setNewTeam(e.target.value)}
-                                    onKeyDown={e => e.key === 'Enter' && addTeam()}
-                                />
-                                <Button onClick={addTeam} variant="outline" size="icon"><Plus className="w-4 h-4" /></Button>
+                            <div className="mb-4 space-y-2">
+                                <div className="flex gap-2">
+                                    <Button
+                                        variant="outline"
+                                        className="w-full text-xs border-dashed"
+                                        onClick={() => fileInputRef.current?.click()}
+                                    >
+                                        <Upload className="w-3 h-3 mr-2" /> Upload CSV List
+                                    </Button>
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        onChange={handleFileUpload}
+                                        accept=".csv,.txt"
+                                        className="hidden"
+                                    />
+                                </div>
+                                <div className="flex gap-2">
+                                    <input
+                                        className="flex-1 border rounded px-3 py-2 uppercase"
+                                        placeholder="Team #"
+                                        value={newTeam}
+                                        onChange={e => setNewTeam(e.target.value)}
+                                        onKeyDown={e => e.key === 'Enter' && addTeam()}
+                                    />
+                                    <Button onClick={addTeam} variant="outline" size="icon"><Plus className="w-4 h-4" /></Button>
+                                </div>
                             </div>
                             <div className="max-h-[500px] overflow-y-auto space-y-2">
                                 {trackedTeams.map(t => (
