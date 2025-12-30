@@ -592,20 +592,137 @@ app.post('/api/admin/tracked-teams', authenticateToken, requireRole('admin'), as
   const { teamNumber, action } = req.body;
   console.log(`[API] Tracked Teams Request: ${action} ${teamNumber}`);
 
-  if (!teamNumber) return res.status(400).json({ error: 'Team Number required' });
+  if (!teamNumber || (Array.isArray(teamNumber) && teamNumber.length === 0)) {
+    return res.status(400).json({ error: 'Team Number(s) required' });
+  }
 
   try {
     if (action === 'add') {
       await pool.query('INSERT INTO tracked_teams (team_number) VALUES ($1) ON CONFLICT DO NOTHING', [teamNumber]);
       console.log(`[API] Added team ${teamNumber}`);
     } else if (action === 'remove') {
-      await pool.query('DELETE FROM tracked_teams WHERE team_number = $1', [teamNumber]);
-      console.log(`[API] Removed team ${teamNumber}`);
+      // Support batch removal if teamNumber is an array
+      if (Array.isArray(teamNumber)) {
+        await pool.query('DELETE FROM tracked_teams WHERE team_number = ANY($1)', [teamNumber]);
+        console.log(`[API] Batch removed teams: ${teamNumber.join(', ')}`);
+      } else {
+        await pool.query('DELETE FROM tracked_teams WHERE team_number = $1', [teamNumber]);
+        console.log(`[API] Removed team ${teamNumber}`);
+      }
     }
     res.json({ success: true });
   } catch (error) {
     console.error('[API] Tracked Teams Error:', error);
     res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// 6.5 Import Teams from Event
+app.post('/api/admin/tracked-teams/import-event', authenticateToken, requireRole('admin'), async (req, res) => {
+  const { eventSku } = req.body; // Keeping param name for compatibility, but it can be ID too
+
+  if (!eventSku) return res.status(400).json({ error: 'Event SKU or ID required' });
+
+  try {
+    console.log(`[API] Importing teams from event input: ${eventSku}`);
+
+    let eventId = null;
+    let eventName = '';
+
+    // Check if input is numeric ID or SKU
+    const isNumericId = /^\d+$/.test(eventSku);
+
+    if (isNumericId) {
+      // Direct ID lookup
+      const eventRes = await fetch(`https://www.robotevents.com/api/v2/events/${eventSku}`, {
+        headers: {
+          'Authorization': `Bearer ${process.env.ROBOTEVENTS_API_TOKEN}`,
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!eventRes.ok) {
+        if (eventRes.status === 404) return res.status(404).json({ error: 'Event ID not found' });
+        throw new Error('Failed to fetch event details');
+      }
+
+      const eventData = await eventRes.json();
+      eventId = eventData.id;
+      eventName = eventData.name;
+
+    } else {
+      // SKU lookup
+      const eventParams = new URLSearchParams({ sku: eventSku });
+      const eventRes = await fetch(`https://www.robotevents.com/api/v2/events?${eventParams}`, {
+        headers: {
+          'Authorization': `Bearer ${process.env.ROBOTEVENTS_API_TOKEN}`,
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!eventRes.ok) throw new Error('Failed to fetch event by SKU');
+      const eventData = await eventRes.json();
+
+      if (eventData.data.length === 0) {
+        return res.status(404).json({ error: 'Event SKU not found' });
+      }
+
+      eventId = eventData.data[0].id;
+      eventName = eventData.data[0].name;
+    }
+
+    // 2. Fetch Teams for Event
+    let allTeams = [];
+    let page = 1;
+
+    while (true) {
+      const teamRes = await fetch(`https://www.robotevents.com/api/v2/events/${eventId}/teams?page=${page}&per_page=250`, {
+        headers: {
+          'Authorization': `Bearer ${process.env.ROBOTEVENTS_API_TOKEN}`,
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!teamRes.ok) throw new Error('Failed to fetch teams');
+      const teamData = await teamRes.json();
+
+      allTeams.push(...teamData.data);
+
+      if (teamData.meta.current_page >= teamData.meta.last_page) break;
+      page++;
+      await new Promise(resolve => setTimeout(resolve, 500)); // Be nice to API
+    }
+
+    // 3. Insert Teams
+    const teamsToAdd = allTeams.map(t => t.number);
+    if (teamsToAdd.length > 0) {
+      // Use batch insert logic (INSERT ... ON CONFLICT DO NOTHING)
+      // Since pg library doesn't support bulk insert easily with standard param arrays without unnest or format, 
+      // we'll loop or use the ANY/UNNEST approach if we were fancy. 
+      // For simplicity and safety with existing pool query style:
+
+      let addedCount = 0;
+      await pool.query('BEGIN');
+      for (const teamNum of teamsToAdd) {
+        const res = await pool.query('INSERT INTO tracked_teams (team_number) VALUES ($1) ON CONFLICT DO NOTHING RETURNING team_number', [teamNum]);
+        if (res.rowCount > 0) addedCount++;
+      }
+      await pool.query('COMMIT');
+
+      return res.json({
+        success: true,
+        message: `Imported ${addedCount} new teams from "${eventName}"`,
+        totalFound: teamsToAdd.length,
+        added: addedCount
+      });
+    }
+
+    res.json({ success: true, message: 'No teams found in event', added: 0 });
+
+  } catch (error) {
+    console.error('[API] Event Import Error:', error);
+    await pool.query('ROLLBACK');
+    res.status(500).json({ error: 'Failed to import event teams' });
   }
 });
 
@@ -895,7 +1012,9 @@ app.post('/api/upload', authenticateToken, requireRole('admin'), upload.single('
   }
 
   const results = [];
-  fs.createReadStream(req.file.path)
+  const stream = Readable.from(req.file.buffer.toString());
+
+  stream
     .pipe(csv())
     .on('data', (data) => results.push(data))
     .on('end', async () => {
@@ -955,8 +1074,7 @@ app.post('/api/upload', authenticateToken, requireRole('admin'), upload.single('
 
         await pool.query('COMMIT');
 
-        // Clean up uploaded file
-        fs.unlinkSync(req.file.path);
+        // matches memory storage now, so no file to unlink
 
         res.json({
           message: `CSV data processed successfully for ${matchType}`,
