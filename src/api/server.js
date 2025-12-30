@@ -1020,9 +1020,10 @@ app.get('/api/analysis/performance', async (req, res) => {
     if (process.env.ROBOTEVENTS_API_TOKEN) {
       // Run in background or await? 
       // Plan said: "First call: Should be slower (fetching events)." -> So await.
-      await Promise.all(teamList.map(team =>
-        ensureTeamAnalysis(pool, team, process.env.ROBOTEVENTS_API_TOKEN, seasonId)
-      ));
+      // Process teams sequentially to avoid rate limits
+      for (const team of teamList) {
+        await ensureTeamAnalysis(pool, team, process.env.ROBOTEVENTS_API_TOKEN, seasonId);
+      }
     } else {
       console.warn("ROBOTEVENTS_API_TOKEN missing. Skipping live fetch, returning cached only.");
     }

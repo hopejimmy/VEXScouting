@@ -5,34 +5,69 @@ const math = create(all);
 const ROBOTEVENTS_BASE_URL = 'https://www.robotevents.com/api/v2';
 
 /**
+ * Helper to delay execution
+ */
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+/**
  * Fetches all items from a paginated RobotEvents endpoint
+ * Includes Retry with Exponential Backoff for 429s
  */
 async function fetchAllPages(endpoint, token) {
     let allItems = [];
     let currentPage = 1;
     let lastPage = 1;
+    let consecutiveErrors = 0;
 
     do {
         const separator = endpoint.includes('?') ? '&' : '?';
         const url = `${endpoint}${separator}page=${currentPage}&per_page=250`;
-        const response = await fetch(url, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
+
+        try {
+            // Add a small delay between pages to be nice to the API
+            await delay(300);
+
+            const response = await fetch(url, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (response.status === 429) {
+                consecutiveErrors++;
+                if (consecutiveErrors > 5) throw new Error("Rate limit exceeded too many times");
+
+                const waitTime = 2000 * Math.pow(2, consecutiveErrors); // 4s, 8s, 16s...
+                console.warn(`⚠️ Rate limit hit. Waiting ${waitTime / 1000}s...`);
+                await delay(waitTime);
+                continue; // Retry same page
             }
-        });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`API Error URL: ${endpoint}?page=${currentPage}&per_page=250`);
-            console.error(`API Error Body: ${errorText}`);
-            throw new Error(`RobotEvents API Error: ${response.status} ${response.statusText}`);
+            if (!response.ok) {
+                if (response.status >= 500) {
+                    // Retry on server errors
+                    console.warn(`Server error ${response.status}. Retrying...`);
+                    await delay(1000);
+                    consecutiveErrors++;
+                    if (consecutiveErrors > 3) throw new Error(`Server Error: ${response.status}`);
+                    continue;
+                }
+
+                const errorText = await response.text();
+                throw new Error(`RobotEvents API Error: ${response.status} ${response.statusText}`);
+            }
+
+            consecutiveErrors = 0; // Reset on success
+            const data = await response.json();
+            allItems = allItems.concat(data.data);
+            lastPage = data.meta.last_page;
+            currentPage++;
+
+        } catch (e) {
+            console.error(`Fetch error at page ${currentPage}:`, e);
+            throw e;
         }
-
-        const data = await response.json();
-        allItems = allItems.concat(data.data);
-        lastPage = data.meta.last_page;
-        currentPage++;
     } while (currentPage <= lastPage);
 
     return allItems;
