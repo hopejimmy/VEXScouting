@@ -369,16 +369,16 @@ export async function getTeamPerformance(pool, teamNumbers, seasonId) {
         const skills = parseInt(row.max_skills) || 0;
         const winRate = parseFloat(row.avg_win_rate) || 0;
 
-        // Formula: 50% OPR + 30% Skills + 20% Win Rate
-        let normOpr = (opr / MAX_OPR) * 50;
-        let normSkills = (skills / MAX_SKILLS) * 30;
-        let normWinRate = winRate * 20;
+        // Formula: 40% OPR + 60% Win Rate (User requested adjustment)
+        let normOpr = (opr / MAX_OPR) * 40;
+        // let normSkills = (skills / MAX_SKILLS) * 30; // Removed
+        let normWinRate = winRate * 60;
 
         // Clamp values
-        if (normOpr > 50) normOpr = 50;
-        if (normSkills > 30) normSkills = 30;
+        if (normOpr > 40) normOpr = 40;
+        // if (normSkills > 30) normSkills = 30;
 
-        const strength = Math.round(normOpr + normSkills + normWinRate);
+        const strength = Math.round(normOpr + normWinRate);
 
         // Tier
         let tier = 'Developing';
