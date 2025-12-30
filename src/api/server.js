@@ -1017,16 +1017,12 @@ app.get('/api/analysis/performance', async (req, res) => {
     const seasonId = req.query.season || process.env.CURRENT_SEASON_ID || 197; // Default to current VRC season
 
     // 1. Ensure caching (Trigger orchestrator)
-    if (process.env.ROBOTEVENTS_API_TOKEN) {
-      // Run in background or await? 
-      // Plan said: "First call: Should be slower (fetching events)." -> So await.
-      // Process teams sequentially to avoid rate limits
-      for (const team of teamList) {
-        await ensureTeamAnalysis(pool, team, process.env.ROBOTEVENTS_API_TOKEN, seasonId);
-      }
-    } else {
-      console.warn("ROBOTEVENTS_API_TOKEN missing. Skipping live fetch, returning cached only.");
-    }
+    // 1. Ensure caching: SKIPPED
+    // Requirement: Use Admin Dashboard to pre-process data. 
+    // This endpoint should only read existing stats to avoid API limits during browsing.
+    /* 
+    if (process.env.ROBOTEVENTS_API_TOKEN) { ... } 
+    */
 
     // 2. Get calculated stats
     const performanceData = await getTeamPerformance(pool, teamList, seasonId);
