@@ -330,7 +330,7 @@ export async function processEvent(pool, event, apiKey, logFn = console.log) {
 /**
  * Ensures a team's events are analyzed and cached
  */
-export async function ensureTeamAnalysis(pool, teamNumber, apiKey, seasonId, logFn = console.log) {
+export async function ensureTeamAnalysis(pool, teamNumber, apiKey, seasonId, logFn = console.log, force = false) {
     if (!apiKey) throw new Error("API Key required");
 
     // 1. Get Team ID 
@@ -351,17 +351,23 @@ export async function ensureTeamAnalysis(pool, teamNumber, apiKey, seasonId, log
     // 4. Check which are missing in DB
     if (pastEvents.length === 0) return;
 
-    const skuList = pastEvents.map(e => e.sku);
-    // Query DB for these SKUs
-    const placeholders = skuList.map((_, i) => `$${i + 1}`).join(',');
-    const cachedResult = await pool.query(
-        `SELECT sku FROM events WHERE sku IN (${placeholders}) AND processed = true`,
-        skuList
-    );
-    const cachedSkus = new Set(cachedResult.rows.map(r => r.sku));
+    let missingEvents = pastEvents;
 
-    // 5. Process missing events
-    const missingEvents = pastEvents.filter(e => !cachedSkus.has(e.sku));
+    // Only filter if NOT forcing
+    if (!force) {
+        const skuList = pastEvents.map(e => e.sku);
+        const placeholders = skuList.map((_, i) => `$${i + 1}`).join(',');
+        const cachedResult = await pool.query(
+            `SELECT sku FROM events WHERE sku IN (${placeholders}) AND processed = true`,
+            skuList
+        );
+        const cachedSkus = new Set(cachedResult.rows.map(r => r.sku));
+        missingEvents = pastEvents.filter(e => !cachedSkus.has(e.sku));
+
+        logFn(`Team ${teamNumber}: Found ${pastEvents.length} events, ${cachedSkus.size} cached. Processing ${missingEvents.length} new.`);
+    } else {
+        logFn(`Team ${teamNumber}: Force Refresh active. Processing all ${pastEvents.length} events.`);
+    }
 
     logFn(`Team ${teamNumber}: Found ${pastEvents.length} past events, ${cachedSkus.size} cached. Processing ${missingEvents.length} new events.`);
 

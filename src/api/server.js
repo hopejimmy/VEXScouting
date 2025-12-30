@@ -512,21 +512,10 @@ app.get('/api/admin/analysis/status', authenticateToken, requireRole('admin'), (
 
 // 2. Start Analysis
 app.post('/api/admin/analysis/start', authenticateToken, requireRole('admin'), (req, res) => {
-  console.log('[API] /start called'); // Debug Log
   if (analysisWorker.isRunning) {
-    return res.status(400).json({ error: 'Analysis already running' });
-  }
 
-  const seasonId = process.env.CURRENT_SEASON_ID || 197;
-  const apiToken = process.env.ROBOTEVENTS_API_TOKEN;
-
-  if (!apiToken) return res.status(500).json({ error: 'API Token missing' });
-
-  // Start in background (don't await)
-  analysisWorker.start(pool, apiToken, seasonId);
-
-  res.json({ message: 'Analysis started' });
-});
+    res.json({ message: 'Analysis started' });
+  });
 
 // 3. Stop Analysis
 app.post('/api/admin/analysis/stop', authenticateToken, requireRole('admin'), (req, res) => {
