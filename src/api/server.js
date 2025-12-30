@@ -32,14 +32,31 @@ console.log('Environment variables loaded:', {
 });
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-const { Pool } = pg;
 
-// Debug Middleware: Log ALL requests
+// --- CRITICAL DEBUGGING ---
+// 1. Global Crash Handlers
+process.on('uncaughtException', (err) => {
+  console.error('🔥 CRITICAL UNCAUGHT EXCEPTION:', err);
+  // In production, you typically want to exit, but for debugging we'll log hard.
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('🔥 UNHANDLED REJECTION:', reason);
+});
+
+// 2. Request Logging Middleware (Very First Thing)
 app.use((req, res, next) => {
-  console.log(`[REQUEST] ${req.method} ${req.url} | Origin: ${req.headers.origin}`);
+  console.log(`📥 [${req.method}] ${req.url}`);
+  // Log body for non-GET requests (be careful with sensitive data)
+  if (req.method !== 'GET') {
+    console.log('   Body:', JSON.stringify(req.body).substring(0, 200) + '...');
+  }
   next();
 });
+// --------------------------
+
+const PORT = process.env.PORT || 3000;
+const { Pool } = pg;
 
 // Middleware
 const corsOptions = {
@@ -583,6 +600,15 @@ async function startServer() {
   try {
     // Initialize database first
     await startApplication();
+
+    // Debug: Print Environment Config
+    console.log('--- SERVER STARTUP DEBUG ---');
+    console.log(`PORT: ${PORT}`);
+    console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
+    console.log(`DATABASE_URL Provided: ${!!process.env.DATABASE_URL}`);
+    console.log(`POSTGRES_HOST Provided: ${!!process.env.POSTGRES_HOST}`);
+    console.log(`ROBOTEVENTS_API_TOKEN Provided: ${!!process.env.ROBOTEVENTS_API_TOKEN}`);
+    console.log('----------------------------');
 
     const server = app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
