@@ -44,16 +44,7 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('🔥 UNHANDLED REJECTION:', reason);
 });
 
-// 2. Request Logging Middleware (Very First Thing)
-app.use((req, res, next) => {
-  console.log(`📥 [${req.method}] ${req.url}`);
-  // Log body for non-GET requests (be careful with sensitive data)
-  if (req.method !== 'GET') {
-    console.log('   Body:', JSON.stringify(req.body).substring(0, 200) + '...');
-  }
-  next();
-});
-// --------------------------
+// Logger removed (moved below body parser)
 
 const PORT = process.env.PORT || 3000;
 const { Pool } = pg;
@@ -101,6 +92,21 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
+
+// --- SAFE REQUEST LOGGER ---
+app.use((req, res, next) => {
+  console.log(`📥 [${req.method}] ${req.url}`);
+  if (req.method !== 'GET' && req.body) {
+    try {
+      const bodyStr = JSON.stringify(req.body);
+      console.log('   Body:', bodyStr.substring(0, 200) + (bodyStr.length > 200 ? '...' : ''));
+    } catch (e) {
+      console.log('   Body: [Could not stringify]');
+    }
+  }
+  next();
+});
+// ---------------------------
 
 // JWT Authentication Middleware
 function authenticateToken(req, res, next) {
