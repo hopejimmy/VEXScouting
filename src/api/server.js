@@ -623,7 +623,7 @@ async function startServer() {
 }
 
 // Start the application
-startServer();
+// Start server moved to end of file
 
 // Configure multer for file upload
 const upload = multer({ dest: 'uploads/' });
@@ -2187,4 +2187,4 @@ app.use((err, req, res, next) => {
 // 404 handler - This must be LAST
 app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
-}); 
+}); startServer();
