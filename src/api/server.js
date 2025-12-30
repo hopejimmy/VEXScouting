@@ -196,8 +196,16 @@ if (pool) {
 async function testDatabaseConnection() {
   try {
     console.log('🔍 Testing database connection...');
+    // Set a short timeout for the test to avoid hanging
     const client = await pool.connect();
-    const result = await client.query('SELECT NOW()');
+
+    // Check connection with explicit timeout
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Connection test timed out after 2000ms')), 2000)
+    );
+    const queryPromise = client.query('SELECT NOW()');
+
+    const result = await Promise.race([queryPromise, timeoutPromise]);
     console.log('✅ Database connection successful:', result.rows[0]);
     client.release();
     return true;
@@ -597,18 +605,16 @@ app.post('/api/admin/tracked-teams', authenticateToken, requireRole('admin'), as
 
 // Start server with proper error handling
 async function startServer() {
+  console.log('--- SERVER STARTUP DEBUG (Pre-Init) ---');
+  console.log(`PORT: ${PORT}`);
+  console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
+  console.log(`DATABASE_URL Provided: ${!!process.env.DATABASE_URL}`);
+
   try {
     // Initialize database first
+    console.log('⏳ calling startApplication()...');
     await startApplication();
-
-    // Debug: Print Environment Config
-    console.log('--- SERVER STARTUP DEBUG ---');
-    console.log(`PORT: ${PORT}`);
-    console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
-    console.log(`DATABASE_URL Provided: ${!!process.env.DATABASE_URL}`);
-    console.log(`POSTGRES_HOST Provided: ${!!process.env.POSTGRES_HOST}`);
-    console.log(`ROBOTEVENTS_API_TOKEN Provided: ${!!process.env.ROBOTEVENTS_API_TOKEN}`);
-    console.log('----------------------------');
+    console.log('✅ startApplication() complete.');
 
     const server = app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);

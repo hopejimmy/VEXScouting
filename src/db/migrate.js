@@ -39,6 +39,7 @@ async function migrate() {
         // Future migrations can go here...
 
         console.log('✅ Database Migration Complete.');
+        process.exit(0);
     } catch (e) {
         console.error('❌ Migration Failed (Continuing anyway):', e);
         // Important: Exit with 0 so the deployment doesn't fail.
