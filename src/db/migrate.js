@@ -12,7 +12,8 @@ if (process.env.DATABASE_URL) {
 
     pool = new Pool({
         connectionString: process.env.DATABASE_URL,
-        ssl: isPrivateNetwork ? false : { rejectUnauthorized: false }
+        ssl: isPrivateNetwork ? false : { rejectUnauthorized: false },
+        connectionTimeoutMillis: 5000 // Fail fast if DB is unresponsive
     });
 } else {
     // Development environment
