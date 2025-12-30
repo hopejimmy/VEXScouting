@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,9 +26,13 @@ function AnalysisDashboard() {
     const [isRunning, setIsRunning] = useState(false);
     const [trackedTeams, setTrackedTeams] = useState<TrackedTeam[]>([]);
     const [newTeam, setNewTeam] = useState('');
+    const [importSku, setImportSku] = useState('');
+
+    const [selectedTeams, setSelectedTeams] = useState<string[]>([]); // Selection State
+    const router = useRouter();
 
     const terminalRef = useRef<HTMLDivElement>(null);
-    const eventSourceRef = useRef<any>(null); // Changed type to allow dummy object for abort controller
+    const eventSourceRef = useRef<any>(null);
 
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
     const { token } = useAuth();
@@ -139,6 +146,43 @@ function AnalysisDashboard() {
         }
     };
 
+    const handleImportEvent = async () => {
+        if (!importSku) return;
+        try {
+            // Validation: Allow simple numbers (ID) OR standard SKU format
+            const isId = /^\d+$/.test(importSku);
+            const isSku = importSku.includes('RE-');
+
+            if (!isId && !isSku) {
+                if (!confirm("Input doesn't look like an Event ID (e.g. 60517) or SKU (e.g. RE-VRC-...). Try anyway?")) return;
+            }
+
+            const res = await fetch(`${API_BASE_URL}/api/admin/tracked-teams/import-event`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ eventSku: importSku })
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                alert(`Error: ${err.error || 'Import failed'}`);
+                return;
+            }
+
+            const data = await res.json();
+            alert(data.message);
+            setImportSku('');
+            fetchTrackedTeams();
+
+        } catch (e) {
+            console.error(e);
+            alert('Failed to import event');
+        }
+    };
+
 
     const removeTeam = async (team: string) => {
         if (!confirm(`Stop tracking ${team}?`)) return;
@@ -151,6 +195,44 @@ function AnalysisDashboard() {
             body: JSON.stringify({ teamNumber: team, action: 'remove' })
         });
         fetchTrackedTeams();
+    };
+
+    const toggleSelection = (team: string) => {
+        setSelectedTeams(prev =>
+            prev.includes(team) ? prev.filter(t => t !== team) : [...prev, team]
+        );
+    };
+
+    const removeSelectedTeams = async () => {
+        if (selectedTeams.length === 0) return;
+        if (!confirm(`Stop tracking ${selectedTeams.length} teams?`)) return;
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/admin/tracked-teams`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ teamNumber: selectedTeams, action: 'remove' })
+            });
+
+            if (res.ok) {
+                setSelectedTeams([]);
+                fetchTrackedTeams();
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Failed to remove teams');
+        }
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedTeams.length === trackedTeams.length) {
+            setSelectedTeams([]);
+        } else {
+            setSelectedTeams(trackedTeams.map(t => t.team_number));
+        }
     };
 
     const connectToStream = async () => {
@@ -284,15 +366,15 @@ function AnalysisDashboard() {
     return (
         <ProtectedRoute requiredPermission="admin:access">
             <div className="p-6 max-w-6xl mx-auto space-y-6">
-                <div className="bg-yellow-50 p-2 text-xs font-mono text-yellow-800 border-yellow-200 border rounded mb-4">
-                    <strong>DEBUG STATUS:</strong><br />
-                    API URL: {API_BASE_URL}<br />
-                    Token Present: {token ? 'YES' : 'NO'}<br />
-                    Method: Fetch Stream (Polyfill)
-                </div>
-
                 <div className="flex justify-between items-center">
                     <div>
+                        <Button
+                            variant="ghost"
+                            className="mb-2 pl-0 hover:bg-transparent hover:text-blue-600"
+                            onClick={() => router.push('/admin')}
+                        >
+                            <ArrowLeft className="w-4 h-4 mr-2" /> Back to Admin
+                        </Button>
                         <h1 className="text-3xl font-bold text-gray-900">Analysis Dashboard</h1>
                         <p className="text-gray-500">Manage background processing for team performance analysis.</p>
                     </div>
@@ -318,7 +400,43 @@ function AnalysisDashboard() {
                         </CardHeader>
                         <CardContent>
                             <div className="mb-4 space-y-2">
-                                <div className="flex gap-2">
+                                {selectedTeams.length > 0 && (
+                                    <div className="flex justify-between items-center bg-blue-50 p-2 rounded border border-blue-100 mb-2">
+                                        <span className="text-sm font-medium text-blue-700">{selectedTeams.length} selected</span>
+                                        <Button
+                                            variant="destructive"
+                                            size="sm"
+                                            onClick={removeSelectedTeams}
+                                            className="h-7 text-xs"
+                                        >
+                                            <Trash2 className="w-3 h-3 mr-1" /> Remove
+                                        </Button>
+                                    </div>
+                                )}
+                                <div className="flex flex-col gap-2">
+                                    <div className="flex gap-2">
+                                        <input
+                                            className="flex-1 border rounded px-3 py-2 text-sm"
+                                            placeholder="Event ID (60517) or SKU"
+                                            value={importSku}
+                                            onChange={e => setImportSku(e.target.value)}
+                                        />
+                                        <Button
+                                            variant="outline"
+                                            onClick={handleImportEvent}
+                                            disabled={!importSku}
+                                            className="text-xs"
+                                        >
+                                            Import
+                                        </Button>
+                                    </div>
+                                    <Button
+                                        variant="outline"
+                                        className="w-full text-xs"
+                                        onClick={toggleSelectAll}
+                                    >
+                                        {selectedTeams.length === trackedTeams.length && trackedTeams.length > 0 ? 'Deselect All' : 'Select All'}
+                                    </Button>
                                     <Button
                                         variant="outline"
                                         className="w-full text-xs border-dashed"
@@ -348,7 +466,13 @@ function AnalysisDashboard() {
                             <div className="max-h-[500px] overflow-y-auto space-y-2">
                                 {trackedTeams.map(t => (
                                     <div key={t.team_number} className="flex justify-between items-center p-2 bg-gray-50 rounded border">
-                                        <span className="font-mono font-bold">{t.team_number}</span>
+                                        <div className="flex items-center gap-3">
+                                            <Checkbox
+                                                checked={selectedTeams.includes(t.team_number)}
+                                                onCheckedChange={() => toggleSelection(t.team_number)}
+                                            />
+                                            <span className="font-mono font-bold">{t.team_number}</span>
+                                        </div>
                                         <Button variant="ghost" size="sm" onClick={() => removeTeam(t.team_number)} className="text-red-500 hover:text-red-700 h-6 w-6 p-0">
                                             <Trash2 className="w-4 h-4" />
                                         </Button>
