@@ -1,4 +1,5 @@
 import express from 'express';
+import { Readable } from 'stream';
 import cors from 'cors';
 import pg from 'pg';
 import multer from 'multer';
@@ -513,9 +514,16 @@ app.get('/api/admin/analysis/status', authenticateToken, requireRole('admin'), (
 // 2. Start Analysis
 app.post('/api/admin/analysis/start', authenticateToken, requireRole('admin'), (req, res) => {
   if (analysisWorker.isRunning) {
+    return res.status(409).json({ error: 'Analysis already running' });
+  }
 
-    res.json({ message: 'Analysis started' });
-  });
+  const { force } = req.body;
+
+  // Start in background
+  analysisWorker.start(pool, process.env.ROBOTEVENTS_API_TOKEN, process.env.CURRENT_SEASON_ID || 197, !!force);
+
+  res.json({ success: true, message: 'Analysis started' });
+});
 
 // 3. Stop Analysis
 app.post('/api/admin/analysis/stop', authenticateToken, requireRole('admin'), (req, res) => {
@@ -576,6 +584,9 @@ app.get('/api/admin/tracked-teams', authenticateToken, requireRole('admin'), asy
   }
 });
 
+// Configure Multer for memory storage
+const upload = multer({ storage: multer.memoryStorage() });
+
 // 6. Manage Tracked Teams (Add/Remove)
 app.post('/api/admin/tracked-teams', authenticateToken, requireRole('admin'), async (req, res) => {
   const { teamNumber, action } = req.body;
@@ -596,6 +607,68 @@ app.post('/api/admin/tracked-teams', authenticateToken, requireRole('admin'), as
     console.error('[API] Tracked Teams Error:', error);
     res.status(500).json({ error: 'Database error' });
   }
+});
+
+// 7. Bulk Upload Tracked Teams (CSV)
+
+app.post('/api/admin/tracked-teams/upload', authenticateToken, requireRole('admin'), upload.single('file'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  const results = [];
+  const stream = Readable.from(req.file.buffer.toString());
+
+  stream
+    .pipe(csv())
+    .on('data', (data) => {
+      // Look for common headers: 'team', 'Team', 'team_number', 'number'
+      // Or if no header, maybe first column?
+      // Let's assume headers or flexible mapping
+      const team = data['team'] || data['Team'] || data['team_number'] || data['number'] || Object.values(data)[0];
+      if (team && typeof team === 'string') {
+        results.push(team.trim());
+      }
+    })
+    .on('end', async () => {
+      if (results.length === 0) {
+        return res.status(400).json({ error: 'No valid teams found in CSV' });
+      }
+
+      console.log(`[API] CSV Upload: Found ${results.length} teams.`);
+
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        let added = 0;
+
+        for (const team of results) {
+          // Clean inputs
+          const teamNum = team.toUpperCase().replace(/[^A-Z0-9]/g, '');
+          if (teamNum.length < 2) continue;
+
+          const res = await client.query(
+            'INSERT INTO tracked_teams (team_number) VALUES ($1) ON CONFLICT DO NOTHING RETURNING 1',
+            [teamNum]
+          );
+          if (res.rowCount > 0) added++;
+        }
+        await client.query('COMMIT');
+
+        console.log(`[API] Bulk added ${added} new teams.`);
+        res.json({ success: true, count: results.length, added: added });
+      } catch (err) {
+        await client.query('ROLLBACK');
+        console.error('CSV Import Error:', err);
+        res.status(500).json({ error: 'Failed to import teams' });
+      } finally {
+        client.release();
+      }
+    })
+    .on('error', (err) => {
+      console.error('CSV Parsing Error:', err);
+      res.status(500).json({ error: 'Failed to parse CSV' });
+    });
 });
 
 // Start server with proper error handling
@@ -652,8 +725,8 @@ async function startServer() {
 // Start the application
 // Start server moved to end of file
 
-// Configure multer for file upload
-const upload = multer({ dest: 'uploads/' });
+// Configure multer for file upload (Already done above)
+// const upload = multer({ dest: 'uploads/' });
 
 // Helper function to validate password strength
 function validatePassword(password) {
@@ -1101,7 +1174,13 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
       );
 
       if (!teamsResponse.ok) {
-        throw new Error(`RobotEvents API error: ${teamsResponse.status}`);
+        if (teamsResponse.status === 404) {
+          return res.status(404).json({ error: 'Event not found on RobotEvents' });
+        }
+        if (teamsResponse.status === 429) {
+          return res.status(429).json({ error: 'RobotEvents API Rate Limit Exceeded' });
+        }
+        throw new Error(`RobotEvents API error: ${teamsResponse.status} ${teamsResponse.statusText}`);
       }
 
       const teamsData = await teamsResponse.json();
@@ -1220,7 +1299,8 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
 
   } catch (error) {
     console.error('Error fetching event rankings:', error);
-    res.status(500).json({ error: 'Failed to fetch event rankings', details: error.message });
+    const status = error.message.includes('Rate Limit') ? 429 : 500;
+    res.status(status).json({ error: 'Failed to fetch event rankings', details: error.message });
   }
 });
 

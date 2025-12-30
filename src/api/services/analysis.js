@@ -352,6 +352,7 @@ export async function ensureTeamAnalysis(pool, teamNumber, apiKey, seasonId, log
     if (pastEvents.length === 0) return;
 
     let missingEvents = pastEvents;
+    let cachedSkus = new Set();
 
     // Only filter if NOT forcing
     if (!force) {
@@ -361,7 +362,7 @@ export async function ensureTeamAnalysis(pool, teamNumber, apiKey, seasonId, log
             `SELECT sku FROM events WHERE sku IN (${placeholders}) AND processed = true`,
             skuList
         );
-        const cachedSkus = new Set(cachedResult.rows.map(r => r.sku));
+        cachedSkus = new Set(cachedResult.rows.map(r => r.sku));
         missingEvents = pastEvents.filter(e => !cachedSkus.has(e.sku));
 
         logFn(`Team ${teamNumber}: Found ${pastEvents.length} events, ${cachedSkus.size} cached. Processing ${missingEvents.length} new.`);
