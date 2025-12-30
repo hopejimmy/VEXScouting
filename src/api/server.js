@@ -1446,8 +1446,14 @@ app.get('/api/teams/:teamNumber/events/:eventId/divisions/:divId/matches', async
     );
 
     if (!teamResponse.ok) {
-      const errorData = await teamResponse.json();
-      throw new Error(`RobotEvents API error: ${errorData.message || 'Failed to fetch team'}`);
+      const contentType = teamResponse.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const errorData = await teamResponse.json();
+        throw new Error(`RobotEvents API error: ${errorData.message || 'Failed to fetch team'}`);
+      } else {
+        const errorText = await teamResponse.text();
+        throw new Error(`RobotEvents API error: Status ${teamResponse.status} - ${errorText.slice(0, 200)}`);
+      }
     }
 
     const teamData = await teamResponse.json();
@@ -1472,8 +1478,15 @@ app.get('/api/teams/:teamNumber/events/:eventId/divisions/:divId/matches', async
       if (matchesResponse.status === 404) {
         return res.json([]);
       }
-      const errorData = await matchesResponse.json();
-      throw new Error(`RobotEvents API error: ${errorData.message || 'Failed to fetch matches'}`);
+
+      const contentType = matchesResponse.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const errorData = await matchesResponse.json();
+        throw new Error(`RobotEvents API error: ${errorData.message || 'Failed to fetch matches'}`);
+      } else {
+        const errorText = await matchesResponse.text();
+        throw new Error(`RobotEvents API error: Status ${matchesResponse.status} - ${errorText.slice(0, 200)}`);
+      }
     }
 
     const matchesData = await matchesResponse.json();
