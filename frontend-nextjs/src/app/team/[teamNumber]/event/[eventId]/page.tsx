@@ -114,10 +114,9 @@ export default function MatchListPage() {
     };
 
     const handleFallbackClick = () => {
-        // Navigate to original event rankings page with return URL set to THIS page
-        // This allows the user to come back to the match list if they want
-        const currentPath = `/team/${teamNumber}/event/${eventId}`;
-        const returnUrl = `${currentPath}?divisionId=${divisionId}&matchType=${matchType}&eventName=${encodeURIComponent(eventName)}&start=${eventStart}&end=${eventEnd}`;
+        // Navigate to event rankings with return URL set to Team Details page
+        // The button on Rankings page says "Back to Team Details", so we route there.
+        const returnUrl = `/team/${teamNumber}`;
 
         router.push(`/event-rankings/${eventId}?matchType=${matchType}&eventName=${encodeURIComponent(eventName)}&returnUrl=${encodeURIComponent(returnUrl)}`);
     };
