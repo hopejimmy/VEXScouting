@@ -78,12 +78,10 @@ class AnalysisWorker extends EventEmitter {
                     }
                 }
 
-                // Rate Limit Delay (1.5s)
-                const elapsed = Date.now() - startTime;
-                const wait = Math.max(0, 1500 - elapsed);
-                if (wait > 0 && i < teams.length - 1) {
-                    await new Promise(r => setTimeout(r, wait));
-                }
+                // Enforce a mandatory cooldown between teams to let rate limits cool off
+                // Even if fetching took a long time, we should still pause briefly.
+                this.emit('log', { type: 'debug', message: '  zzz Cooling down (2s)...' });
+                await new Promise(r => setTimeout(r, 2000));
             }
 
             this.emit('log', { type: 'complete', message: '🎉 Analysis Complete!' });

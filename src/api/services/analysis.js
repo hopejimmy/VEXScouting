@@ -24,8 +24,8 @@ async function fetchAllPages(endpoint, token) {
         const url = `${endpoint}${separator}page=${currentPage}&per_page=250`;
 
         try {
-            // Add a small delay between pages to be nice to the API
-            await delay(300);
+            // Add a polite delay between pages
+            await delay(1000);
 
             const response = await fetch(url, {
                 headers: {
