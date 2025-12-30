@@ -164,8 +164,15 @@ try {
     });
   }
 } catch (error) {
-  console.error('❌ Database pool creation error:', error);
-  throw new Error(`Database configuration failed: ${error.message}`);
+  console.error('❌ Failed to create database pool:', error);
+}
+
+// Global DB trace
+if (pool) {
+  pool.on('error', (err, client) => {
+    console.error('❌ Unexpected error on idle client', err);
+    // Don't exit, just log.
+  });
 }
 
 // Test database connection with better error handling
