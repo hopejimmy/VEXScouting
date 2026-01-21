@@ -333,6 +333,8 @@ function MatchCard({
                                     key={t.team.id}
                                     team={t}
                                     isFocused={t.team.name === teamNumber}
+                                    performanceData={performanceMap[t.team.name]}
+                                    showAnalysis={predictionMode}
                                 />
                             ))}
                         </div>
@@ -350,6 +352,8 @@ function MatchCard({
                                     key={t.team.id}
                                     team={t}
                                     isFocused={t.team.name === teamNumber}
+                                    performanceData={performanceMap[t.team.name]}
+                                    showAnalysis={predictionMode}
                                 />
                             ))}
                         </div>
@@ -367,7 +371,10 @@ function MatchCard({
     );
 }
 
-function TeamRow({ team, isFocused }: { team: any, isFocused: boolean }) {
+function TeamRow({ team, isFocused, performanceData, showAnalysis }: { team: any, isFocused: boolean, performanceData?: PerformanceData, showAnalysis: boolean }) {
+    // Determine color for winrate if high/low? Optional polish.
+    // For now, simple gray/secondary.
+
     return (
         <div className={`flex justify-between items-center p-2 rounded ${isFocused ? 'bg-gray-100 ring-1 ring-gray-200' : ''}`}>
             <div className="flex items-center space-x-2">
@@ -378,11 +385,19 @@ function TeamRow({ team, isFocused }: { team: any, isFocused: boolean }) {
                     <Badge variant="secondary" className="text-[10px] h-4 px-1">Sit</Badge>
                 )}
             </div>
-            {team.team.rank && (
-                <Badge variant="outline" className="text-xs font-normal text-gray-500 bg-white">
-                    Rank #{team.team.rank}
-                </Badge>
-            )}
+
+            <div className="flex items-center space-x-2">
+                {showAnalysis && (
+                    <Badge variant="secondary" className="text-xs font-normal bg-gray-100 text-gray-700">
+                        {performanceData ? `WR: ${performanceData.winRate}` : 'WR: N/A'}
+                    </Badge>
+                )}
+                {team.team.rank && (
+                    <Badge variant="outline" className="text-xs font-normal text-gray-500 bg-white">
+                        Rank #{team.team.rank}
+                    </Badge>
+                )}
+            </div>
         </div>
     );
 }
