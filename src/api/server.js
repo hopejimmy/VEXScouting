@@ -138,53 +138,59 @@ function requireRole(role) {
 }
 
 // PostgreSQL connection configuration with Railway support
+const POOL_MAX = parseInt(process.env.POOL_MAX || '20', 10);
+
+const basePoolConfig = {
+  max: POOL_MAX,
+  connectionTimeoutMillis: 10000,
+  idleTimeoutMillis: 30000,
+  statement_timeout: 30000,
+};
+
 let pool;
 try {
   if (process.env.DATABASE_URL) {
     // Production/Railway environment - use DATABASE_URL
     console.log('🔗 Using Railway DATABASE_URL connection string');
     console.log('🌍 Environment: production');
-    console.log('🔗 Database: Railway PostgreSQL');
+    console.log(`🔗 Database: Railway PostgreSQL (pool max: ${POOL_MAX})`);
 
-    // Check if using Railway's private network
     const isPrivateNetwork = process.env.DATABASE_URL.includes('railway.internal');
 
     pool = new Pool({
+      ...basePoolConfig,
       connectionString: process.env.DATABASE_URL,
-      ssl: isPrivateNetwork ? false : {
-        rejectUnauthorized: false // Required for Railway's SSL certificates
-      },
-      connectionTimeoutMillis: 10000, // 10 second timeout
-      idleTimeoutMillis: 30000, // 30 seconds idle before closing connection
-      max: 20 // Maximum pool size
+      ssl: isPrivateNetwork ? false : { rejectUnauthorized: false },
     });
   } else if (process.env.POSTGRES_HOST) {
     // Development environment - use individual variables
     console.log('🔗 Using individual database environment variables');
     console.log('🌍 Environment: development');
-    console.log('🔗 Database: Local connection');
+    console.log(`🔗 Database: Local connection (pool max: ${POOL_MAX})`);
 
     pool = new Pool({
+      ...basePoolConfig,
       host: process.env.POSTGRES_HOST || 'localhost',
       port: parseInt(process.env.POSTGRES_PORT) || 5432,
       database: process.env.POSTGRES_DB || 'vexscouting',
       user: process.env.POSTGRES_USER || 'postgres',
       password: process.env.POSTGRES_PASSWORD || 'postgres',
-      ssl: false // No SSL for local development
+      ssl: false,
     });
   } else {
     // Fallback to default local PostgreSQL
     console.log('🔗 Using default local PostgreSQL configuration');
     console.log('🌍 Environment: development (fallback)');
-    console.log('🔗 Database: Local default');
+    console.log(`🔗 Database: Local default (pool max: ${POOL_MAX})`);
 
     pool = new Pool({
+      ...basePoolConfig,
       host: 'localhost',
       port: 5432,
       database: 'vexscouting',
       user: 'postgres',
       password: 'postgres',
-      ssl: false
+      ssl: false,
     });
   }
 } catch (error) {
