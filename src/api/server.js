@@ -14,6 +14,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { ensureTeamAnalysis, getTeamPerformance } from './services/analysis.js';
 import { analysisWorker } from './services/analysis-worker.js';
+import { publicLimiter, authLimiter, adminLimiter } from './middleware/rateLimiter.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -93,6 +94,11 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
+
+// Rate limiting
+app.use('/api', publicLimiter);
+app.use('/api/auth', authLimiter);
+app.use('/api/admin', adminLimiter);
 
 // --- SAFE REQUEST LOGGER ---
 app.use((req, res, next) => {
