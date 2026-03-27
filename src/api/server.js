@@ -481,6 +481,14 @@ async function initializeDatabase() {
       console.log('Default admin user created');
     }
 
+    // Performance indexes for high-traffic endpoints
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_skills_teamNumber_lower ON skills_standings (LOWER(teamNumber))`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_skills_teamName_lower ON skills_standings (LOWER(teamName))`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_skills_matchType ON skills_standings (matchType)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_skills_rank ON skills_standings (rank)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_team_event_stats_team ON team_event_stats (team_number)`);
+    console.log('✅ Performance indexes verified');
+
     console.log('✅ Database schema initialized successfully');
   } catch (error) {
     console.error('❌ Error initializing database schema:', error);
@@ -1226,7 +1234,7 @@ app.get('/api/analysis/performance', async (req, res) => {
 app.get('/api/search', async (req, res) => {
   const { q, matchType } = req.query;
   try {
-    let query = 'SELECT * FROM skills_standings WHERE (teamNumber ILIKE $1 OR teamName ILIKE $1)';
+    let query = 'SELECT * FROM skills_standings WHERE (LOWER(teamNumber) LIKE LOWER($1) OR LOWER(teamName) LIKE LOWER($1))';
     let params = [`%${q}%`];
 
     if (matchType) {
