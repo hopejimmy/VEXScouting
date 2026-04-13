@@ -57,23 +57,34 @@ This mapping is identical to the existing CSV upload endpoint (`POST /api/upload
 
 A function `getCurrentSeasonId(programId)` used by the cron job and all existing season-dependent code.
 
-### Resolution Chain
+### Resolution Chain (3-tier cache)
 
 ```
-Step 1: Call RobotEvents v2 API
+Step 1: Check in-memory cache (Map object)
+        If exists → return immediately (zero I/O)
+
+Step 2: If memory cache empty → check season_config table in DB
+        If exists → save to memory cache, return
+
+Step 3: If DB empty → call RobotEvents v2 API
         GET /api/v2/seasons?program[]={programId}&per_page=5
         Pick the most recent season whose start date <= now
-        On success → save to season_config table (DB cache)
+        On success → save to DB + memory cache, return
 
-Step 2: If API fails → read last known good season ID from season_config table
-
-Step 3: If DB cache empty → fall back to env var
+Step 4: If API fails → fall back to env var
         VRC:   CURRENT_SEASON_ID
         VEXIQ: VEXIQ_SEASON_ID
 
-Step 4: If env var also missing → log [CRITICAL] error
+Step 5: If env var also missing → log [CRITICAL] error
         Skills refresh disabled for that program
 ```
+
+### Cache Lifecycle
+
+- **Memory cache** resets on server restart. First request after restart triggers a DB read (Step 2), then all subsequent calls are pure in-memory.
+- **DB cache** persists across restarts. Populated on first successful API call and never needs manual setup.
+- **Daily cron** is the only thing that calls the API to check for season changes. If the API returns a different season ID than what's cached, it updates both the DB and the memory cache.
+- **User-facing endpoints** (performance, team events, analysis) always resolve from memory — zero API calls, zero DB reads in normal operation.
 
 ### Database Table
 
@@ -109,8 +120,9 @@ Daily at 3:00 AM UTC. Configurable via `SKILLS_REFRESH_CRON` env var (default: `
 ### Execution Flow
 
 ```
-1. Resolve VRC season ID (via shared utility)
-2. Resolve VEXIQ season ID (via shared utility)
+1. Resolve VRC season ID (via shared utility — calls API directly, bypassing memory cache,
+   to check for season changes; updates DB + memory cache if changed)
+2. Resolve VEXIQ season ID (same as above)
 3. For each dataset (VRC HS, VRC MS, VEXIQ MS, VEXIQ Elementary):
    a. Fetch from RobotEvents internal API
    b. If fetch fails → wait 5s → retry once
