@@ -22,10 +22,12 @@ export default function EventRankingsPage() {
   const returnUrl = searchParams.get('returnUrl') || '/';
   const highlightTeam = searchParams.get('highlightTeam') || undefined;
   const eventNameFromUrl = searchParams.get('eventName') || null;
+  const divisionId = searchParams.get('divisionId') || undefined;
+  const divisionName = searchParams.get('divisionName') || null;
   
   const [selectedGrade, setSelectedGrade] = useState<string>('All');
 
-  const { data, isLoading, error } = useEventRankings(eventId, matchType, selectedGrade);
+  const { data, isLoading, error } = useEventRankings(eventId, matchType, selectedGrade, divisionId);
   
   // Use event name from URL if available, otherwise use data from API
   const displayEventName = eventNameFromUrl || data?.eventName || 'Event Rankings';
@@ -120,10 +122,15 @@ export default function EventRankingsPage() {
                   <h1 className="text-4xl font-bold text-gray-900 mb-2">
                     {displayEventName}
                   </h1>
-                  <div className="flex items-center space-x-4 text-gray-600">
+                  <div className="flex items-center flex-wrap gap-2 text-gray-600">
                     <Badge className="bg-blue-100 text-blue-700 border-blue-200">
                       {data.matchType}
                     </Badge>
+                    {(divisionName || data.divisionName) && (
+                      <Badge className="bg-purple-100 text-purple-700 border-purple-200">
+                        {divisionName || data.divisionName}
+                      </Badge>
+                    )}
                     <span className="text-sm">Event ID: {data.eventId}</span>
                   </div>
                 </div>
@@ -172,7 +179,7 @@ export default function EventRankingsPage() {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-medium text-gray-600 flex items-center space-x-2">
                     <Users className="w-4 h-4" />
-                    <span>Total Teams</span>
+                    <span>{divisionId ? 'Division Teams' : 'Total Teams'}</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
