@@ -242,6 +242,11 @@ async function testDatabaseConnection() {
   }
 }
 
+// In-memory cache for team division assignments.
+// Division assignments never change during an event so lifetime caching is safe.
+// Key: "eventId:TEAMNUMBER" → value: { divisionId: number, divisionName: string }
+const divisionCache = new Map();
+
 // Initialize database schema
 async function initializeDatabase() {
   try {
@@ -1279,6 +1284,90 @@ app.get('/api/search', async (req, res) => {
   } catch (error) {
     console.error('Error searching teams:', error);
     res.status(500).json({ error: 'Error searching teams' });
+  }
+});
+
+// Resolve which division a team belongs to at a multi-division event (e.g. World Championship).
+// The frontend passes division IDs and names it already knows (from the team events response)
+// as comma-separated query params, avoiding a redundant GET /events/{id} API call.
+//
+// GET /api/events/:eventId/teams/:teamNumber/division
+//   ?divisionIds=101,102,103
+//   &divisionNames=Science Division,Math Division,Technology Division
+//
+// Returns: { divisionId: 102, divisionName: "Math Division" }
+//      or: { divisionId: null, divisionName: null }  (team not found in any division)
+app.get('/api/events/:eventId/teams/:teamNumber/division', async (req, res) => {
+  const { eventId, teamNumber } = req.params;
+  const { divisionIds, divisionNames } = req.query;
+
+  if (!divisionIds) {
+    return res.status(400).json({ error: 'divisionIds query param is required' });
+  }
+
+  const cacheKey = `${eventId}:${teamNumber.toUpperCase()}`;
+  if (divisionCache.has(cacheKey)) {
+    return res.json(divisionCache.get(cacheKey));
+  }
+
+  const apiToken = process.env.ROBOTEVENTS_API_TOKEN;
+  if (!apiToken) {
+    return res.status(500).json({ error: 'RobotEvents API token not configured' });
+  }
+
+  const ids = divisionIds.split(',').map(id => parseInt(id.trim())).filter(Boolean);
+  const names = divisionNames ? divisionNames.split(',').map(n => n.trim()) : [];
+
+  try {
+    for (let i = 0; i < ids.length; i++) {
+      const divId = ids[i];
+      const divName = names[i] || `Division ${divId}`;
+      let currentPage = 1;
+      let hasMorePages = true;
+
+      while (hasMorePages) {
+        const response = await fetch(
+          `https://www.robotevents.com/api/v2/events/${eventId}/divisions/${divId}/teams?page=${currentPage}&per_page=250`,
+          {
+            headers: {
+              'Authorization': `Bearer ${apiToken}`,
+              'Accept': 'application/json'
+            }
+          }
+        );
+
+        if (!response.ok) {
+          if (response.status === 429) {
+            return res.status(429).json({ error: 'RobotEvents API rate limit exceeded' });
+          }
+          console.warn(`Division ${divId} team lookup failed with status ${response.status}, skipping`);
+          break;
+        }
+
+        const data = await response.json();
+        const teams = data.data || [];
+        const found = teams.find(t => t.number.toUpperCase() === teamNumber.toUpperCase());
+
+        if (found) {
+          const result = { divisionId: divId, divisionName: divName };
+          divisionCache.set(cacheKey, result);
+          return res.json(result);
+        }
+
+        const meta = data.meta || {};
+        hasMorePages = meta.current_page < meta.last_page;
+        currentPage++;
+      }
+    }
+
+    // Team not found in any of the provided divisions
+    const notFound = { divisionId: null, divisionName: null };
+    divisionCache.set(cacheKey, notFound);
+    return res.json(notFound);
+
+  } catch (error) {
+    console.error(`Error resolving division for team ${teamNumber} at event ${eventId}:`, error);
+    return res.status(500).json({ error: 'Failed to resolve team division' });
   }
 });
 
