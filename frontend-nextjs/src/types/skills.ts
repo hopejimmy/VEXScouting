@@ -82,6 +82,8 @@ export interface EventRankingsResponse {
   eventName: string;
   matchType: string;
   grade: string;
+  divisionId?: number | null;
+  divisionName?: string | null;
   rankings: EventRanking[];
   total: number;
   teamsInEvent: number;
