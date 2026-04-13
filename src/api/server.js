@@ -1326,8 +1326,12 @@ app.get('/api/events/:eventId/teams/:teamNumber/division', async (req, res) => {
       let hasMorePages = true;
 
       while (hasMorePages) {
+        // Use the rankings endpoint (not teams) because RobotEvents provides
+        // division-specific team lists through rankings, not through a teams filter.
+        // The /events/{id}/divisions/{divId}/rankings endpoint returns teams
+        // that competed in that specific division with zero cross-division overlap.
         const response = await fetch(
-          `https://www.robotevents.com/api/v2/events/${eventId}/divisions/${divId}/teams?page=${currentPage}&per_page=250`,
+          `https://www.robotevents.com/api/v2/events/${eventId}/divisions/${divId}/rankings?page=${currentPage}&per_page=250`,
           {
             headers: {
               'Authorization': `Bearer ${apiToken}`,
@@ -1340,13 +1344,14 @@ app.get('/api/events/:eventId/teams/:teamNumber/division', async (req, res) => {
           if (response.status === 429) {
             return res.status(429).json({ error: 'RobotEvents API rate limit exceeded' });
           }
-          console.warn(`Division ${divId} team lookup failed with status ${response.status}, skipping`);
+          console.warn(`Division ${divId} rankings lookup failed with status ${response.status}, skipping`);
           break;
         }
 
         const data = await response.json();
-        const teams = data.data || [];
-        const found = teams.find(t => t.number.toUpperCase() === teamNumber.toUpperCase());
+        const rankings = data.data || [];
+        // Rankings entries have team info at ranking.team.name (which is the team number)
+        const found = rankings.find(r => r.team.name.toUpperCase() === teamNumber.toUpperCase());
 
         if (found) {
           const result = { divisionId: divId, divisionName: divName };
@@ -1384,19 +1389,45 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
       return res.status(500).json({ error: 'RobotEvents API token not configured' });
     }
 
-    // Step 1: Fetch ALL teams registered for this event from RobotEvents API (with pagination)
+    // Step 1a: If divisionId is provided, first fetch division rankings to identify
+    // which teams are in that division. RobotEvents does not support filtering the
+    // /events/{id}/teams endpoint by division — all teams are returned regardless.
+    // The /divisions/{id}/rankings endpoint returns only teams in that division.
+    let divisionTeamNumbers = null;
+    if (parsedDivisionId) {
+      divisionTeamNumbers = new Set();
+      let divPage = 1;
+      let divHasMore = true;
+      while (divHasMore) {
+        const divRes = await fetch(
+          `https://www.robotevents.com/api/v2/events/${eventId}/divisions/${parsedDivisionId}/rankings?page=${divPage}&per_page=250`,
+          {
+            headers: {
+              'Authorization': `Bearer ${apiToken}`,
+              'Accept': 'application/json'
+            }
+          }
+        );
+        if (!divRes.ok) break;
+        const divData = await divRes.json();
+        (divData.data || []).forEach(r => divisionTeamNumbers.add(r.team.name.toUpperCase()));
+        const divMeta = divData.meta || {};
+        divHasMore = divMeta.current_page < divMeta.last_page;
+        divPage++;
+      }
+      console.log(`Found ${divisionTeamNumbers.size} teams in division ${parsedDivisionId} for event ${eventId}`);
+    }
+
+    // Step 1b: Fetch ALL teams registered for this event (for grade info and team metadata).
+    // If divisionId was provided, we filter this list down to only division teams afterward.
     let allTeams = [];
     let eventInfo = null;
     let currentPage = 1;
     let hasMorePages = true;
 
     while (hasMorePages) {
-      const teamsEndpoint = parsedDivisionId
-        ? `https://www.robotevents.com/api/v2/events/${eventId}/divisions/${parsedDivisionId}/teams?page=${currentPage}`
-        : `https://www.robotevents.com/api/v2/events/${eventId}/teams?page=${currentPage}`;
-
       const teamsResponse = await fetch(
-        teamsEndpoint,
+        `https://www.robotevents.com/api/v2/events/${eventId}/teams?page=${currentPage}`,
         {
           headers: {
             'Authorization': `Bearer ${apiToken}`,
@@ -1433,6 +1464,12 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
     }
 
     console.log(`Fetched ${allTeams.length} teams for event ${eventId} across ${currentPage - 1} page(s)`);
+
+    // If filtering by division, narrow allTeams to only those in the division
+    if (divisionTeamNumbers && divisionTeamNumbers.size > 0) {
+      allTeams = allTeams.filter(t => divisionTeamNumbers.has(t.number.toUpperCase()));
+      console.log(`Filtered to ${allTeams.length} teams in division ${parsedDivisionId}`);
+    }
 
     const validGrades = ['High School', 'Middle School', 'Elementary School'];
 
