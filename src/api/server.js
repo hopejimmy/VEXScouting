@@ -35,6 +35,10 @@ console.log('Environment variables loaded:', {
 
 const app = express();
 
+// Trust proxy headers (Railway, Vercel, etc.) so express-rate-limit
+// sees real client IPs instead of the reverse-proxy IP.
+app.set('trust proxy', 1);
+
 // --- CRITICAL DEBUGGING ---
 // 1. Global Crash Handlers
 process.on('uncaughtException', (err) => {
