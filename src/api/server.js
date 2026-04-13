@@ -14,6 +14,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { ensureTeamAnalysis, getTeamPerformance } from './services/analysis.js';
 import { analysisWorker } from './services/analysis-worker.js';
+import { publicLimiter, authLimiter, adminLimiter } from './middleware/rateLimiter.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -94,6 +95,11 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+// Rate limiting
+app.use('/api', publicLimiter);
+app.use('/api/auth', authLimiter);
+app.use('/api/admin', adminLimiter);
+
 // --- SAFE REQUEST LOGGER ---
 app.use((req, res, next) => {
   console.log(`📥 [${req.method}] ${req.url}`);
@@ -138,53 +144,59 @@ function requireRole(role) {
 }
 
 // PostgreSQL connection configuration with Railway support
+const POOL_MAX = parseInt(process.env.POOL_MAX || '20', 10);
+
+const basePoolConfig = {
+  max: POOL_MAX,
+  connectionTimeoutMillis: 10000,
+  idleTimeoutMillis: 30000,
+  statement_timeout: 30000,
+};
+
 let pool;
 try {
   if (process.env.DATABASE_URL) {
     // Production/Railway environment - use DATABASE_URL
     console.log('🔗 Using Railway DATABASE_URL connection string');
     console.log('🌍 Environment: production');
-    console.log('🔗 Database: Railway PostgreSQL');
+    console.log(`🔗 Database: Railway PostgreSQL (pool max: ${POOL_MAX})`);
 
-    // Check if using Railway's private network
     const isPrivateNetwork = process.env.DATABASE_URL.includes('railway.internal');
 
     pool = new Pool({
+      ...basePoolConfig,
       connectionString: process.env.DATABASE_URL,
-      ssl: isPrivateNetwork ? false : {
-        rejectUnauthorized: false // Required for Railway's SSL certificates
-      },
-      connectionTimeoutMillis: 10000, // 10 second timeout
-      idleTimeoutMillis: 30000, // 30 seconds idle before closing connection
-      max: 20 // Maximum pool size
+      ssl: isPrivateNetwork ? false : { rejectUnauthorized: false },
     });
   } else if (process.env.POSTGRES_HOST) {
     // Development environment - use individual variables
     console.log('🔗 Using individual database environment variables');
     console.log('🌍 Environment: development');
-    console.log('🔗 Database: Local connection');
+    console.log(`🔗 Database: Local connection (pool max: ${POOL_MAX})`);
 
     pool = new Pool({
+      ...basePoolConfig,
       host: process.env.POSTGRES_HOST || 'localhost',
       port: parseInt(process.env.POSTGRES_PORT) || 5432,
       database: process.env.POSTGRES_DB || 'vexscouting',
       user: process.env.POSTGRES_USER || 'postgres',
       password: process.env.POSTGRES_PASSWORD || 'postgres',
-      ssl: false // No SSL for local development
+      ssl: false,
     });
   } else {
     // Fallback to default local PostgreSQL
     console.log('🔗 Using default local PostgreSQL configuration');
     console.log('🌍 Environment: development (fallback)');
-    console.log('🔗 Database: Local default');
+    console.log(`🔗 Database: Local default (pool max: ${POOL_MAX})`);
 
     pool = new Pool({
+      ...basePoolConfig,
       host: 'localhost',
       port: 5432,
       database: 'vexscouting',
       user: 'postgres',
       password: 'postgres',
-      ssl: false
+      ssl: false,
     });
   }
 } catch (error) {
@@ -229,6 +241,11 @@ async function testDatabaseConnection() {
     return false;
   }
 }
+
+// In-memory cache for team division assignments.
+// Division assignments never change during an event so lifetime caching is safe.
+// Key: "eventId:TEAMNUMBER" → value: { divisionId: number, divisionName: string }
+const divisionCache = new Map();
 
 // Initialize database schema
 async function initializeDatabase() {
@@ -474,6 +491,14 @@ async function initializeDatabase() {
 
       console.log('Default admin user created');
     }
+
+    // Performance indexes for high-traffic endpoints
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_skills_teamNumber_lower ON skills_standings (LOWER(teamNumber))`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_skills_teamName_lower ON skills_standings (LOWER(teamName))`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_skills_matchType ON skills_standings (matchType)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_skills_rank ON skills_standings (rank)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_team_event_stats_team ON team_event_stats (team_number)`);
+    console.log('✅ Performance indexes verified');
 
     console.log('✅ Database schema initialized successfully');
   } catch (error) {
@@ -1220,7 +1245,7 @@ app.get('/api/analysis/performance', async (req, res) => {
 app.get('/api/search', async (req, res) => {
   const { q, matchType } = req.query;
   try {
-    let query = 'SELECT * FROM skills_standings WHERE (teamNumber ILIKE $1 OR teamName ILIKE $1)';
+    let query = 'SELECT * FROM skills_standings WHERE (LOWER(teamNumber) LIKE LOWER($1) OR LOWER(teamName) LIKE LOWER($1))';
     let params = [`%${q}%`];
 
     if (matchType) {
@@ -1262,10 +1287,100 @@ app.get('/api/search', async (req, res) => {
   }
 });
 
+// Resolve which division a team belongs to at a multi-division event (e.g. World Championship).
+// The frontend passes division IDs and names it already knows (from the team events response)
+// as comma-separated query params, avoiding a redundant GET /events/{id} API call.
+//
+// GET /api/events/:eventId/teams/:teamNumber/division
+//   ?divisionIds=101,102,103
+//   &divisionNames=Science Division,Math Division,Technology Division
+//
+// Returns: { divisionId: 102, divisionName: "Math Division" }
+//      or: { divisionId: null, divisionName: null }  (team not found in any division)
+app.get('/api/events/:eventId/teams/:teamNumber/division', async (req, res) => {
+  const { eventId, teamNumber } = req.params;
+  const { divisionIds, divisionNames } = req.query;
+
+  if (!divisionIds) {
+    return res.status(400).json({ error: 'divisionIds query param is required' });
+  }
+
+  const cacheKey = `${eventId}:${teamNumber.toUpperCase()}`;
+  if (divisionCache.has(cacheKey)) {
+    return res.json(divisionCache.get(cacheKey));
+  }
+
+  const apiToken = process.env.ROBOTEVENTS_API_TOKEN;
+  if (!apiToken) {
+    return res.status(500).json({ error: 'RobotEvents API token not configured' });
+  }
+
+  const ids = divisionIds.split(',').map(id => parseInt(id.trim())).filter(Boolean);
+  const names = divisionNames ? divisionNames.split(',').map(n => n.trim()) : [];
+
+  try {
+    for (let i = 0; i < ids.length; i++) {
+      const divId = ids[i];
+      const divName = names[i] || `Division ${divId}`;
+      let currentPage = 1;
+      let hasMorePages = true;
+
+      while (hasMorePages) {
+        // Use the rankings endpoint (not teams) because RobotEvents provides
+        // division-specific team lists through rankings, not through a teams filter.
+        // The /events/{id}/divisions/{divId}/rankings endpoint returns teams
+        // that competed in that specific division with zero cross-division overlap.
+        const response = await fetch(
+          `https://www.robotevents.com/api/v2/events/${eventId}/divisions/${divId}/rankings?page=${currentPage}&per_page=250`,
+          {
+            headers: {
+              'Authorization': `Bearer ${apiToken}`,
+              'Accept': 'application/json'
+            }
+          }
+        );
+
+        if (!response.ok) {
+          if (response.status === 429) {
+            return res.status(429).json({ error: 'RobotEvents API rate limit exceeded' });
+          }
+          console.warn(`Division ${divId} rankings lookup failed with status ${response.status}, skipping`);
+          break;
+        }
+
+        const data = await response.json();
+        const rankings = data.data || [];
+        // Rankings entries have team info at ranking.team.name (which is the team number)
+        const found = rankings.find(r => r.team.name.toUpperCase() === teamNumber.toUpperCase());
+
+        if (found) {
+          const result = { divisionId: divId, divisionName: divName };
+          divisionCache.set(cacheKey, result);
+          return res.json(result);
+        }
+
+        const meta = data.meta || {};
+        hasMorePages = meta.current_page < meta.last_page;
+        currentPage++;
+      }
+    }
+
+    // Team not found in any of the provided divisions
+    const notFound = { divisionId: null, divisionName: null };
+    divisionCache.set(cacheKey, notFound);
+    return res.json(notFound);
+
+  } catch (error) {
+    console.error(`Error resolving division for team ${teamNumber} at event ${eventId}:`, error);
+    return res.status(500).json({ error: 'Failed to resolve team division' });
+  }
+});
+
 // Get event rankings - teams in a specific event with their world rankings
 app.get('/api/events/:eventId/rankings', async (req, res) => {
   const { eventId } = req.params;
-  const { matchType, grade } = req.query; // Add grade filter
+  const { matchType, grade, divisionId, divisionName } = req.query;
+  const parsedDivisionId = divisionId ? parseInt(divisionId) : null;
 
   try {
     const apiToken = process.env.ROBOTEVENTS_API_TOKEN;
@@ -1274,7 +1389,37 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
       return res.status(500).json({ error: 'RobotEvents API token not configured' });
     }
 
-    // Step 1: Fetch ALL teams registered for this event from RobotEvents API (with pagination)
+    // Step 1a: If divisionId is provided, first fetch division rankings to identify
+    // which teams are in that division. RobotEvents does not support filtering the
+    // /events/{id}/teams endpoint by division — all teams are returned regardless.
+    // The /divisions/{id}/rankings endpoint returns only teams in that division.
+    let divisionTeamNumbers = null;
+    if (parsedDivisionId) {
+      divisionTeamNumbers = new Set();
+      let divPage = 1;
+      let divHasMore = true;
+      while (divHasMore) {
+        const divRes = await fetch(
+          `https://www.robotevents.com/api/v2/events/${eventId}/divisions/${parsedDivisionId}/rankings?page=${divPage}&per_page=250`,
+          {
+            headers: {
+              'Authorization': `Bearer ${apiToken}`,
+              'Accept': 'application/json'
+            }
+          }
+        );
+        if (!divRes.ok) break;
+        const divData = await divRes.json();
+        (divData.data || []).forEach(r => divisionTeamNumbers.add(r.team.name.toUpperCase()));
+        const divMeta = divData.meta || {};
+        divHasMore = divMeta.current_page < divMeta.last_page;
+        divPage++;
+      }
+      console.log(`Found ${divisionTeamNumbers.size} teams in division ${parsedDivisionId} for event ${eventId}`);
+    }
+
+    // Step 1b: Fetch ALL teams registered for this event (for grade info and team metadata).
+    // If divisionId was provided, we filter this list down to only division teams afterward.
     let allTeams = [];
     let eventInfo = null;
     let currentPage = 1;
@@ -1319,6 +1464,12 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
     }
 
     console.log(`Fetched ${allTeams.length} teams for event ${eventId} across ${currentPage - 1} page(s)`);
+
+    // If filtering by division, narrow allTeams to only those in the division
+    if (divisionTeamNumbers && divisionTeamNumbers.size > 0) {
+      allTeams = allTeams.filter(t => divisionTeamNumbers.has(t.number.toUpperCase()));
+      console.log(`Filtered to ${allTeams.length} teams in division ${parsedDivisionId}`);
+    }
 
     const validGrades = ['High School', 'Middle School', 'Elementary School'];
 
@@ -1406,6 +1557,8 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
       eventName: eventInfo?.name || 'Unknown Event',
       matchType: matchType || 'VRC',
       grade: grade || 'All',
+      divisionId: parsedDivisionId || null,
+      divisionName: divisionName || null,
       rankings,
       total: rankings.length,
       teamsInEvent: filteredTeams.length,
