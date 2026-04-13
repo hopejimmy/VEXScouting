@@ -1374,7 +1374,8 @@ app.get('/api/events/:eventId/teams/:teamNumber/division', async (req, res) => {
 // Get event rankings - teams in a specific event with their world rankings
 app.get('/api/events/:eventId/rankings', async (req, res) => {
   const { eventId } = req.params;
-  const { matchType, grade } = req.query; // Add grade filter
+  const { matchType, grade, divisionId, divisionName } = req.query;
+  const parsedDivisionId = divisionId ? parseInt(divisionId) : null;
 
   try {
     const apiToken = process.env.ROBOTEVENTS_API_TOKEN;
@@ -1390,8 +1391,12 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
     let hasMorePages = true;
 
     while (hasMorePages) {
+      const teamsEndpoint = parsedDivisionId
+        ? `https://www.robotevents.com/api/v2/events/${eventId}/divisions/${parsedDivisionId}/teams?page=${currentPage}`
+        : `https://www.robotevents.com/api/v2/events/${eventId}/teams?page=${currentPage}`;
+
       const teamsResponse = await fetch(
-        `https://www.robotevents.com/api/v2/events/${eventId}/teams?page=${currentPage}`,
+        teamsEndpoint,
         {
           headers: {
             'Authorization': `Bearer ${apiToken}`,
@@ -1515,6 +1520,8 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
       eventName: eventInfo?.name || 'Unknown Event',
       matchType: matchType || 'VRC',
       grade: grade || 'All',
+      divisionId: parsedDivisionId || null,
+      divisionName: divisionName || null,
       rankings,
       total: rankings.length,
       teamsInEvent: filteredTeams.length,
