@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, MapPin } from 'lucide-react';
+import { Calendar, MapPin, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -42,6 +43,8 @@ export function EventsSection({
   isSeasonsLoading = false
 }: EventsSectionProps) {
   const router = useRouter();
+  const [resolvingEventId, setResolvingEventId] = useState<number | null>(null);
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
   // Fetch awards for all events
   // CRITICAL: Pass matchType to prevent race condition and ensure correct program filtering
@@ -53,29 +56,65 @@ export function EventsSection({
   );
 
   // Handle event card click
-  const handleEventClick = (event: TeamEvent) => {
-    // If event is past (not upcoming), go to match list
-    if (!event.upcoming) {
-      // Use the first division ID if available, otherwise empty string (though backend should always provide it now)
-      const divisionId = event.divisions[0]?.id || '';
+  const handleEventClick = async (event: TeamEvent) => {
+    if (resolvingEventId === event.id) return; // prevent double-click during lookup
 
+    let divisionId: string = event.divisions[0]?.id?.toString() || '';
+    let divisionName: string = event.divisions[0]?.name || '';
+
+    // Multi-division events (World Championship) need an API call to find which
+    // specific division this team competes in. Single-division events skip this.
+    if (event.divisions.length > 1) {
+      setResolvingEventId(event.id);
+      try {
+        const divisionIds = event.divisions.map(d => d.id).join(',');
+        const divisionNames = event.divisions.map(d => d.name).join(',');
+        const response = await fetch(
+          `${API_BASE_URL}/api/events/${event.id}/teams/${teamNumber}/division` +
+          `?divisionIds=${encodeURIComponent(divisionIds)}&divisionNames=${encodeURIComponent(divisionNames)}`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          if (data.divisionId) {
+            divisionId = data.divisionId.toString();
+            divisionName = data.divisionName || '';
+          }
+        }
+        // On network error or divisionId: null — fall through with empty string.
+        // Rankings page will show all teams (safe unfiltered fallback).
+      } catch {
+        // Network error — fall through to unfiltered navigation
+      } finally {
+        setResolvingEventId(null);
+      }
+    }
+
+    if (!event.upcoming) {
+      // Past event → match detail page
       const params = new URLSearchParams({
-        divisionId: divisionId.toString(),
+        divisionId,
         matchType,
         eventName: event.name,
         start: event.start,
         end: event.end
       });
-
       router.push(`/team/${teamNumber}/event/${event.id}?${params.toString()}`);
     } else {
-      // Existing behavior for upcoming events
+      // Future event → rankings page
       const confirmed = window.confirm(
-        `Would you like to see the world skills rankings for all teams competing in "${event.name}"?`
+        `Would you like to see the world skills rankings for teams competing in "${event.name}"` +
+        `${divisionName ? ` — ${divisionName}` : ''}?`
       );
-
       if (confirmed) {
-        router.push(`/event-rankings/${event.id}?matchType=${matchType}&eventName=${encodeURIComponent(event.name)}&returnUrl=/team/${teamNumber}`);
+        const params = new URLSearchParams({
+          matchType,
+          eventName: event.name,
+          returnUrl: `/team/${teamNumber}`,
+          highlightTeam: teamNumber,
+        });
+        if (divisionId) params.append('divisionId', divisionId);
+        if (divisionName) params.append('divisionName', divisionName);
+        router.push(`/event-rankings/${event.id}?${params.toString()}`);
       }
     }
   };
@@ -138,9 +177,14 @@ export function EventsSection({
                 <CardHeader>
                   <CardTitle className="flex justify-between items-start">
                     <span>{event.name}</span>
-                    <Badge variant={event.upcoming ? "default" : "secondary"}>
-                      {event.upcoming ? "Upcoming" : "Past"}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      {resolvingEventId === event.id && (
+                        <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+                      )}
+                      <Badge variant={event.upcoming ? "default" : "secondary"}>
+                        {event.upcoming ? "Upcoming" : "Past"}
+                      </Badge>
+                    </div>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
