@@ -1262,6 +1262,43 @@ app.get('/api/teams/:teamNumber', async (req, res) => {
   }
 });
 
+// Batch driver-skills lookup for VEXIQ match-up pages.
+// Returns only the fields needed for per-match cards: driver skill + rank, scoped by matchType.
+app.get('/api/teams/skills-batch', async (req, res) => {
+  try {
+    const { teams, matchType } = req.query;
+    if (!teams) {
+      return res.status(400).json({ error: 'teams parameter required (comma-separated list)' });
+    }
+    if (!matchType) {
+      return res.status(400).json({ error: 'matchType parameter required (e.g. VEXIQ)' });
+    }
+
+    const teamList = teams.split(',').map(t => t.trim()).filter(Boolean);
+    if (teamList.length === 0) {
+      return res.json([]);
+    }
+
+    const result = await pool.query(
+      `SELECT teamNumber, highestDriverSkills, rank
+         FROM skills_standings
+        WHERE teamNumber = ANY($1)
+          AND matchType = $2`,
+      [teamList, matchType]
+    );
+
+    const rows = result.rows.map(r => ({
+      teamNumber: r.teamnumber,
+      highestDriverSkills: r.highestdriverskills,
+      rank: r.rank,
+    }));
+
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching skills batch:', error);
+    res.status(500).json({ error: 'Error fetching skills batch' });
+  }
+});
 
 
 // Performance Analysis Endpoint
