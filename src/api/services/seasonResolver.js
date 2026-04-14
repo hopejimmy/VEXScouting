@@ -86,9 +86,16 @@ export async function refreshSeasonId(pool, programId) {
     return apiResult.seasonId;
   }
 
-  // API failed — fall back to getCurrentSeasonId which tries DB → env
+  // API failed — fall back to DB cache or env var directly (skip API retry)
   console.warn(`[season-resolver] API refresh failed for ${config.key}, falling back to cached value`);
-  return getCurrentSeasonId(pool, programId);
+  try {
+    const dbResult = await pool.query('SELECT season_id FROM season_config WHERE program = $1', [config.key]);
+    if (dbResult.rows.length > 0) return dbResult.rows[0].season_id;
+  } catch (err) {
+    console.error(`[season-resolver] DB fallback read failed for ${config.key}:`, err.message);
+  }
+  const envValue = process.env[config.envVar];
+  return envValue ? parseInt(envValue) : null;
 }
 
 /**
@@ -121,7 +128,9 @@ async function fetchSeasonFromApi(programId) {
     const data = await response.json();
     const now = new Date();
 
-    for (const season of data.data) {
+    // Sort by start date descending to ensure we pick the most recent started season
+    const seasons = data.data.sort((a, b) => new Date(b.start) - new Date(a.start));
+    for (const season of seasons) {
       const start = new Date(season.start);
       if (now >= start) {
         return { seasonId: season.id, seasonName: season.name };
