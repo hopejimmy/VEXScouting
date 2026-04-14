@@ -14,7 +14,7 @@ const DATASETS = [
   { matchType: 'VRC',   programId: 1,  gradeLevel: 'High School',       label: 'VRC High School' },
   { matchType: 'VRC',   programId: 1,  gradeLevel: 'Middle School',     label: 'VRC Middle School' },
   { matchType: 'VEXIQ', programId: 41, gradeLevel: 'Middle School',     label: 'VEXIQ Middle School' },
-  { matchType: 'VEXIQ', programId: 41, gradeLevel: 'Elementary School', label: 'VEXIQ Elementary School' },
+  { matchType: 'VEXIQ', programId: 41, gradeLevel: 'Elementary',        label: 'VEXIQ Elementary School' },
 ];
 
 /**
