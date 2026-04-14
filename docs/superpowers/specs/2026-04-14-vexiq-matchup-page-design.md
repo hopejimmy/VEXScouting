@@ -33,27 +33,49 @@ The page file shrinks: orchestration (data fetching, polling, buttons, states) s
 
 ## Data
 
-No new endpoints, no new DB queries, no schema changes. The VEXIQ card needs each team's season-best `driverComponent` and season `rank` from `skills_standings`. This data is already available via the existing `useTeamPerformance` hook, which the VRC path on the same page already uses for its prediction flow.
+The VEXIQ card needs each team's season-best **driver skills** and season **rank** from `skills_standings`, scoped to `matchType='VEXIQ'`.
 
-**Collection logic** (same pattern as the existing VRC code):
+The existing `useTeamPerformance` hook is **not reusable**: it is hard-coded to VRC seasons (`seasonId = 197` in `src/api/server.js` at the `/api/analysis/performance` route) and returns match-analysis fields (`opr`, `winRate`, `tier`) — not per-matchType driver skill + rank.
+
+We add a new lightweight batch endpoint and hook:
+
+**Backend — new endpoint:**
+
+```
+GET /api/teams/skills-batch?teams=252A,18886C&matchType=VEXIQ
+→ [{ teamNumber: "252A", highestDriverSkills: 78, rank: 4 }, ...]
+```
+
+- One SQL query against `skills_standings` with `teamNumber = ANY($1) AND matchtype = $2`.
+- Returns only teams present in the table; missing teams are absent from the result.
+- No writes, no external API calls, no auth required (matches `/api/search` and `/api/teams/:teamNumber` which are public reads).
+
+**Frontend — new hook** `useTeamDriverSkills(teamNumbers: string[], matchType: string)`:
+
+- React Query with `queryKey: ['teamDriverSkills', matchType, sortedTeams.join(',')]`.
+- `enabled: teamNumbers.length > 0 && matchType === 'VEXIQ'`.
+- Returns `{ teamNumber, highestDriverSkills, rank }[]`.
+- `staleTime: 5 * 60 * 1000` (matches `useTeamPerformance`).
+
+**Collection in page:**
 
 ```ts
-const allTeamNumbers = useMemo(() => {
-  if (!matches) return [];
+const allVexiqTeamNumbers = useMemo(() => {
+  if (matchType !== 'VEXIQ' || !matches) return [];
   const set = new Set<string>();
   matches.forEach(m => m.alliances.forEach(a => a.teams.forEach(t => set.add(t.team.name))));
   return Array.from(set);
-}, [matches]);
+}, [matches, matchType]);
 
-const { data: performanceList } = useTeamPerformance(allTeamNumbers);
-const performanceMap = useMemo(() => {
-  const map: Record<string, PerformanceData> = {};
-  performanceList?.forEach(d => map[d.teamNumber] = d);
+const { data: skillsList } = useTeamDriverSkills(allVexiqTeamNumbers, matchType);
+const skillsMap = useMemo(() => {
+  const map: Record<string, { highestDriverSkills: number; rank: number }> = {};
+  skillsList?.forEach(d => { map[d.teamNumber] = d; });
   return map;
-}, [performanceList]);
+}, [skillsList]);
 ```
 
-Missing teams (no DB row) are simply absent from the map; the card renders `—` with a tooltip.
+Missing teams render `—` with tooltip in the card.
 
 ## VexiqMatchCard Component
 
@@ -63,7 +85,7 @@ Missing teams (no DB row) are simply absent from the map; the card renders `—`
 interface VexiqMatchCardProps {
   match: Match;
   teamNumber: string;                              // focused team
-  performanceMap: Record<string, PerformanceData>;
+  skillsMap: Record<string, { highestDriverSkills: number; rank: number }>;
 }
 ```
 
@@ -94,8 +116,8 @@ interface VexiqMatchCardProps {
 
 - **Team identification.** Flatten `match.alliances[*].teams[*]`. The team whose `team.name === teamNumber` is the focused team; the other is the partner. Ignore the `color` field (VEXIQ returns "red"/"blue" but they are cooperative partners, not opponents).
 - **Score badge.** Show `match.alliances[0].score` (both alliance scores are identical in VEXIQ). Hide the badge when `match.started === false` or `match.scored === false` (match not yet played).
-- **Driver skill lookup.** `performanceMap[teamNumber]?.driverComponent`. If absent, render `—` inside a `<span title="No driver skill on record">` for keyboard/screen-reader tooltip access.
-- **Rank chip.** `performanceMap[teamNumber]?.rank` → small `#N` chip next to team name. Omit if absent.
+- **Driver skill lookup.** `skillsMap[teamNumber]?.highestDriverSkills`. If absent, render `—` inside a `<span title="No driver skill on record">` for keyboard/screen-reader tooltip access.
+- **Rank chip.** `skillsMap[teamNumber]?.rank` → small `#N` chip next to team name. Omit if absent.
 - **Partner team name is NOT clickable.** Per product decision.
 - **Match header wording.** Use `match.name` verbatim from the API (e.g., `"TeamWork #5"`) — already VEXIQ-correct.
 
@@ -122,7 +144,7 @@ Shared with VRC branch (no changes):
 
 VEXIQ-specific:
 
-- **`performanceMap` empty or partial:** cards render with `—` placeholders for missing driver skills. Never blocks render, never shows an alert.
+- **`skillsMap` empty or partial:** cards render with `—` placeholders for missing driver skills. Never blocks render, never shows an alert.
 
 ## Accessibility
 
@@ -140,20 +162,26 @@ Manual verification (this repo has no Jest/Vitest setup for the Next.js app; mat
    - Rank chip + driver skill shown for teams present in `skills_standings`.
    - `—` with tooltip shown for teams absent from `skills_standings`.
    - Score badge visible on played matches, hidden on unplayed.
+   - Network tab: a single `GET /api/teams/skills-batch` call goes out when matches load; no call on VRC/VEXU pages.
 2. Load a VRC team (e.g., `471B` at event `60404`) — confirm red-vs-blue layout, predict button, and prediction flow are **unchanged**.
 3. Load a VEXU team — confirm VRC-style rendering still applies (VEXU is adversarial).
 4. Load a live VEXIQ event — confirm 60-second polling still fires.
 5. Verify Back button, Refresh button, and "View Event Rankings" fallback (with `divisionId` forwarded) work identically on both branches.
-6. Defensive: artificially empty `performanceMap`, confirm page renders with `—` placeholders and no crash.
+6. Defensive: artificially empty `skillsMap`, confirm page renders with `—` placeholders and no crash.
 
 ## Rollout
 
-Single PR from `feature/vexiq-matchup-page` into `main`. No feature flag — scope is isolated behind `matchType === 'VEXIQ'`, VRC/VEXU paths are untouched, and the only new fetch goes through an existing production endpoint.
+Single PR from `feature/vexiq-matchup-page` into `main`. No feature flag — scope is isolated behind `matchType === 'VEXIQ'`. VRC/VEXU paths are untouched; the new backend endpoint and frontend hook are only invoked on the VEXIQ branch.
 
 ## Files Changed
 
+**Backend (new endpoint):**
+- `src/api/server.js` — add `GET /api/teams/skills-batch` route.
+
+**Frontend:**
+- `frontend-nextjs/src/hooks/useTeamDriverSkills.ts` — new hook.
 - `frontend-nextjs/src/app/team/[teamNumber]/event/[eventId]/page.tsx` — extract `MatchCard` into `VrcMatchCard.tsx`; add `matchType === 'VEXIQ'` branch; drop predict button/state in the VEXIQ branch.
 - `frontend-nextjs/src/components/team/VrcMatchCard.tsx` — new (moved from page, unchanged logic).
 - `frontend-nextjs/src/components/team/VexiqMatchCard.tsx` — new.
 
-No changes to: backend, database, `useTeamMatches`, `useTeamPerformance`, season resolver, routing, or URL params.
+No changes to: database schema, `useTeamMatches`, `useTeamPerformance`, season resolver, routing, or URL params.
