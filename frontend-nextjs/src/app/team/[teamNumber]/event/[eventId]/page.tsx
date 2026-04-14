@@ -118,7 +118,16 @@ export default function MatchListPage() {
         // The button on Rankings page says "Back to Team Details", so we route there.
         const returnUrl = `/team/${teamNumber}`;
 
-        router.push(`/event-rankings/${eventId}?matchType=${matchType}&eventName=${encodeURIComponent(eventName)}&returnUrl=${encodeURIComponent(returnUrl)}`);
+        const params = new URLSearchParams({
+            matchType,
+            eventName,
+            returnUrl,
+            highlightTeam: teamNumber,
+        });
+        if (divisionId) params.append('divisionId', divisionId);
+        // divisionName isn't in the URL params for this page, but divisionId is enough
+        // for the rankings page to scope the results correctly.
+        router.push(`/event-rankings/${eventId}?${params.toString()}`);
     };
 
     if (!mounted) return null;
