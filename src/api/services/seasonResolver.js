@@ -128,13 +128,32 @@ async function fetchSeasonFromApi(programId) {
     const data = await response.json();
     const now = new Date();
 
-    // Sort by start date descending to ensure we pick the most recent started season
-    const seasons = data.data.sort((a, b) => new Date(b.start) - new Date(a.start));
-    for (const season of seasons) {
-      const start = new Date(season.start);
-      if (now >= start) {
-        return { seasonId: season.id, seasonName: season.name };
-      }
+    // Prefer seasons that currently bracket today (start <= now <= end).
+    // RobotEvents sometimes publishes an upcoming season's start date early,
+    // which would otherwise beat the real current season if we only checked start.
+    // Among currently-active seasons, pick the one ending soonest — that's the
+    // real current season (the other overlapping one is the upcoming one).
+    const active = data.data.filter(s => {
+      const start = new Date(s.start);
+      const end = s.end ? new Date(s.end) : null;
+      return now >= start && (!end || now <= end);
+    }).sort((a, b) => {
+      const aEnd = a.end ? new Date(a.end) : new Date(8640000000000000);
+      const bEnd = b.end ? new Date(b.end) : new Date(8640000000000000);
+      return aEnd - bEnd;
+    });
+
+    if (active.length > 0) {
+      return { seasonId: active[0].id, seasonName: active[0].name };
+    }
+
+    // Fallback: no season brackets today — pick the most recently started one
+    const fallback = [...data.data]
+      .sort((a, b) => new Date(b.start) - new Date(a.start))
+      .find(s => now >= new Date(s.start));
+    if (fallback) {
+      console.warn(`[season-resolver] No active season brackets today for program ${programId}, using most recent started: ${fallback.id} (${fallback.name})`);
+      return { seasonId: fallback.id, seasonName: fallback.name };
     }
 
     console.warn(`[season-resolver] No started season found for program ${programId}`);
