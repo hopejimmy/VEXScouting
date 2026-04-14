@@ -405,6 +405,16 @@ async function initializeDatabase() {
       )
     `);
 
+    // Create season_config table for caching auto-detected season IDs
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS season_config (
+        program TEXT PRIMARY KEY,
+        season_id INTEGER NOT NULL,
+        season_name TEXT,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     // Insert default roles if they don't exist
     await pool.query(`
       INSERT INTO roles (name, description) VALUES 
