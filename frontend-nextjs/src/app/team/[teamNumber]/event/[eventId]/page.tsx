@@ -12,6 +12,8 @@ import { useTeamMatches } from '@/hooks/useTeamMatches';
 import { useTeamPerformance, PerformanceData } from '@/hooks/useTeamPerformance';
 import { useMemo } from 'react';
 import { VrcMatchCard } from '@/components/team/VrcMatchCard';
+import { useTeamDriverSkills } from '@/hooks/useTeamDriverSkills';
+import { VexiqMatchCard } from '@/components/team/VexiqMatchCard';
 import { Footer } from '@/components/navigation/Footer';
 
 export default function MatchListPage() {
@@ -61,6 +63,8 @@ export default function MatchListPage() {
 
     const [predictionMode, setPredictionMode] = useState(false);
 
+    const isVexiq = matchType === 'VEXIQ';
+
     // Collect all unique teams for batch fetching analysis
     const allTeamNumbers = useMemo(() => {
         if (!matches) return [];
@@ -71,17 +75,9 @@ export default function MatchListPage() {
         return Array.from(set);
     }, [matches]);
 
-    // Always fetch, but backend returns empty/cached fast. 
-    // Wait... if we want "No network calls if not processed", we can't fetch? 
-    // Actually, we must fetch to KNOW if it's processed. 
-    // The requirement says "original predict matches function... will not show if... finds no existing data".
-    // So we fetch, and if empty, we disable/alert.
-    // The "NEVER trigger backend processing" constraint applies to the *Backend Side* (it shouldn't scrape RobotEvents).
-    // Our new `endpoints` are read-only DB queries, so calling them is safe!
-    // So we fetch the data. If the list is empty (or teams missing), we warn.
-
-    // Fetch performance data
-    const { data: performanceList } = useTeamPerformance(allTeamNumbers);
+    // VRC/VEXU: fetch match-analysis performance for the Predict Matches feature.
+    // Disable entirely on the VEXIQ path since that card doesn't use it.
+    const { data: performanceList } = useTeamPerformance(isVexiq ? [] : allTeamNumbers);
 
     const performanceMap = useMemo(() => {
         const map: Record<string, PerformanceData> = {};
@@ -90,6 +86,16 @@ export default function MatchListPage() {
         }
         return map;
     }, [performanceList]);
+
+    // VEXIQ: fetch season-best Driver Skills + rank for the cooperative match-up card.
+    // The hook is internally gated on matchType === 'VEXIQ', so this is a no-op elsewhere.
+    const { data: driverSkillsList } = useTeamDriverSkills(allTeamNumbers, matchType);
+
+    const skillsMap = useMemo(() => {
+        const map: Record<string, import('@/hooks/useTeamDriverSkills').TeamDriverSkills> = {};
+        driverSkillsList?.forEach(d => { map[d.teamNumber] = d; });
+        return map;
+    }, [driverSkillsList]);
 
     const handlePredictionToggle = () => {
         if (predictionMode) {
@@ -179,14 +185,16 @@ export default function MatchListPage() {
                         </div>
 
                         <div className="flex items-center space-x-3">
-                            <Button
-                                variant={predictionMode ? "default" : "outline"}
-                                onClick={handlePredictionToggle}
-                                className={`flex items-center space-x-2 ${predictionMode ? 'bg-purple-600 hover:bg-purple-700' : ''}`}
-                            >
-                                <Trophy className="w-4 h-4" />
-                                <span>{predictionMode ? 'Hide Analysis' : 'Predict Matches'}</span>
-                            </Button>
+                            {!isVexiq && (
+                                <Button
+                                    variant={predictionMode ? "default" : "outline"}
+                                    onClick={handlePredictionToggle}
+                                    className={`flex items-center space-x-2 ${predictionMode ? 'bg-purple-600 hover:bg-purple-700' : ''}`}
+                                >
+                                    <Trophy className="w-4 h-4" />
+                                    <span>{predictionMode ? 'Hide Analysis' : 'Predict Matches'}</span>
+                                </Button>
+                            )}
                             <Button
                                 variant="outline"
                                 onClick={() => refetch()}
@@ -263,15 +271,24 @@ export default function MatchListPage() {
                         animate={{ opacity: 1 }}
                         className="space-y-4"
                     >
-                        {matches.map((match) => (
-                            <VrcMatchCard
-                                key={match.id}
-                                match={match}
-                                teamNumber={teamNumber}
-                                predictionMode={predictionMode}
-                                performanceMap={performanceMap}
-                            />
-                        ))}
+                        {matches.map((match) =>
+                            isVexiq ? (
+                                <VexiqMatchCard
+                                    key={match.id}
+                                    match={match}
+                                    teamNumber={teamNumber}
+                                    skillsMap={skillsMap}
+                                />
+                            ) : (
+                                <VrcMatchCard
+                                    key={match.id}
+                                    match={match}
+                                    teamNumber={teamNumber}
+                                    predictionMode={predictionMode}
+                                    performanceMap={performanceMap}
+                                />
+                            )
+                        )}
                     </motion.div>
                 )}
             </main>
