@@ -12,7 +12,7 @@ import { useTeamMatches } from '@/hooks/useTeamMatches';
 import { useTeamPerformance, PerformanceData } from '@/hooks/useTeamPerformance';
 import { useMemo } from 'react';
 import { VrcMatchCard } from '@/components/team/VrcMatchCard';
-import { useTeamDriverSkills } from '@/hooks/useTeamDriverSkills';
+import { useTeamDriverSkills, TeamDriverSkills } from '@/hooks/useTeamDriverSkills';
 import { VexiqMatchCard } from '@/components/team/VexiqMatchCard';
 import { Footer } from '@/components/navigation/Footer';
 
@@ -92,7 +92,7 @@ export default function MatchListPage() {
     const { data: driverSkillsList } = useTeamDriverSkills(allTeamNumbers, matchType);
 
     const skillsMap = useMemo(() => {
-        const map: Record<string, import('@/hooks/useTeamDriverSkills').TeamDriverSkills> = {};
+        const map: Record<string, TeamDriverSkills> = {};
         driverSkillsList?.forEach(d => { map[d.teamNumber] = d; });
         return map;
     }, [driverSkillsList]);
