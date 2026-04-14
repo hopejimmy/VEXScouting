@@ -15,6 +15,9 @@ import jwt from 'jsonwebtoken';
 import { ensureTeamAnalysis, getTeamPerformance } from './services/analysis.js';
 import { analysisWorker } from './services/analysis-worker.js';
 import { publicLimiter, authLimiter, adminLimiter } from './middleware/rateLimiter.js';
+import { getCurrentSeasonId } from './services/seasonResolver.js';
+import cron from 'node-cron';
+import { runSkillsRefresh, refreshStatus } from './services/skillsRefresh.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -405,6 +408,16 @@ async function initializeDatabase() {
       )
     `);
 
+    // Create season_config table for caching auto-detected season IDs
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS season_config (
+        program TEXT PRIMARY KEY,
+        season_id INTEGER NOT NULL,
+        season_name TEXT,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     // Insert default roles if they don't exist
     await pool.query(`
       INSERT INTO roles (name, description) VALUES 
@@ -541,7 +554,7 @@ app.get('/api/admin/analysis/status', authenticateToken, requireRole('admin'), (
 });
 
 // 2. Start Analysis
-app.post('/api/admin/analysis/start', authenticateToken, requireRole('admin'), (req, res) => {
+app.post('/api/admin/analysis/start', authenticateToken, requireRole('admin'), async (req, res) => {
   if (analysisWorker.isRunning) {
     return res.status(409).json({ error: 'Analysis already running' });
   }
@@ -549,7 +562,8 @@ app.post('/api/admin/analysis/start', authenticateToken, requireRole('admin'), (
   const { force } = req.body;
 
   // Start in background
-  analysisWorker.start(pool, process.env.ROBOTEVENTS_API_TOKEN, process.env.CURRENT_SEASON_ID || 197, !!force);
+  const seasonId = await getCurrentSeasonId(pool, 1); // VRC
+  analysisWorker.start(pool, process.env.ROBOTEVENTS_API_TOKEN, seasonId || 197, !!force);
 
   res.json({ success: true, message: 'Analysis started' });
 });
@@ -598,6 +612,25 @@ app.get('/api/admin/analysis/stream', (req, res) => {
       analysisWorker.off('log', onLog);
     });
   });
+});
+
+// Skills Refresh Status
+app.get('/api/admin/skills-refresh/status', authenticateToken, requireRole('admin'), (req, res) => {
+  res.json(refreshStatus);
+});
+
+// Skills Refresh Manual Trigger
+app.post('/api/admin/skills-refresh/trigger', authenticateToken, requireRole('admin'), (req, res) => {
+  if (refreshStatus.isRunning) {
+    return res.status(409).json({ error: 'Skills refresh already running' });
+  }
+
+  // Run in background — don't await
+  runSkillsRefresh(pool).catch(err => {
+    console.error('[skills-refresh] Manual trigger error:', err);
+  });
+
+  res.json({ message: 'Skills refresh started' });
 });
 
 // 5. Manage Tracked Teams (Get)
@@ -835,6 +868,16 @@ async function startServer() {
       console.log(`📊 API endpoints available at http://0.0.0.0:${PORT}/api`);
       console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🔗 Database: ${process.env.DATABASE_URL ? 'Railway PostgreSQL' : 'Local connection'}`);
+
+      // Start daily skills refresh cron job
+      const cronSchedule = process.env.SKILLS_REFRESH_CRON || '0 3 * * *';
+      cron.schedule(cronSchedule, () => {
+        console.log('[skills-refresh] Cron triggered');
+        runSkillsRefresh(pool).catch(err => {
+          console.error('[skills-refresh] Cron execution error:', err);
+        });
+      }, { timezone: 'UTC' });
+      console.log(`⏰ Skills refresh cron scheduled: ${cronSchedule} (UTC)`);
     });
 
     // Handle server startup errors
@@ -1223,7 +1266,7 @@ app.get('/api/analysis/performance', async (req, res) => {
     }
 
     const teamList = teams.split(',').map(t => t.trim());
-    const seasonId = req.query.season || process.env.CURRENT_SEASON_ID || 197; // Default to current VRC season
+    const seasonId = req.query.season || await getCurrentSeasonId(pool, 1) || 197;
 
     // 1. Ensure caching (Trigger orchestrator)
     // 1. Ensure caching: SKIPPED
@@ -1585,8 +1628,6 @@ app.get('/api/teams/:teamNumber/events', async (req, res) => {
     const { teamNumber } = req.params;
     const { season, matchType } = req.query;
 
-    // Get the current season ID and API token from environment
-    const seasonId = season || process.env.CURRENT_SEASON_ID || '190'; // Use query param or default to High Stakes
     const apiToken = process.env.ROBOTEVENTS_API_TOKEN;
 
     // Map matchType to RobotEvents program ID
@@ -1596,6 +1637,9 @@ app.get('/api/teams/:teamNumber/events', async (req, res) => {
       'VEXIQ': '41',   // VEX IQ Robotics Competition (NOT 4!)
       'VEXU': '4'      // VEX U Robotics Competition (NOT 41!)
     };
+
+    const resolvedProgramId = matchType && programMap[matchType] ? parseInt(programMap[matchType]) : 1;
+    const seasonId = season || await getCurrentSeasonId(pool, resolvedProgramId) || 197;
 
     // Get program ID from matchType, default to VRC if not provided
     const programId = matchType && programMap[matchType] ? programMap[matchType] : '1';
