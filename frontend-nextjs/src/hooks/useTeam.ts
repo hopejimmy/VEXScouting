@@ -3,11 +3,12 @@ import type { Team } from '@/types/skills';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-export function useTeam(teamNumber: string) {
+export function useTeam(teamNumber: string, matchType?: string) {
   return useQuery<Team>({
-    queryKey: ['team', teamNumber],
+    queryKey: ['team', teamNumber, matchType],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/api/teams/${encodeURIComponent(teamNumber)}`);
+      const params = matchType ? `?matchType=${encodeURIComponent(matchType)}` : '';
+      const response = await fetch(`${API_BASE_URL}/api/teams/${encodeURIComponent(teamNumber)}${params}`);
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Failed to fetch team details');

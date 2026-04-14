@@ -392,7 +392,7 @@ function HomeContent() {
                       team={team} 
                       onClick={() => {
                         const currentUrl = window.location.pathname + window.location.search;
-                        router.push(`/team/${team.teamNumber}?returnUrl=${encodeURIComponent(currentUrl)}`);
+                        router.push(`/team/${team.teamNumber}?matchType=${encodeURIComponent(team.matchType)}&returnUrl=${encodeURIComponent(currentUrl)}`);
                       }} 
                     />
                   </motion.div>
