@@ -27,24 +27,29 @@ export default function TeamDetailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const teamNumber = params.teamNumber as string;
+  const matchTypeParam = searchParams.get('matchType') || undefined;
   const [mounted, setMounted] = useState(false);
   const [selectedSeasonId, setSelectedSeasonId] = useState<string | null>(null);
-  
+
   useEffect(() => {
     setMounted(true);
   }, []);
-  
-  const { data: team, isLoading: isTeamLoading, error: teamError } = useTeam(teamNumber);
+
+  const { data: team, isLoading: isTeamLoading, error: teamError } = useTeam(teamNumber, matchTypeParam);
   
   // Fetch seasons for the team's specific program (VRC, VEXIQ, or VEXU)
   // This ensures we get the correct seasons for the team's program
   const { data: seasons, isLoading: isSeasonsLoading } = useSeasons(team?.matchType);
   
-  // Auto-select current season when seasons load
-  // The seasons array is sorted by most recent first, so seasons[0] = current season
+  // Auto-select current season when seasons load.
+  // The seasons array is sorted by start date descending, but RobotEvents sometimes
+  // publishes an upcoming season before it begins, so seasons[0] can be a future
+  // season with no events. Pick the first one that has actually started.
   useEffect(() => {
     if (seasons && seasons.length > 0 && selectedSeasonId === null) {
-      setSelectedSeasonId(seasons[0].id.toString());
+      const now = Date.now();
+      const current = seasons.find(s => new Date(s.start).getTime() <= now) ?? seasons[0];
+      setSelectedSeasonId(current.id.toString());
     }
   }, [seasons, selectedSeasonId]);
   

@@ -1221,7 +1221,14 @@ app.get('/api/teams', async (req, res) => {
 // Get team by number
 app.get('/api/teams/:teamNumber', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM skills_standings WHERE teamNumber = $1', [req.params.teamNumber]);
+    const { matchType } = req.query;
+    let query = 'SELECT * FROM skills_standings WHERE teamNumber = $1';
+    const params = [req.params.teamNumber];
+    if (matchType) {
+      query += ' AND matchType = $2';
+      params.push(matchType);
+    }
+    const result = await pool.query(query, params);
     if (result.rows.length === 0) {
       res.status(404).json({ error: 'Team not found' });
     } else {

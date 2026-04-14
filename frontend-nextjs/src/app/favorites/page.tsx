@@ -230,7 +230,7 @@ export default function FavoritesPage() {
                   onCompare={handleCompareClick}
                   isInCompare={isInCompare(team.teamNumber)}
                   canAddToCompare={canAddToCompare}
-                  onClick={() => router.push(`/team/${team.teamNumber}`)}
+                  onClick={() => router.push(`/team/${team.teamNumber}?matchType=${encodeURIComponent(team.matchType)}`)}
                   getMatchTypeBadgeColor={getMatchTypeBadgeColor}
                 />
               </motion.div>

@@ -195,7 +195,7 @@ export default function ComparePage() {
                     onRemove={() => removeFromCompare(team.teamNumber)}
                     onFavorite={() => handleFavoriteClick(team)}
                     isFavorite={isFavorite(team.teamNumber)}
-                    onClick={() => router.push(`/team/${team.teamNumber}`)}
+                    onClick={() => router.push(`/team/${team.teamNumber}?matchType=${encodeURIComponent(team.matchType)}`)}
                     getMatchTypeBadgeColor={getMatchTypeBadgeColor}
                   />
                 </motion.div>
