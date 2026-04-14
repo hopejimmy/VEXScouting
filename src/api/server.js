@@ -16,6 +16,8 @@ import { ensureTeamAnalysis, getTeamPerformance } from './services/analysis.js';
 import { analysisWorker } from './services/analysis-worker.js';
 import { publicLimiter, authLimiter, adminLimiter } from './middleware/rateLimiter.js';
 import { getCurrentSeasonId } from './services/seasonResolver.js';
+import cron from 'node-cron';
+import { runSkillsRefresh, refreshStatus } from './services/skillsRefresh.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -612,6 +614,25 @@ app.get('/api/admin/analysis/stream', (req, res) => {
   });
 });
 
+// Skills Refresh Status
+app.get('/api/admin/skills-refresh/status', authenticateToken, requireRole('admin'), (req, res) => {
+  res.json(refreshStatus);
+});
+
+// Skills Refresh Manual Trigger
+app.post('/api/admin/skills-refresh/trigger', authenticateToken, requireRole('admin'), (req, res) => {
+  if (refreshStatus.isRunning) {
+    return res.status(409).json({ error: 'Skills refresh already running' });
+  }
+
+  // Run in background — don't await
+  runSkillsRefresh(pool).catch(err => {
+    console.error('[skills-refresh] Manual trigger error:', err);
+  });
+
+  res.json({ message: 'Skills refresh started' });
+});
+
 // 5. Manage Tracked Teams (Get)
 app.get('/api/admin/tracked-teams', authenticateToken, requireRole('admin'), async (req, res) => {
   try {
@@ -847,6 +868,16 @@ async function startServer() {
       console.log(`📊 API endpoints available at http://0.0.0.0:${PORT}/api`);
       console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🔗 Database: ${process.env.DATABASE_URL ? 'Railway PostgreSQL' : 'Local connection'}`);
+
+      // Start daily skills refresh cron job
+      const cronSchedule = process.env.SKILLS_REFRESH_CRON || '0 3 * * *';
+      cron.schedule(cronSchedule, () => {
+        console.log('[skills-refresh] Cron triggered');
+        runSkillsRefresh(pool).catch(err => {
+          console.error('[skills-refresh] Cron execution error:', err);
+        });
+      }, { timezone: 'UTC' });
+      console.log(`⏰ Skills refresh cron scheduled: ${cronSchedule} (UTC)`);
     });
 
     // Handle server startup errors
