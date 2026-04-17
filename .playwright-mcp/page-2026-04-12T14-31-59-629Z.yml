@@ -1,0 +1,1372 @@
+- generic [ref=e3]:
+  - link "Skip to main content" [ref=e4] [cursor=pointer]:
+    - /url: "#main-container"
+  - generic [ref=e9]:
+    - button "Sidebar" [expanded] [ref=e11] [cursor=pointer]:
+      - img [ref=e12]
+    - link "VEX Forum" [ref=e15] [cursor=pointer]:
+      - /url: /
+      - img "VEX Forum" [ref=e16]
+    - generic [ref=e18]:
+      - link "VEX V5" [ref=e19] [cursor=pointer]:
+        - /url: https://www.vex.com/
+        - img "VEX V5" [ref=e21]
+      - link "Coding Starts Early for Grades K+" [ref=e22] [cursor=pointer]:
+        - /url: https://www.vexrobotics.com/123
+        - img "Coding Starts Early for Grades K+" [ref=e24]
+      - link "STEM Starts Early for Grades 3+" [ref=e25] [cursor=pointer]:
+        - /url: https://www.vexrobotics.com/go
+        - img "STEM Starts Early for Grades 3+" [ref=e27]
+      - link "VEX AIM" [ref=e28] [cursor=pointer]:
+        - /url: https://www.vexrobotics.com/aim
+        - img "VEX AIM" [ref=e30]
+      - link "Applied STEM Learning for Grades 6+" [ref=e31] [cursor=pointer]:
+        - /url: https://www.vexrobotics.com/iq
+        - img "Applied STEM Learning for Grades 6+" [ref=e33]
+      - link "Real World STEM for Classroom Grades 9+" [ref=e34] [cursor=pointer]:
+        - /url: https://www.vexrobotics.com/exp
+        - img "Real World STEM for Classroom Grades 9+" [ref=e36]
+      - link "Invigorating students with a passion for STEM with robotics! Grade 9+" [ref=e37] [cursor=pointer]:
+        - /url: https://www.vexrobotics.com/v5
+        - img "Invigorating students with a passion for STEM with robotics! Grade 9+" [ref=e39]
+      - link "Elevating tomorrow's workforce" [ref=e40] [cursor=pointer]:
+        - /url: https://www.vexrobotics.com/cte
+        - img "Elevating tomorrow's workforce" [ref=e42]
+      - link "VEX AIR" [ref=e43] [cursor=pointer]:
+        - /url: https://www.vexrobotics.com/air
+        - img "VEX AIR" [ref=e45]
+    - generic [ref=e48]:
+      - heading "[API] An alternative API for the RobotEvents data (not vexdb.io)" [level=1] [ref=e49]:
+        - generic "This topic is closed; it no longer accepts new replies" [ref=e51]:
+          - img [ref=e52]
+        - link "[API] An alternative API for the RobotEvents data (not vexdb.io)" [ref=e53] [cursor=pointer]:
+          - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373
+      - link "VEX Robotics Competition Discussion" [ref=e55] [cursor=pointer]:
+        - /url: /c/vrc-discussion/31
+        - generic [ref=e57]: VEX Robotics Competition Discussion
+    - navigation [ref=e59]:
+      - button "Log In" [ref=e62] [cursor=pointer]:
+        - img [ref=e63]
+        - generic [ref=e64]: Log In
+      - list [ref=e65]:
+        - listitem [ref=e66]:
+          - button "Search" [ref=e67] [cursor=pointer]:
+            - img [ref=e68]
+  - main [ref=e69]:
+    - generic [ref=e71]:
+      - generic [ref=e72]:
+        - list [ref=e75]:
+          - listitem [ref=e76]:
+            - link "Topics" [ref=e77] [cursor=pointer]:
+              - /url: /latest
+              - img [ref=e79]
+              - generic [ref=e80]: Topics
+          - listitem [ref=e81]:
+            - link "RobotEvents" [ref=e82] [cursor=pointer]:
+              - /url: https://www.robotevents.com/
+              - img [ref=e84]
+              - generic [ref=e85]: RobotEvents
+          - listitem [ref=e86]:
+            - link "V5RC Push Back Game Manual" [ref=e87] [cursor=pointer]:
+              - /url: https://link.vex.com/docs/25-26/v5rc-pushback-manual
+              - img [ref=e89]
+              - generic [ref=e90]: V5RC Push Back Game Manual
+          - listitem [ref=e91]:
+            - link "VIQRC Mix & Match Game Manual" [ref=e92] [cursor=pointer]:
+              - /url: https://link.vex.com/docs/25-26/viqrc-mixandmatch-manual
+              - img [ref=e94]
+              - generic [ref=e95]: VIQRC Mix & Match Game Manual
+          - listitem [ref=e96]:
+            - button "More" [ref=e97] [cursor=pointer]:
+              - img [ref=e99]
+              - generic [ref=e100]: More
+        - generic [ref=e101]:
+          - button "Categories" [expanded] [ref=e103] [cursor=pointer]:
+            - img [ref=e105]
+            - generic [ref=e106]: Categories
+          - list [ref=e107]:
+            - listitem [ref=e108]:
+              - link "VEX IQ General Discussion" [ref=e109] [cursor=pointer]:
+                - /url: /c/vex-iq-general-discussion/5
+                - generic [ref=e112]: VEX IQ General Discussion
+            - listitem [ref=e113]:
+              - link "VEX V5 Technical Support" [ref=e114] [cursor=pointer]:
+                - /url: /c/v5-technical-support/29
+                - generic [ref=e117]: VEX V5 Technical Support
+            - listitem [ref=e118]:
+              - link "VEX Robotics Competition Discussion" [ref=e119] [cursor=pointer]:
+                - /url: /c/vrc-discussion/31
+                - generic [ref=e122]: VEX Robotics Competition Discussion
+            - listitem [ref=e123]:
+              - link "Website/Forum Support" [ref=e124] [cursor=pointer]:
+                - /url: /c/website-forum-support/32
+                - generic [ref=e127]: Website/Forum Support
+            - listitem [ref=e128]:
+              - link "All categories" [ref=e129] [cursor=pointer]:
+                - /url: /categories
+                - img [ref=e131]
+                - generic [ref=e132]: All categories
+        - generic [ref=e133]:
+          - button "Tags" [expanded] [ref=e135] [cursor=pointer]:
+            - img [ref=e137]
+            - generic [ref=e138]: Tags
+          - list [ref=e139]:
+            - listitem [ref=e140]:
+              - link "programming:vexcode" [ref=e141] [cursor=pointer]:
+                - /url: /tag/programming:vexcode
+                - img [ref=e143]
+                - generic [ref=e144]: programming:vexcode
+            - listitem [ref=e145]:
+              - link "programming" [ref=e146] [cursor=pointer]:
+                - /url: /tag/programming
+                - img [ref=e148]
+                - generic [ref=e149]: programming
+            - listitem [ref=e150]:
+              - link "programming:pros" [ref=e151] [cursor=pointer]:
+                - /url: /tag/programming:pros
+                - img [ref=e153]
+                - generic [ref=e154]: programming:pros
+            - listitem [ref=e155]:
+              - link "tower-takeover" [ref=e156] [cursor=pointer]:
+                - /url: /tag/tower-takeover
+                - img [ref=e158]
+                - generic [ref=e159]: tower-takeover
+            - listitem [ref=e160]:
+              - link "spin-up" [ref=e161] [cursor=pointer]:
+                - /url: /tag/spin-up
+                - img [ref=e163]
+                - generic [ref=e164]: spin-up
+            - listitem [ref=e165]:
+              - link "All tags" [ref=e166] [cursor=pointer]:
+                - /url: /tags
+                - img [ref=e168]
+                - generic [ref=e169]: All tags
+      - button "Keyboard Shortcuts" [ref=e173] [cursor=pointer]:
+        - img [ref=e174]
+    - generic [ref=e175]:
+      - generic [ref=e176]:
+        - generic [ref=e178]:
+          - heading "[API] An alternative API for the RobotEvents data (not vexdb.io)" [level=1] [ref=e179]:
+            - generic "This topic is closed; it no longer accepts new replies" [ref=e181]:
+              - img [ref=e182]
+            - link "[API] An alternative API for the RobotEvents data (not vexdb.io)" [ref=e183] [cursor=pointer]:
+              - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373
+          - link "VEX Robotics Competition Discussion" [ref=e185] [cursor=pointer]:
+            - /url: /c/vrc-discussion/31
+            - generic [ref=e187]: VEX Robotics Competition Discussion
+        - generic [ref=e188]:
+          - generic [ref=e191]:
+            - button "3.2k views" [ref=e192] [cursor=pointer]:
+              - generic [ref=e193]: 3.2k
+              - generic [ref=e194]: views
+            - button "182 likes" [ref=e195] [cursor=pointer]:
+              - generic [ref=e196]: "182"
+              - generic [ref=e197]: likes
+            - button "6 links" [ref=e198] [cursor=pointer]:
+              - generic [ref=e199]: "6"
+              - generic [ref=e200]: links
+            - button "10 users" [ref=e201] [cursor=pointer]:
+              - generic [ref=e202]: "10"
+              - generic [ref=e203]: users
+            - generic [ref=e204]:
+              - link "kedas's profile" [ref=e206] [cursor=pointer]:
+                - /url: /u/kedas
+                - img "kedas" [ref=e207]
+              - link "Foster's profile" [ref=e209] [cursor=pointer]:
+                - /url: /u/Foster
+                - img "Foster - STEM Robotics" [ref=e210]
+              - link "Mentor_355U's profile" [ref=e212] [cursor=pointer]:
+                - /url: /u/Mentor_355U
+                - img "Mentor_355U" [ref=e213]
+              - link "Luke's profile" [ref=e215] [cursor=pointer]:
+                - /url: /u/Luke
+                - img "Luke McCrea" [ref=e216]
+              - link "RoboCatz's profile" [ref=e218] [cursor=pointer]:
+                - /url: /u/RoboCatz
+                - img "YT Guy" [ref=e219]
+            - generic [ref=e221]:
+              - generic [ref=e222]: read
+              - generic [ref=e223]: 4 min
+          - generic [ref=e227]:
+            - link "Jul 2022" [ref=e229] [cursor=pointer]:
+              - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/1
+              - generic [ref=e230]: Jul 2022
+            - generic [ref=e235]:
+              - generic [ref=e236]: 21 / 31
+              - generic [ref=e237]: Aug 2022
+            - link "Jan 2024" [ref=e240] [cursor=pointer]:
+              - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/31
+              - generic [ref=e241]: Jan 2024
+          - generic [ref=e246]:
+            - 'region "post #1 by @kedas" [ref=e248]':
+              - generic [ref=e249]:
+                - link [ref=e252] [cursor=pointer]:
+                  - /url: /u/kedas
+                  - img [ref=e253]
+                - generic [ref=e254]:
+                  - heading "kedas post edit history Jul 2022" [level=2] [ref=e255]:
+                    - link "kedas" [ref=e258] [cursor=pointer]:
+                      - /url: /u/kedas
+                    - generic [ref=e259]:
+                      - button "post edit history" [ref=e261] [cursor=pointer]:
+                        - img [ref=e262]
+                        - generic [ref=e263]: "1"
+                      - link "Jul 2022" [ref=e265] [cursor=pointer]:
+                        - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373
+                  - generic [ref=e266]:
+                    - generic [ref=e267]:
+                      - paragraph [ref=e268]: Hey everyone,
+                      - paragraph [ref=e269]: In lieu of VexDB no longer being supported, and me getting increasingly agitated at VEX Via and the RobotEvents API, I have decided to start working on a completely custom API (with data scraped every few hours from the RobotEvents API). I’m primarily designing the API for a mobile app and website that I’m building as part of this project, to make it easier to monitor competition data (I know that “every few hours” is not very suited for a VEX Via alternative, so that’s why I have plans to make competition results completely live) and explore teams and events in an easier way.
+                      - paragraph [ref=e270]:
+                        - text: The API is currently public with an explanation at
+                        - link "theredalliance.xyz link clicked 312 times" [ref=e271] [cursor=pointer]:
+                          - /url: https://theredalliance.xyz/
+                          - text: theredalliance.xyz 312
+                        - text: (just keep in mind that it might not be online 100% of time time before I release the app, notably it’ll be down for a few hours within the next few days to push an update to allow people to get award data).
+                      - paragraph [ref=e272]: I do not have a specific release date, as the amount of time I have to dedicate to this project fluctuates, but I’m doing my best to finish a production Google Play Store release of the app finished within a month (for an iOS release I will need to scope out how interested people are, because I do not want to accidentally pay $100 for an App Store developer account if people wouldn’t use the app anyway).
+                      - paragraph [ref=e273]: "My plans for the app are:"
+                      - list [ref=e274]:
+                        - listitem [ref=e275]: Everything that VEX Via currently offers
+                        - listitem [ref=e276]: Notifications, and live-updating data
+                        - listitem [ref=e277]: A centralized feed with events that your team is registered for, and results
+                        - listitem [ref=e278]: An easy search bar to find teams and events
+                      - paragraph [ref=e279]: If you want data in bulk for analytical purposes, scouting, etc, I am planning on publishing daily database exports (with history).
+                      - paragraph [ref=e280]:
+                        - text: Any questions or suggestions are welcome as I’m doing my best to suit the needs of most teams. You could contact me here or email me
+                        - link "m@yarn.network" [ref=e281] [cursor=pointer]:
+                          - /url: mailto:m@yarn.network
+                    - generic [ref=e282]:
+                      - navigation [ref=e283]:
+                        - generic [ref=e284]:
+                          - generic [ref=e285]:
+                            - button "52 people liked this post." [ref=e286] [cursor=pointer]: "52"
+                            - button "like this post" [ref=e287] [cursor=pointer]:
+                              - img [ref=e288]
+                          - button "copy a link to this post to clipboard" [ref=e289] [cursor=pointer]:
+                            - img [ref=e290]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+              - generic [ref=e293]:
+                - button "3.2k views" [ref=e294] [cursor=pointer]:
+                  - generic [ref=e295]: 3.2k
+                  - generic [ref=e296]: views
+                - button "182 likes" [ref=e297] [cursor=pointer]:
+                  - generic [ref=e298]: "182"
+                  - generic [ref=e299]: likes
+                - button "6 links" [ref=e300] [cursor=pointer]:
+                  - generic [ref=e301]: "6"
+                  - generic [ref=e302]: links
+                - button "10 users" [ref=e303] [cursor=pointer]:
+                  - generic [ref=e304]: "10"
+                  - generic [ref=e305]: users
+                - generic [ref=e306]:
+                  - link "kedas's profile" [ref=e308] [cursor=pointer]:
+                    - /url: /u/kedas
+                    - img "kedas" [ref=e309]
+                  - link "Foster's profile" [ref=e311] [cursor=pointer]:
+                    - /url: /u/Foster
+                    - img "Foster - STEM Robotics" [ref=e312]
+                  - link "Mentor_355U's profile" [ref=e314] [cursor=pointer]:
+                    - /url: /u/Mentor_355U
+                    - img "Mentor_355U" [ref=e315]
+                  - link "Luke's profile" [ref=e317] [cursor=pointer]:
+                    - /url: /u/Luke
+                    - img "Luke McCrea" [ref=e318]
+                  - link "RoboCatz's profile" [ref=e320] [cursor=pointer]:
+                    - /url: /u/RoboCatz
+                    - img "YT Guy" [ref=e321]
+                - generic [ref=e323]:
+                  - generic [ref=e324]: read
+                  - generic [ref=e325]: 4 min
+            - 'region "post #2 by @changdou" [ref=e327]':
+              - generic [ref=e328]:
+                - link [ref=e331] [cursor=pointer]:
+                  - /url: /u/changdou
+                  - img [ref=e332]
+                - generic [ref=e333]:
+                  - heading "changdou Jul 2022" [level=2] [ref=e334]:
+                    - link "changdou" [ref=e337] [cursor=pointer]:
+                      - /url: /u/changdou
+                    - link "Jul 2022" [ref=e340] [cursor=pointer]:
+                      - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/2
+                  - generic [ref=e341]:
+                    - paragraph [ref=e343]:
+                      - text: Cool name
+                      - img ":slight_smile:" [ref=e344]
+                      - text: Love the reference to the Blue Alliance!
+                    - generic [ref=e345]:
+                      - navigation [ref=e346]:
+                        - generic [ref=e347]:
+                          - generic [ref=e348]:
+                            - button "7 people liked this post." [ref=e349] [cursor=pointer]: "7"
+                            - button "like this post" [ref=e350] [cursor=pointer]:
+                              - img [ref=e351]
+                          - button "copy a link to this post to clipboard" [ref=e352] [cursor=pointer]:
+                            - img [ref=e353]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - 'region "post #3 by @AliA" [ref=e355]':
+              - generic [ref=e356]:
+                - link [ref=e359] [cursor=pointer]:
+                  - /url: /u/AliA
+                  - img [ref=e360]
+                - generic [ref=e361]:
+                  - heading "AliA Jul 2022" [level=2] [ref=e362]:
+                    - link "AliA" [ref=e365] [cursor=pointer]:
+                      - /url: /u/AliA
+                    - link "Jul 2022" [ref=e368] [cursor=pointer]:
+                      - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/3
+                  - generic [ref=e369]:
+                    - paragraph [ref=e371]: Glad your project is coming along well! I wanna be the first to use the full release lol
+                    - generic [ref=e372]:
+                      - navigation [ref=e373]:
+                        - generic [ref=e374]:
+                          - generic [ref=e375]:
+                            - button "4 people liked this post." [ref=e376] [cursor=pointer]: "4"
+                            - button "like this post" [ref=e377] [cursor=pointer]:
+                              - img [ref=e378]
+                          - button "copy a link to this post to clipboard" [ref=e379] [cursor=pointer]:
+                            - img [ref=e380]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - 'region "post #4 by @B-Kinney" [ref=e382]':
+              - generic [ref=e383]:
+                - link [ref=e386] [cursor=pointer]:
+                  - /url: /u/B-Kinney
+                  - img [ref=e387]
+                - generic [ref=e388]:
+                  - heading "B-Kinney Jul 2022" [level=2] [ref=e389]:
+                    - link "B-Kinney" [ref=e392] [cursor=pointer]:
+                      - /url: /u/B-Kinney
+                    - link "Jul 2022" [ref=e395] [cursor=pointer]:
+                      - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/4
+                  - generic [ref=e396]:
+                    - paragraph [ref=e398]: Thanks so much for creating this! I’m looking forward to using it!
+                    - generic [ref=e399]:
+                      - navigation [ref=e400]:
+                        - generic [ref=e401]:
+                          - generic [ref=e402]:
+                            - button "1 person liked this post." [ref=e403] [cursor=pointer]: "1"
+                            - button "like this post" [ref=e404] [cursor=pointer]:
+                              - img [ref=e405]
+                          - button "copy a link to this post to clipboard" [ref=e406] [cursor=pointer]:
+                            - img [ref=e407]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - 'region "post #5 by @Foster" [ref=e409]':
+              - generic [ref=e410]:
+                - link [ref=e413] [cursor=pointer]:
+                  - /url: /u/Foster
+                  - img [ref=e414]
+                - generic [ref=e415]:
+                  - heading "Foster Jul 2022" [level=2] [ref=e416]:
+                    - link "Foster" [ref=e419] [cursor=pointer]:
+                      - /url: /u/Foster
+                    - link "Jul 2022" [ref=e422] [cursor=pointer]:
+                      - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/5
+                  - generic [ref=e423]:
+                    - paragraph [ref=e425]:
+                      - text: Since a lot of people used and liked
+                      - link "vexdb.io link clicked 34 times" [ref=e426] [cursor=pointer]:
+                        - /url: http://vexdb.io
+                        - text: vexdb.io 34
+                      - text: maybe working with the owner of that to get it running again would be a faster and easier project. That way you don’t need to reinvent a lot of wheel, just hook an existing wheel to the data via the new APIs
+                    - generic [ref=e427]:
+                      - navigation [ref=e428]:
+                        - button "This post has 1 reply" [ref=e429] [cursor=pointer]:
+                          - generic [ref=e430]: 1 Reply
+                          - img [ref=e431]
+                        - generic [ref=e432]:
+                          - generic [ref=e433]:
+                            - button "3 people liked this post." [ref=e434] [cursor=pointer]: "3"
+                            - button "like this post" [ref=e435] [cursor=pointer]:
+                              - img [ref=e436]
+                          - button "copy a link to this post to clipboard" [ref=e437] [cursor=pointer]:
+                            - img [ref=e438]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - 'region "post #6 by @karmanyaahm" [ref=e440]':
+              - generic [ref=e441]:
+                - link [ref=e444] [cursor=pointer]:
+                  - /url: /u/karmanyaahm
+                  - img [ref=e445]
+                - generic [ref=e446]:
+                  - heading "karmanyaahm Jul 2022" [level=2] [ref=e447]:
+                    - link "karmanyaahm" [ref=e450] [cursor=pointer]:
+                      - /url: /u/karmanyaahm
+                    - link "Jul 2022" [ref=e453] [cursor=pointer]:
+                      - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/6
+                  - generic [ref=e454]:
+                    - generic [ref=e455]:
+                      - paragraph [ref=e456]:
+                        - text: GraphQL!!!
+                        - text: I cannot say anything except
+                        - img ":grin:" [ref=e457]
+                        - img ":grin:" [ref=e458]
+                        - img ":grin:" [ref=e459]
+                        - img ":grin:" [ref=e460]
+                      - paragraph [ref=e461]: Are you planning to publish the source code for this?
+                    - generic [ref=e462]:
+                      - navigation [ref=e463]:
+                        - generic [ref=e464]:
+                          - generic [ref=e465]:
+                            - button "1 person liked this post." [ref=e466] [cursor=pointer]: "1"
+                            - button "like this post" [ref=e467] [cursor=pointer]:
+                              - img [ref=e468]
+                          - button "copy a link to this post to clipboard" [ref=e469] [cursor=pointer]:
+                            - img [ref=e470]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - 'region "post #7 by @kedas" [ref=e472]':
+              - generic [ref=e473]:
+                - link [ref=e476] [cursor=pointer]:
+                  - /url: /u/kedas
+                  - img [ref=e477]
+                - generic [ref=e478]:
+                  - heading "kedas Jul 2022" [level=2] [ref=e479]:
+                    - link "kedas" [ref=e482] [cursor=pointer]:
+                      - /url: /u/kedas
+                    - link "Jul 2022" [ref=e485] [cursor=pointer]:
+                      - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/7
+                  - generic [ref=e486]:
+                    - paragraph [ref=e488]: "I’m only planning on making the mobile app open source, as for the API: probably not, since it depends on some infrastructure that I don’t really want to publish, and I rather not deal with supporting people self-hosting it. I might eventually publish the scraper but idk…"
+                    - generic [ref=e489]:
+                      - navigation [ref=e490]:
+                        - generic [ref=e491]:
+                          - generic [ref=e492]:
+                            - button "6 people liked this post." [ref=e493] [cursor=pointer]: "6"
+                            - button "like this post" [ref=e494] [cursor=pointer]:
+                              - img [ref=e495]
+                          - button "copy a link to this post to clipboard" [ref=e496] [cursor=pointer]:
+                            - img [ref=e497]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - 'region "post #8 by @kedas" [ref=e499]':
+              - generic [ref=e500]:
+                - link [ref=e503] [cursor=pointer]:
+                  - /url: /u/kedas
+                  - img [ref=e504]
+                - generic [ref=e505]:
+                  - heading "kedas Foster Jul 2022" [level=2] [ref=e506]:
+                    - link "kedas" [ref=e509] [cursor=pointer]:
+                      - /url: /u/kedas
+                    - generic [ref=e510]:
+                      - button "Foster" [ref=e511] [cursor=pointer]:
+                        - img [ref=e512]
+                        - img [ref=e513]
+                        - generic [ref=e514]: Foster
+                      - link "Jul 2022" [ref=e516] [cursor=pointer]:
+                        - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/8
+                  - generic [ref=e517]:
+                    - paragraph [ref=e519]: I could, but the only thing I would reuse from vexdb is the website, but integrating it with my API is more work than it’s worth.
+                    - generic [ref=e520]:
+                      - navigation [ref=e521]:
+                        - generic [ref=e522]:
+                          - generic [ref=e523]:
+                            - button "5 people liked this post." [ref=e524] [cursor=pointer]: "5"
+                            - button "like this post" [ref=e525] [cursor=pointer]:
+                              - img [ref=e526]
+                          - button "copy a link to this post to clipboard" [ref=e527] [cursor=pointer]:
+                            - img [ref=e528]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - 'region "post #9 by @RoboCatz" [ref=e530]':
+              - generic [ref=e531]:
+                - link [ref=e534] [cursor=pointer]:
+                  - /url: /u/RoboCatz
+                  - img [ref=e535]
+                - generic [ref=e536]:
+                  - heading "RoboCatz Jul 2022" [level=2] [ref=e537]:
+                    - link "RoboCatz" [ref=e540] [cursor=pointer]:
+                      - /url: /u/RoboCatz
+                    - link "Jul 2022" [ref=e543] [cursor=pointer]:
+                      - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/9
+                  - generic [ref=e544]:
+                    - paragraph [ref=e546]: Plus I do remember hearing whispers of the creator trying to get VEXdb up and working again a couple of seasons ago (not sure if any progress was made)…
+                    - generic [ref=e547]:
+                      - navigation [ref=e548]:
+                        - generic [ref=e549]:
+                          - generic [ref=e550]:
+                            - button "1 person liked this post." [ref=e551] [cursor=pointer]: "1"
+                            - button "like this post" [ref=e552] [cursor=pointer]:
+                              - img [ref=e553]
+                          - button "copy a link to this post to clipboard" [ref=e554] [cursor=pointer]:
+                            - img [ref=e555]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - 'region "post #10 by @kedas" [ref=e557]':
+              - generic [ref=e558]:
+                - link [ref=e561] [cursor=pointer]:
+                  - /url: /u/kedas
+                  - img [ref=e562]
+                - generic [ref=e563]:
+                  - heading "kedas Jul 2022" [level=2] [ref=e564]:
+                    - link "kedas" [ref=e567] [cursor=pointer]:
+                      - /url: /u/kedas
+                    - link "Jul 2022" [ref=e570] [cursor=pointer]:
+                      - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/10
+                  - generic [ref=e571]:
+                    - paragraph [ref=e573]: If that’s the case then it might actually be worth discussing this with the vexdb dev, I don’t want to compete with them if I can avoid it…
+                    - generic [ref=e574]:
+                      - navigation [ref=e575]:
+                        - button "This post has 2 replies" [ref=e576] [cursor=pointer]:
+                          - generic [ref=e577]: 2 Replies
+                          - img [ref=e578]
+                        - generic [ref=e579]:
+                          - generic [ref=e580]:
+                            - button "2 people liked this post." [ref=e581] [cursor=pointer]: "2"
+                            - button "like this post" [ref=e582] [cursor=pointer]:
+                              - img [ref=e583]
+                          - button "copy a link to this post to clipboard" [ref=e584] [cursor=pointer]:
+                            - img [ref=e585]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - 'region "post #11 by @Mentor_355U" [ref=e587]':
+              - generic [ref=e588]:
+                - link [ref=e591] [cursor=pointer]:
+                  - /url: /u/Mentor_355U
+                  - img [ref=e592]
+                - generic [ref=e593]:
+                  - heading "Mentor_355U Jul 2022" [level=2] [ref=e594]:
+                    - link "Mentor_355U" [ref=e597] [cursor=pointer]:
+                      - /url: /u/Mentor_355U
+                    - link "Jul 2022" [ref=e600] [cursor=pointer]:
+                      - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/11
+                  - generic [ref=e601]:
+                    - paragraph [ref=e603]:
+                      - text: I have a REST API available from
+                      - link "http://vrc-data-analysis.com/ link clicked 73 times" [ref=e604] [cursor=pointer]:
+                        - /url: http://vrc-data-analysis.com/
+                        - text: http://vrc-data-analysis.com/ 73
+                      - text: which you would be welcome to leverage.
+                    - generic [ref=e605]:
+                      - navigation [ref=e606]:
+                        - button "This post has 1 reply" [ref=e607] [cursor=pointer]:
+                          - generic [ref=e608]: 1 Reply
+                          - img [ref=e609]
+                        - generic [ref=e610]:
+                          - generic [ref=e611]:
+                            - button "8 people liked this post." [ref=e612] [cursor=pointer]: "8"
+                            - button "like this post" [ref=e613] [cursor=pointer]:
+                              - img [ref=e614]
+                          - button "copy a link to this post to clipboard" [ref=e615] [cursor=pointer]:
+                            - img [ref=e616]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - 'region "post #12 by @Foster" [ref=e618]':
+              - generic [ref=e619]:
+                - link [ref=e622] [cursor=pointer]:
+                  - /url: /u/Foster
+                  - img [ref=e623]
+                - generic [ref=e624]:
+                  - heading "Foster kedas Jul 2022" [level=2] [ref=e625]:
+                    - link "Foster" [ref=e628] [cursor=pointer]:
+                      - /url: /u/Foster
+                    - generic [ref=e629]:
+                      - button "kedas" [ref=e630] [cursor=pointer]:
+                        - img [ref=e631]
+                        - img [ref=e632]
+                        - generic [ref=e633]: kedas
+                      - link "Jul 2022" [ref=e635] [cursor=pointer]:
+                        - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/12
+                  - generic [ref=e636]:
+                    - generic [ref=e637]:
+                      - paragraph [ref=e638]: All of your comments are why I suggested bringing vexdb back on line with current data. Lots of the hosting, support, etc issue are solved, all it needs is a way to scrape the “current” data stream.
+                      - paragraph [ref=e639]: I have lots of code that I use that may be useful to others, but the entire fix bugs, pull patches, do tech support, stand up more infrastructure than I need makes it all become closed source running on a raspberry pi in my robot lab.
+                    - generic [ref=e640]:
+                      - navigation [ref=e641]:
+                        - generic [ref=e642]:
+                          - generic [ref=e643]:
+                            - button "1 person liked this post." [ref=e644] [cursor=pointer]: "1"
+                            - button "like this post" [ref=e645] [cursor=pointer]:
+                              - img [ref=e646]
+                          - button "copy a link to this post to clipboard" [ref=e647] [cursor=pointer]:
+                            - img [ref=e648]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - 'region "post #13 by @kedas" [ref=e650]':
+              - generic [ref=e651]:
+                - link [ref=e654] [cursor=pointer]:
+                  - /url: /u/kedas
+                  - img [ref=e655]
+                - generic [ref=e656]:
+                  - heading "kedas Jul 2022" [level=2] [ref=e657]:
+                    - link "kedas" [ref=e660] [cursor=pointer]:
+                      - /url: /u/kedas
+                    - link "Jul 2022" [ref=e663] [cursor=pointer]:
+                      - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/13
+                  - generic [ref=e664]:
+                    - paragraph [ref=e666]: I already have the hosting problems solved, I’ve used this exact architecture for other projects and it’s been working fine - hosting is the least of my problems. I can’t speak for Nathan rn, but if he had wanted to support VexDB it would’ve already been migrated to the new API a while ago. I don’t really see your point other than “kedas can’t do it” and “bring back vexdb”. Tbh I would’ve been happier if VexDB was updated, but it isn’t, so I’m making an alternative. Now I’m just posting progress about my own project that I’m planning to support to the extent that I can, and you don’t have to use it if you don’t want to.
+                    - generic [ref=e667]:
+                      - navigation [ref=e668]:
+                        - button "This post has 2 replies" [ref=e669] [cursor=pointer]:
+                          - generic [ref=e670]: 2 Replies
+                          - img [ref=e671]
+                        - generic [ref=e672]:
+                          - generic [ref=e673]:
+                            - button "9 people liked this post." [ref=e674] [cursor=pointer]: "9"
+                            - button "like this post" [ref=e675] [cursor=pointer]:
+                              - img [ref=e676]
+                          - button "copy a link to this post to clipboard" [ref=e677] [cursor=pointer]:
+                            - img [ref=e678]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - 'region "post #14 by @Foster" [ref=e680]':
+              - generic [ref=e681]:
+                - link [ref=e684] [cursor=pointer]:
+                  - /url: /u/Foster
+                  - img [ref=e685]
+                - generic [ref=e686]:
+                  - heading "Foster Jul 2022" [level=2] [ref=e687]:
+                    - link "Foster" [ref=e690] [cursor=pointer]:
+                      - /url: /u/Foster
+                    - link "Jul 2022" [ref=e693] [cursor=pointer]:
+                      - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/14
+                  - generic [ref=e694]:
+                    - paragraph [ref=e696]: Didn’t mean that you couldn’t do it, was trying to get an easier path for something to get out there. API away!
+                    - generic [ref=e697]:
+                      - navigation [ref=e698]:
+                        - generic [ref=e699]:
+                          - generic [ref=e700]:
+                            - button "1 person liked this post." [ref=e701] [cursor=pointer]: "1"
+                            - button "like this post" [ref=e702] [cursor=pointer]:
+                              - img [ref=e703]
+                          - button "copy a link to this post to clipboard" [ref=e704] [cursor=pointer]:
+                            - img [ref=e705]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - 'region "post #15 by @kedas" [ref=e707]':
+              - generic [ref=e708]:
+                - link [ref=e711] [cursor=pointer]:
+                  - /url: /u/kedas
+                  - img [ref=e712]
+                - generic [ref=e713]:
+                  - heading "kedas Jul 2022" [level=2] [ref=e714]:
+                    - link "kedas" [ref=e717] [cursor=pointer]:
+                      - /url: /u/kedas
+                    - link "Jul 2022" [ref=e720] [cursor=pointer]:
+                      - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/15
+                  - generic [ref=e721]:
+                    - paragraph [ref=e723]: Sorry, I misinterpreted you… Either way my goal is mainly around developing an app that’s easier to use, and potentially faster, than Via - the API is kind-of a byproduct.
+                    - generic [ref=e724]:
+                      - navigation [ref=e725]:
+                        - generic [ref=e726]:
+                          - generic [ref=e727]:
+                            - button "4 people liked this post." [ref=e728] [cursor=pointer]: "4"
+                            - button "like this post" [ref=e729] [cursor=pointer]:
+                              - img [ref=e730]
+                          - button "copy a link to this post to clipboard" [ref=e731] [cursor=pointer]:
+                            - img [ref=e732]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - 'region "post #16 by @RoboCatz" [ref=e734]':
+              - generic [ref=e735]:
+                - link [ref=e738] [cursor=pointer]:
+                  - /url: /u/RoboCatz
+                  - img [ref=e739]
+                - generic [ref=e740]:
+                  - heading "RoboCatz Jul 2022" [level=2] [ref=e741]:
+                    - link "RoboCatz" [ref=e744] [cursor=pointer]:
+                      - /url: /u/RoboCatz
+                    - link "Jul 2022" [ref=e747] [cursor=pointer]:
+                      - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/16
+                  - generic [ref=e748]:
+                    - generic [ref=e749]:
+                      - complementary [ref=e750]:
+                        - generic [ref=e751] [cursor=pointer]:
+                          - generic [ref=e752]:
+                            - button "Expand" [ref=e753]:
+                              - img [ref=e754]
+                            - link "go to the quoted post" [ref=e755]:
+                              - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/13
+                              - img [ref=e756]
+                          - text: "kedas:"
+                        - blockquote [ref=e757]:
+                          - paragraph [ref=e758]: can’t speak for Nathan
+                      - paragraph [ref=e759]: "Here’s the latest update I remember seeing on VTOW:"
+                      - paragraph
+                      - link "image image 598×1000 139 KB" [ref=e761] [cursor=pointer]:
+                        - /url: https://www.vexforum.com/uploads/default/original/3X/0/1/01b5a1166e00ff34adaa1bca088830b7c54c6d52.jpeg
+                        - img "image" [ref=e762]
+                        - generic [ref=e763]:
+                          - img [ref=e764]
+                          - generic [ref=e765]: image
+                          - generic [ref=e766]: 598×1000 139 KB
+                          - img [ref=e767]
+                      - paragraph
+                    - generic [ref=e768]:
+                      - navigation [ref=e769]:
+                        - generic [ref=e770]:
+                          - generic [ref=e771]:
+                            - button "5 people liked this post." [ref=e772] [cursor=pointer]: "5"
+                            - button "like this post" [ref=e773] [cursor=pointer]:
+                              - img [ref=e774]
+                          - button "copy a link to this post to clipboard" [ref=e775] [cursor=pointer]:
+                            - img [ref=e776]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - 'region "post #17 by @kedas" [ref=e778]':
+              - generic [ref=e779]:
+                - link [ref=e782] [cursor=pointer]:
+                  - /url: /u/kedas
+                  - img [ref=e783]
+                - generic [ref=e784]:
+                  - heading "kedas Jul 2022" [level=2] [ref=e785]:
+                    - link "kedas" [ref=e788] [cursor=pointer]:
+                      - /url: /u/kedas
+                    - link "Jul 2022" [ref=e791] [cursor=pointer]:
+                      - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/17
+                  - generic [ref=e792]:
+                    - paragraph [ref=e794]: Yeah but that’s like 9 months ago…
+                    - generic [ref=e795]:
+                      - navigation [ref=e796]:
+                        - generic [ref=e797]:
+                          - generic [ref=e798]:
+                            - button "4 people liked this post." [ref=e799] [cursor=pointer]: "4"
+                            - button "like this post" [ref=e800] [cursor=pointer]:
+                              - img [ref=e801]
+                          - button "copy a link to this post to clipboard" [ref=e802] [cursor=pointer]:
+                            - img [ref=e803]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - 'region "post #18 by @kedas" [ref=e805]':
+              - generic [ref=e806]:
+                - link [ref=e809] [cursor=pointer]:
+                  - /url: /u/kedas
+                  - img [ref=e810]
+                - generic [ref=e811]:
+                  - heading "kedas Jul 2022" [level=2] [ref=e812]:
+                    - link "kedas" [ref=e815] [cursor=pointer]:
+                      - /url: /u/kedas
+                    - link "Jul 2022" [ref=e818] [cursor=pointer]:
+                      - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/18
+                  - generic [ref=e819]:
+                    - generic [ref=e820]:
+                      - paragraph [ref=e821]: "Quick update on the API:"
+                      - paragraph [ref=e822]: I added awards to the data, and by extension the API too. I removed data from before turning point, as the RobotEvents API seems to have issues with returning consistent old data. I also improved error logging and reporting, so I should be able to identify problems with any part of Red Alliance much faster.
+                    - generic [ref=e823]:
+                      - navigation [ref=e824]:
+                        - generic [ref=e825]:
+                          - generic [ref=e826]:
+                            - button "9 people liked this post." [ref=e827] [cursor=pointer]: "9"
+                            - button "like this post" [ref=e828] [cursor=pointer]:
+                              - img [ref=e829]
+                          - button "copy a link to this post to clipboard" [ref=e830] [cursor=pointer]:
+                            - img [ref=e831]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - generic [ref=e835]: 1 month later
+            - 'region "post #19 by @kedas" [ref=e837]':
+              - generic [ref=e838]:
+                - link [ref=e841] [cursor=pointer]:
+                  - /url: /u/kedas
+                  - img [ref=e842]
+                - generic [ref=e843]:
+                  - heading "kedas Aug 2022" [level=2] [ref=e844]:
+                    - link "kedas" [ref=e847] [cursor=pointer]:
+                      - /url: /u/kedas
+                    - link "Aug 2022" [ref=e850] [cursor=pointer]:
+                      - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/19
+                  - generic [ref=e851]:
+                    - generic [ref=e852]:
+                      - paragraph [ref=e853]: "Another update:"
+                      - paragraph [ref=e854]: I wasn’t able to make as much progress as I hoped (I moved between coasts, which limited most of my time), but I rebuilt a lot of the backend and improved the API.
+                      - paragraph [ref=e855]: "API Changes:"
+                      - list [ref=e856]:
+                        - listitem [ref=e857]: Added data on qualifications
+                        - listitem [ref=e858]: Added worlds skills rankings (you can’t see a specific team’s position, but you can see the top 150)
+                        - listitem [ref=e859]: Added the ability to find events by a time frame
+                        - listitem [ref=e860]: Added a required season field to a lot of the queries
+                        - listitem [ref=e861]: Added more verification on some fields
+                        - listitem [ref=e862]:
+                          - text: Changed the
+                          - code [ref=e863]: Event.ongoing
+                          - text: field to be more dynamic and not depend on the RobotEvents value (in preparation for completely live event results).
+                        - listitem [ref=e864]: Fixed time issues (I accidentally had forced times to be in UTC, without actually parsing and changing the timezone)
+                        - listitem [ref=e865]: Fixed data model (I had a lot of fields marked as nullable that shouldn’t have been)
+                        - listitem [ref=e866]: Remove some useless data (specifically the event type, which was always null)
+                      - paragraph [ref=e867]: "Backend changes:"
+                      - list [ref=e868]:
+                        - listitem [ref=e869]: Fixed error logging
+                        - listitem [ref=e870]: Cleaned up how the scraper was adding data
+                        - listitem [ref=e871]: Added a postgres trigger that sends a postgres notification when data is changed (in preparation for scraping the RobotEvents WebSocket, live data, and push notifications)
+                      - paragraph [ref=e872]: Though I was focusing on the API and backend, I made some progress with the app, primarily rebuilding its architecture (This is my first flutter project, so I’ve been finding myself rewriting a lot of the components as I learn more about the framework)
+                      - paragraph [ref=e873]: "- m"
+                    - generic [ref=e874]:
+                      - navigation [ref=e875]:
+                        - generic [ref=e876]:
+                          - generic [ref=e877]:
+                            - button "17 people liked this post." [ref=e878] [cursor=pointer]: "17"
+                            - button "like this post" [ref=e879] [cursor=pointer]:
+                              - img [ref=e880]
+                          - button "copy a link to this post to clipboard" [ref=e881] [cursor=pointer]:
+                            - img [ref=e882]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - 'region "post #20 by @insert_code" [ref=e884]':
+              - generic [ref=e885]:
+                - link [ref=e888] [cursor=pointer]:
+                  - /url: /u/insert_code
+                  - img [ref=e889]
+                - generic [ref=e890]:
+                  - heading "insert_code Aug 2022" [level=2] [ref=e891]:
+                    - link "insert_code" [ref=e894] [cursor=pointer]:
+                      - /url: /u/insert_code
+                    - link "Aug 2022" [ref=e897] [cursor=pointer]:
+                      - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/20
+                  - generic [ref=e898]:
+                    - generic [ref=e899]:
+                      - complementary [ref=e900]:
+                        - generic [ref=e901] [cursor=pointer]:
+                          - generic [ref=e902]:
+                            - button "Expand" [ref=e903]:
+                              - img [ref=e904]
+                            - link "go to the quoted post" [ref=e905]:
+                              - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/19
+                              - img [ref=e906]
+                          - text: "kedas:"
+                        - blockquote [ref=e907]:
+                          - paragraph [ref=e908]: Added worlds skills rankings (you can’t see a specific team’s position, but you can see the top 150)
+                      - paragraph [ref=e909]: Are you planning to add support to see a specific team’s ranking sometime in the near future? I was thinking about adding a page on my team’s website that displays our world skills ranking.
+                    - generic [ref=e910]:
+                      - navigation [ref=e911]:
+                        - generic [ref=e912]:
+                          - generic [ref=e913]:
+                            - button "2 people liked this post." [ref=e914] [cursor=pointer]: "2"
+                            - button "like this post" [ref=e915] [cursor=pointer]:
+                              - img [ref=e916]
+                          - button "copy a link to this post to clipboard" [ref=e917] [cursor=pointer]:
+                            - img [ref=e918]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - 'region "post #21 by @kedas" [ref=e920]':
+              - generic [ref=e921]:
+                - link [ref=e924] [cursor=pointer]:
+                  - /url: /u/kedas
+                  - img [ref=e925]
+                - generic [ref=e926]:
+                  - heading "kedas post edit history Aug 2022" [level=2] [ref=e927]:
+                    - link "kedas" [ref=e930] [cursor=pointer]:
+                      - /url: /u/kedas
+                    - generic [ref=e931]:
+                      - button "post edit history" [ref=e933] [cursor=pointer]:
+                        - img [ref=e934]
+                        - generic [ref=e935]: "1"
+                      - link "Aug 2022" [ref=e937] [cursor=pointer]:
+                        - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/21
+                  - generic [ref=e938]:
+                    - generic [ref=e939]:
+                      - paragraph [ref=e940]: Yup, just added that (example below), I also slightly improved the performance of the top skills leaderboard
+                      - code [ref=e943]: "query { skillsRankingByTeam(season: 173, team: 84097) { event { name } team { number } combinedScore rank } }"
+                      - paragraph [ref=e944]:
+                        - text: (by the way if you need an example implementation here’s one
+                        - link "https://codepen.io/k3das/pen/zYWeYag?editors=1011 link clicked 25 times" [ref=e945] [cursor=pointer]:
+                          - /url: https://codepen.io/k3das/pen/zYWeYag?editors=1011
+                          - text: https://codepen.io/k3das/pen/zYWeYag?editors=1011 25
+                        - text: though keep in mind that it’s very limited and has no error handling)
+                      - paragraph [ref=e946]: "- m"
+                    - generic [ref=e947]:
+                      - navigation [ref=e948]:
+                        - generic [ref=e949]:
+                          - generic [ref=e950]:
+                            - button "10 people liked this post." [ref=e951] [cursor=pointer]: "10"
+                            - button "like this post" [ref=e952] [cursor=pointer]:
+                              - img [ref=e953]
+                          - button "copy a link to this post to clipboard" [ref=e954] [cursor=pointer]:
+                            - img [ref=e955]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - 'region "post #22 by @Foster" [ref=e957]':
+              - generic [ref=e958]:
+                - link [ref=e961] [cursor=pointer]:
+                  - /url: /u/Foster
+                  - img [ref=e962]
+                - generic [ref=e963]:
+                  - heading "Foster Aug 2022" [level=2] [ref=e964]:
+                    - link "Foster" [ref=e967] [cursor=pointer]:
+                      - /url: /u/Foster
+                    - link "Aug 2022" [ref=e970] [cursor=pointer]:
+                      - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/22
+                  - generic [ref=e971]:
+                    - paragraph [ref=e973]: Thanks for the code. I’m not into the back office stuff. How do I translate a team number xxxxA to the number that is needed for the API?
+                    - generic [ref=e974]:
+                      - navigation [ref=e975]:
+                        - generic [ref=e976]:
+                          - button "like this post" [ref=e978] [cursor=pointer]:
+                            - img [ref=e979]
+                          - button "copy a link to this post to clipboard" [ref=e980] [cursor=pointer]:
+                            - img [ref=e981]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - 'region "post #23 by @kedas" [ref=e983]':
+              - generic [ref=e984]:
+                - link [ref=e987] [cursor=pointer]:
+                  - /url: /u/kedas
+                  - img [ref=e988]
+                - generic [ref=e989]:
+                  - heading "kedas post edit history Aug 2022" [level=2] [ref=e990]:
+                    - link "kedas" [ref=e993] [cursor=pointer]:
+                      - /url: /u/kedas
+                    - generic [ref=e994]:
+                      - button "post edit history" [ref=e996] [cursor=pointer]:
+                        - img [ref=e997]
+                        - generic [ref=e998]: "1"
+                      - link "Aug 2022" [ref=e1000] [cursor=pointer]:
+                        - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/23
+                  - generic [ref=e1001]:
+                    - paragraph [ref=e1003]:
+                      - text: You could translate it by using the explorer and writing a GraphQL query, but to make it simpler I made a temporary (Until I have a better solution) page that has a search
+                      - link "https://tool.theredalliance.xyz/ link clicked 48 times" [ref=e1004] [cursor=pointer]:
+                        - /url: https://tool.theredalliance.xyz/
+                        - text: https://tool.theredalliance.xyz/ 48
+                    - generic [ref=e1005]:
+                      - navigation [ref=e1006]:
+                        - generic [ref=e1007]:
+                          - generic [ref=e1008]:
+                            - button "4 people liked this post." [ref=e1009] [cursor=pointer]: "4"
+                            - button "like this post" [ref=e1010] [cursor=pointer]:
+                              - img [ref=e1011]
+                          - button "copy a link to this post to clipboard" [ref=e1012] [cursor=pointer]:
+                            - img [ref=e1013]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - generic [ref=e1017]: 29 days later
+            - 'region "post #24 by @kedas" [ref=e1019]':
+              - generic [ref=e1020]:
+                - link [ref=e1023] [cursor=pointer]:
+                  - /url: /u/kedas
+                  - img [ref=e1024]
+                - generic [ref=e1025]:
+                  - heading "kedas post edit history Sep 2022" [level=2] [ref=e1026]:
+                    - link "kedas" [ref=e1029] [cursor=pointer]:
+                      - /url: /u/kedas
+                    - generic [ref=e1030]:
+                      - button "post edit history" [ref=e1032] [cursor=pointer]:
+                        - img [ref=e1033]
+                        - generic [ref=e1034]: "1"
+                      - link "Sep 2022" [ref=e1036] [cursor=pointer]:
+                        - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/24
+                  - generic [ref=e1037]:
+                    - generic [ref=e1038]:
+                      - paragraph [ref=e1039]: "Hey everyone, another quick update:"
+                      - paragraph [ref=e1040]:
+                        - text: Daily data uploads are now available, you could find them here
+                        - link "here link clicked 42 times" [ref=e1041] [cursor=pointer]:
+                          - /url: https://github.com/TRA-Vex/data
+                          - text: here 42
+                      - paragraph [ref=e1042]: I’m planning on writing a workflow to split the data by season, but it’s not a big priority for me at the moment.
+                      - paragraph [ref=e1043]: "- m"
+                    - generic [ref=e1044]:
+                      - navigation [ref=e1045]:
+                        - generic [ref=e1046]:
+                          - generic [ref=e1047]:
+                            - button "6 people liked this post." [ref=e1048] [cursor=pointer]: "6"
+                            - button "like this post" [ref=e1049] [cursor=pointer]:
+                              - img [ref=e1050]
+                          - button "copy a link to this post to clipboard" [ref=e1051] [cursor=pointer]:
+                            - img [ref=e1052]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - generic [ref=e1056]: 22 days later
+            - 'region "post #25 by @kedas" [ref=e1058]':
+              - generic [ref=e1059]:
+                - link [ref=e1062] [cursor=pointer]:
+                  - /url: /u/kedas
+                  - img [ref=e1063]
+                - generic [ref=e1064]:
+                  - heading "kedas post edit history Oct 2022" [level=2] [ref=e1065]:
+                    - link "kedas" [ref=e1068] [cursor=pointer]:
+                      - /url: /u/kedas
+                    - generic [ref=e1069]:
+                      - button "post edit history" [ref=e1071] [cursor=pointer]:
+                        - img [ref=e1072]
+                        - generic [ref=e1073]: "2"
+                      - link "Oct 2022" [ref=e1075] [cursor=pointer]:
+                        - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/25
+                  - generic [ref=e1076]:
+                    - generic [ref=e1077]:
+                      - paragraph [ref=e1078]: Nothing really new, but RobotEvents seems to have employed a new ratelimit of 1 request a second on their API, so I’ll be reducing the scraping to twice a day - since a scrape is going to take ~10 hours to complete. I’ve already contacted someone at REC and I hope that this’ll be resolved soon. Either way this shouldn’t affect this project long-term as I am working on collecting event results (scores) in real time.
+                      - paragraph [ref=e1079]: "- m"
+                      - paragraph [ref=e1080]: "Update: after testing, one partial (only last few seasons + teams) scrape takes ~4 hours, instead of 10, I’ll probably be keeping it at 2 twice a day though"
+                    - generic [ref=e1081]:
+                      - navigation [ref=e1082]:
+                        - generic [ref=e1083]:
+                          - generic [ref=e1084]:
+                            - button "11 people liked this post." [ref=e1085] [cursor=pointer]: "11"
+                            - button "like this post" [ref=e1086] [cursor=pointer]:
+                              - img [ref=e1087]
+                          - button "copy a link to this post to clipboard" [ref=e1088] [cursor=pointer]:
+                            - img [ref=e1089]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - 'region "post #26 by @Mentor_355U" [ref=e1091]':
+              - generic [ref=e1092]:
+                - link [ref=e1095] [cursor=pointer]:
+                  - /url: /u/Mentor_355U
+                  - img [ref=e1096]
+                - generic [ref=e1097]:
+                  - heading "Mentor_355U Oct 2022" [level=2] [ref=e1098]:
+                    - link "Mentor_355U" [ref=e1101] [cursor=pointer]:
+                      - /url: /u/Mentor_355U
+                    - link "Oct 2022" [ref=e1104] [cursor=pointer]:
+                      - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/26
+                  - generic [ref=e1105]:
+                    - generic [ref=e1106]:
+                      - complementary [ref=e1107]:
+                        - generic [ref=e1108] [cursor=pointer]:
+                          - generic [ref=e1109]:
+                            - button "Expand" [ref=e1110]:
+                              - img [ref=e1111]
+                            - link "go to the quoted post" [ref=e1112]:
+                              - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/25
+                              - img [ref=e1113]
+                          - text: "kedas:"
+                        - blockquote [ref=e1114]:
+                          - paragraph [ref=e1115]: Nothing really new, but RobotEvents seems to have employed a new ratelimit of 1 request a second on their API, so I’ll be reducing the scraping to twice a day
+                      - paragraph [ref=e1116]: I’ve observed similar. When I get the too-many-requests response, I sleep for 30 seconds and then try again. If it fails, I sleep 40 seconds, then 50, etc. and it seems to work. It has definitely increased my processing time, but I do all my requests and calculations in less than 20 minutes.
+                      - paragraph [ref=e1117]: I also track state. So once I’ve downloaded and processed an event that has completed, I don’t request it again. This saves a lot of time.
+                    - generic [ref=e1118]:
+                      - navigation [ref=e1119]:
+                        - generic [ref=e1120]:
+                          - generic [ref=e1121]:
+                            - button "3 people liked this post." [ref=e1122] [cursor=pointer]: "3"
+                            - button "like this post" [ref=e1123] [cursor=pointer]:
+                              - img [ref=e1124]
+                          - button "copy a link to this post to clipboard" [ref=e1125] [cursor=pointer]:
+                            - img [ref=e1126]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - 'region "post #27 by @kedas" [ref=e1128]':
+              - generic [ref=e1129]:
+                - link [ref=e1132] [cursor=pointer]:
+                  - /url: /u/kedas
+                  - img [ref=e1133]
+                - generic [ref=e1134]:
+                  - heading "kedas Oct 2022" [level=2] [ref=e1135]:
+                    - link "kedas" [ref=e1138] [cursor=pointer]:
+                      - /url: /u/kedas
+                    - link "Oct 2022" [ref=e1141] [cursor=pointer]:
+                      - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/27
+                  - generic [ref=e1142]:
+                    - paragraph [ref=e1144]:
+                      - text: The reason I don’t cache events is because EPs often rename their events when they’re canceled, so I want those changes to reflect in my API. There are a lot of improvements that I could make to my scraper, but they’re also not worth my time. Right now the scraper is an executable that uses <20MB of ram and almost no cpu, so running it for a few hours isn’t
+                      - emphasis [ref=e1145]: too
+                      - text: much of an issue.
+                    - generic [ref=e1146]:
+                      - navigation [ref=e1147]:
+                        - generic [ref=e1148]:
+                          - generic [ref=e1149]:
+                            - button "5 people liked this post." [ref=e1150] [cursor=pointer]: "5"
+                            - button "like this post" [ref=e1151] [cursor=pointer]:
+                              - img [ref=e1152]
+                          - button "copy a link to this post to clipboard" [ref=e1153] [cursor=pointer]:
+                            - img [ref=e1154]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - generic [ref=e1158]: 2 months later
+            - 'region "post #28 by @Luke" [ref=e1160]':
+              - generic [ref=e1161]:
+                - link [ref=e1164] [cursor=pointer]:
+                  - /url: /u/Luke
+                  - img [ref=e1165]
+                - generic [ref=e1166]:
+                  - heading "Luke Dec 2022" [level=2] [ref=e1167]:
+                    - link "Luke" [ref=e1170] [cursor=pointer]:
+                      - /url: /u/Luke
+                    - link "Dec 2022" [ref=e1173] [cursor=pointer]:
+                      - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/28
+                  - generic [ref=e1174]:
+                    - paragraph [ref=e1176]: This looks very interesting! I’ve started working on my own website to display results but it is based on the RobotEvents API. Would you be interested in working together on the website part of theredaliance.xyz? I think it would be better than both of us racing against each other.
+                    - generic [ref=e1177]:
+                      - navigation [ref=e1178]:
+                        - generic [ref=e1179]:
+                          - button "like this post" [ref=e1181] [cursor=pointer]:
+                            - img [ref=e1182]
+                          - button "copy a link to this post to clipboard" [ref=e1183] [cursor=pointer]:
+                            - img [ref=e1184]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - generic [ref=e1188]: 1 month later
+            - 'region "post #29 by @Luke" [ref=e1190]':
+              - generic [ref=e1191]:
+                - link [ref=e1194] [cursor=pointer]:
+                  - /url: /u/Luke
+                  - img [ref=e1195]
+                - generic [ref=e1196]:
+                  - heading "Luke Mentor_355U Jan 2023" [level=2] [ref=e1197]:
+                    - link "Luke" [ref=e1200] [cursor=pointer]:
+                      - /url: /u/Luke
+                    - generic [ref=e1201]:
+                      - button "Mentor_355U" [ref=e1202] [cursor=pointer]:
+                        - img [ref=e1203]
+                        - img [ref=e1204]
+                        - generic [ref=e1205]: Mentor_355U
+                      - link "Jan 2023" [ref=e1207] [cursor=pointer]:
+                        - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/29
+                  - generic [ref=e1208]:
+                    - paragraph [ref=e1210]: Do you have any documentation on how to use it?
+                    - generic [ref=e1211]:
+                      - navigation [ref=e1212]:
+                        - generic [ref=e1213]:
+                          - button "like this post" [ref=e1215] [cursor=pointer]:
+                            - img [ref=e1216]
+                          - button "copy a link to this post to clipboard" [ref=e1217] [cursor=pointer]:
+                            - img [ref=e1218]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - 'region "post #30 by @Mentor_355U" [ref=e1220]':
+              - generic [ref=e1221]:
+                - link [ref=e1224] [cursor=pointer]:
+                  - /url: /u/Mentor_355U
+                  - img [ref=e1225]
+                - generic [ref=e1226]:
+                  - heading "Mentor_355U Jan 2023" [level=2] [ref=e1227]:
+                    - link "Mentor_355U" [ref=e1230] [cursor=pointer]:
+                      - /url: /u/Mentor_355U
+                    - link "Jan 2023" [ref=e1233] [cursor=pointer]:
+                      - /url: /t/api-an-alternative-api-for-the-robotevents-data-not-vexdb-io/104373/30
+                  - generic [ref=e1234]:
+                    - generic [ref=e1235]:
+                      - code [ref=e1238]:
+                        - generic [ref=e1239]:
+                          - text: "@server.route("
+                          - generic [ref=e1240]: "'/predict/<red1>/<red2>/<blue1>/<blue2>', methods=['GET']"
+                          - text: )
+                        - generic [ref=e1241]:
+                          - text: "@server.route("
+                          - generic [ref=e1242]: "'/v1/predict/<red1>/<red2>/<blue1>/<blue2>', methods=['GET']"
+                          - text: )
+                        - generic [ref=e1243]:
+                          - text: "@server.route("
+                          - generic [ref=e1244]: "'/v1/ccwmstrength/<red1>/<red2>/<blue1>/<blue2>', methods=['GET']"
+                          - text: )
+                        - generic [ref=e1245]:
+                          - text: "@server.route("
+                          - generic [ref=e1246]: "'/v1/team/<team_code>', methods=['GET']"
+                          - text: )
+                        - generic [ref=e1247]:
+                          - text: "@server.route("
+                          - generic [ref=e1248]: "'/v1/matches/team/<team_code>', methods=['GET']"
+                          - text: )
+                        - generic [ref=e1249]:
+                          - text: "@server.route("
+                          - generic [ref=e1250]: "'/v1/matches/event/<event_code>', methods=['GET']"
+                          - text: )
+                        - generic [ref=e1251]:
+                          - text: "@server.route("
+                          - generic [ref=e1252]: "'/v1/rankings/team/<team_code>', methods=['GET']"
+                          - text: )
+                        - generic [ref=e1253]:
+                          - text: "@server.route("
+                          - generic [ref=e1254]: "'/v1/rankings/event/<event_code>', methods=['GET']"
+                          - text: )
+                        - generic [ref=e1255]:
+                          - text: "@server.route("
+                          - generic [ref=e1256]: "'/v1/awards/team/<team_code>', methods=['GET']"
+                          - text: )
+                        - generic [ref=e1257]:
+                          - text: "@server.route("
+                          - generic [ref=e1258]: "'/v1/awards/event/<event_code>', methods=['GET']"
+                          - text: )
+                      - paragraph [ref=e1259]: No documentation, but those are the getters I’ve provided. Event Code would be the RE-VRC-22-0123 type string for the event, sometimes called the SKU. Team Code would be 355V or similar
+                    - generic [ref=e1260]:
+                      - navigation [ref=e1261]:
+                        - generic [ref=e1262]:
+                          - generic [ref=e1263]:
+                            - button "1 person liked this post." [ref=e1264] [cursor=pointer]: "1"
+                            - button "like this post" [ref=e1265] [cursor=pointer]:
+                              - img [ref=e1266]
+                          - button "copy a link to this post to clipboard" [ref=e1267] [cursor=pointer]:
+                            - img [ref=e1268]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+            - generic [ref=e1272]: 1 year later
+            - 'region "post #31 by @system" [ref=e1273]':
+              - img [ref=e1275]
+              - generic [ref=e1276]:
+                - generic [ref=e1277]:
+                  - link "system's profile":
+                    - /url: /u/system
+                    - img [ref=e1278] [cursor=pointer]
+                  - paragraph [ref=e1279]:
+                    - text: Closed
+                    - generic [ref=e1280]: on Jan 11, 2024
+                - paragraph [ref=e1283]: This topic was automatically closed 365 days after the last reply. New replies are no longer allowed.
+        - region [ref=e1286]:
+          - button "Reply" [ref=e1288] [cursor=pointer]:
+            - img [ref=e1289]
+            - generic [ref=e1290]: Reply
+        - generic [ref=e1291]:
+          - complementary "New & Unread Topics" [ref=e1293]:
+            - heading "New & Unread Topics" [level=3] [ref=e1294]
+            - table "Topic list, column headers with buttons are sortable." [ref=e1298]:
+              - caption [ref=e1299]: Topic list, column headers with buttons are sortable.
+              - rowgroup [ref=e1300]:
+                - row "Topic Replies Activity" [ref=e1301]:
+                  - columnheader "Topic" [ref=e1302]:
+                    - generic [ref=e1303]: Topic
+                  - columnheader "Replies" [ref=e1304]:
+                    - generic [ref=e1305]: Replies
+                  - columnheader "Activity" [ref=e1306]:
+                    - generic [ref=e1307]: Activity
+              - rowgroup [ref=e1308]:
+                - row "Appealing bad skills challenge entry VEX Robotics Competition Discussion Tags 3 replies, jump to first post Feb 23" [ref=e1309]:
+                  - cell "Appealing bad skills challenge entry VEX Robotics Competition Discussion Tags" [ref=e1310]:
+                    - heading "Appealing bad skills challenge entry" [level=2] [ref=e1311]:
+                      - button "Appealing bad skills challenge entry" [ref=e1312] [cursor=pointer]:
+                        - link "Appealing bad skills challenge entry" [ref=e1314]:
+                          - /url: /t/appealing-bad-skills-challenge-entry/143848
+                    - generic [ref=e1315]:
+                      - link "VEX Robotics Competition Discussion" [ref=e1316] [cursor=pointer]:
+                        - /url: /c/vrc-discussion/31
+                        - generic [ref=e1318]: VEX Robotics Competition Discussion
+                      - list "Tags" [ref=e1319]:
+                        - link "skills" [ref=e1320] [cursor=pointer]:
+                          - /url: /tag/skills
+                  - cell "3 replies, jump to first post" [ref=e1321]:
+                    - link "3 replies, jump to first post" [ref=e1322] [cursor=pointer]:
+                      - /url: /t/appealing-bad-skills-challenge-entry/143848/1
+                      - text: "3"
+                  - cell "Feb 23" [ref=e1323]:
+                    - link "Feb 23" [ref=e1324] [cursor=pointer]:
+                      - /url: /t/appealing-bad-skills-challenge-entry/143848/4
+                - row "Beijing JROTC? VEX Robotics Competition Discussion Tags 0 replies, jump to first post May 2025" [ref=e1325]:
+                  - cell "Beijing JROTC? VEX Robotics Competition Discussion Tags" [ref=e1326]:
+                    - heading "Beijing JROTC?" [level=2] [ref=e1327]:
+                      - button "Beijing JROTC?" [ref=e1328] [cursor=pointer]:
+                        - link "Beijing JROTC?" [ref=e1330]:
+                          - /url: /t/beijing-jrotc/136775
+                    - generic [ref=e1331]:
+                      - link "VEX Robotics Competition Discussion" [ref=e1332] [cursor=pointer]:
+                        - /url: /c/vrc-discussion/31
+                        - generic [ref=e1334]: VEX Robotics Competition Discussion
+                      - list "Tags" [ref=e1335]:
+                        - link "signature-events" [ref=e1336] [cursor=pointer]:
+                          - /url: /tag/signature-events
+                  - cell "0 replies, jump to first post" [ref=e1337]:
+                    - link "0 replies, jump to first post" [ref=e1338] [cursor=pointer]:
+                      - /url: /t/beijing-jrotc/136775/1
+                      - text: "0"
+                  - cell "May 2025" [ref=e1339]:
+                    - link "May 2025" [ref=e1340] [cursor=pointer]:
+                      - /url: /t/beijing-jrotc/136775/1
+                - row "5203G gremlin notebook link VEX Robotics Competition Discussion 3 replies, jump to first post Jul 2025" [ref=e1341]:
+                  - cell "5203G gremlin notebook link VEX Robotics Competition Discussion" [ref=e1342]:
+                    - heading "5203G gremlin notebook link" [level=2] [ref=e1343]:
+                      - generic "This topic has a solution" [ref=e1345]:
+                        - img [ref=e1346]
+                      - button "5203G gremlin notebook link" [ref=e1347] [cursor=pointer]:
+                        - link "5203G gremlin notebook link" [ref=e1349]:
+                          - /url: /t/5203g-gremlin-notebook-link/138489
+                    - link "VEX Robotics Competition Discussion" [ref=e1351] [cursor=pointer]:
+                      - /url: /c/vrc-discussion/31
+                      - generic [ref=e1353]: VEX Robotics Competition Discussion
+                  - cell "3 replies, jump to first post" [ref=e1354]:
+                    - link "3 replies, jump to first post" [ref=e1355] [cursor=pointer]:
+                      - /url: /t/5203g-gremlin-notebook-link/138489/1
+                      - text: "3"
+                  - cell "Jul 2025" [ref=e1356]:
+                    - link "Jul 2025" [ref=e1357] [cursor=pointer]:
+                      - /url: /t/5203g-gremlin-notebook-link/138489/4
+                - row "Autonomous Google Form VEX Robotics Competition Discussion 0 replies, jump to first post May 2025" [ref=e1358]:
+                  - cell "Autonomous Google Form VEX Robotics Competition Discussion" [ref=e1359]:
+                    - heading "Autonomous Google Form" [level=2] [ref=e1360]:
+                      - button "Autonomous Google Form" [ref=e1361] [cursor=pointer]:
+                        - link "Autonomous Google Form" [ref=e1363]:
+                          - /url: /t/autonomous-google-form/137492
+                    - link "VEX Robotics Competition Discussion" [ref=e1365] [cursor=pointer]:
+                      - /url: /c/vrc-discussion/31
+                      - generic [ref=e1367]: VEX Robotics Competition Discussion
+                  - cell "0 replies, jump to first post" [ref=e1368]:
+                    - link "0 replies, jump to first post" [ref=e1369] [cursor=pointer]:
+                      - /url: /t/autonomous-google-form/137492/1
+                      - text: "0"
+                  - cell "May 2025" [ref=e1370]:
+                    - link "May 2025" [ref=e1371] [cursor=pointer]:
+                      - /url: /t/autonomous-google-form/137492/1
+                - row "State of the VEX, season wrap and requests for changes (2026 edition) VEX Robotics Competition Discussion 118 replies, jump to first post 4d" [ref=e1372]:
+                  - cell "State of the VEX, season wrap and requests for changes (2026 edition) VEX Robotics Competition Discussion" [ref=e1373]:
+                    - heading "State of the VEX, season wrap and requests for changes (2026 edition)" [level=2] [ref=e1374]:
+                      - button "State of the VEX, season wrap and requests for changes (2026 edition)" [ref=e1375] [cursor=pointer]:
+                        - link "State of the VEX, season wrap and requests for changes (2026 edition)" [ref=e1377]:
+                          - /url: /t/state-of-the-vex-season-wrap-and-requests-for-changes-2026-edition/144541
+                    - link "VEX Robotics Competition Discussion" [ref=e1379] [cursor=pointer]:
+                      - /url: /c/vrc-discussion/31
+                      - generic [ref=e1381]: VEX Robotics Competition Discussion
+                  - cell "118 replies, jump to first post" [ref=e1382]:
+                    - link "118 replies, jump to first post" [ref=e1383] [cursor=pointer]:
+                      - /url: /t/state-of-the-vex-season-wrap-and-requests-for-changes-2026-edition/144541/1
+                      - text: "118"
+                  - cell "4d" [ref=e1384]:
+                    - link "4d" [ref=e1385] [cursor=pointer]:
+                      - /url: /t/state-of-the-vex-season-wrap-and-requests-for-changes-2026-edition/144541/119
+          - heading "Want to read more? Browse other topics in VEX Robotics Competition Discussion or view latest topics." [level=3] [ref=e1386]:
+            - text: Want to read more? Browse other topics in
+            - link "VEX Robotics Competition Discussion" [ref=e1387] [cursor=pointer]:
+              - /url: /c/vrc-discussion/31
+              - generic [ref=e1389]: VEX Robotics Competition Discussion
+            - text: or
+            - link "view latest topics" [ref=e1390] [cursor=pointer]:
+              - /url: /latest
+            - text: .
+      - dialog "User card"

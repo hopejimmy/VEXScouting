@@ -1,0 +1,2352 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - link "RobotEvents.com" [ref=e6] [cursor=pointer]:
+        - /url: https://www.robotevents.com
+        - img "RobotEvents.com" [ref=e7]
+      - generic [ref=e9]:
+        - link "VEX Robotics":
+          - /url: https://www.vexrobotics.com/
+          - img "VEX Robotics" [ref=e10] [cursor=pointer]
+    - navigation [ref=e11]:
+      - generic [ref=e13]:
+        - list [ref=e14]:
+          - listitem [ref=e15]:
+            - link "Home" [ref=e16] [cursor=pointer]:
+              - /url: https://www.robotevents.com
+              - text: Home
+          - listitem [ref=e17]
+          - listitem [ref=e18]:
+            - link "Competitions" [ref=e19] [cursor=pointer]:
+              - /url: "#"
+              - text: Competitions
+          - listitem [ref=e20]
+          - listitem [ref=e21]:
+            - link "Resources" [ref=e22] [cursor=pointer]:
+              - /url: "#"
+              - text: Resources
+          - listitem [ref=e23]
+          - listitem [ref=e24]:
+            - link "Grants" [ref=e25] [cursor=pointer]:
+              - /url: https://www.robotevents.com/grants
+              - text: Grants
+        - list [ref=e26]:
+          - listitem [ref=e27]:
+            - link "en" [ref=e28] [cursor=pointer]:
+              - /url: "#"
+              - text: en
+          - listitem [ref=e29]
+          - listitem [ref=e30]:
+            - link "Register" [ref=e31] [cursor=pointer]:
+              - /url: https://www.robotevents.com/auth/register
+              - text: Register
+          - listitem [ref=e32]
+          - listitem [ref=e33]:
+            - link "Login" [ref=e34] [cursor=pointer]:
+              - /url: https://www.robotevents.com/auth/login
+              - text: Login
+  - main [ref=e35]:
+    - generic [ref=e36]:
+      - heading "World Skills Standings" [level=1] [ref=e37]
+      - navigation [ref=e38]:
+        - list [ref=e39]:
+          - listitem [ref=e40]:
+            - link "VEX V5 Robotics Competition" [ref=e41] [cursor=pointer]:
+              - /url: https://www.robotevents.com/robot-competitions/vex-robotics-competition
+          - listitem [ref=e42]: / World Skills Standings
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - heading "Deadlines" [level=4] [ref=e46]
+          - generic [ref=e47]:
+            - strong [ref=e48]: 2026-03-16
+            - text: ": Qualification for Regional/State Championship"
+          - generic [ref=e49]:
+            - strong [ref=e50]: 2026-03-16
+            - text: ": Season Standings Finalized"
+        - separator [ref=e51]
+        - generic [ref=e53]:
+          - generic [ref=e54]:
+            - generic [ref=e55]: Global Standings (Finalized)
+            - paragraph [ref=e56]:
+              - generic [ref=e57]: "Standings for the 2025-2026 VEX V5 Robotics Competition 2025-2026: Push Back ranked season only includes results from official VEX V5 Robotics Competition 2025-2026: Push Back events."
+            - separator [ref=e58]
+            - paragraph [ref=e59]: The column labeled "Score" represents the highest Robot Skills score posted to date, and is used to rank teams.
+            - paragraph [ref=e60]: The columns labeled "Autonomous Coding Skills" and "Driver Skills" represent the individual scores that comprise the teams highest Robot Skills score.
+            - paragraph [ref=e61]: The columns labeled "Highest Autonomous Coding Skills" and "Highest Driver Skills" represent the highest individual scores in each category, these are used as tie-breakers per the official game manual.
+          - generic [ref=e63]:
+            - generic [ref=e64]:
+              - textbox "Search" [ref=e68]
+              - generic [ref=e70]:
+                - generic [ref=e71]: Event Regions
+                - button "All" [ref=e74] [cursor=pointer]:
+                  - generic [ref=e75]: All
+            - generic [ref=e78]:
+              - generic [ref=e80]:
+                - generic [ref=e81]: Country / Region
+                - combobox "Country / Region" [ref=e82]:
+                  - option "All" [selected]
+                  - option "United States"
+                  - option "China"
+                  - option "Canada"
+                  - option "Australia"
+                  - option "United Kingdom"
+                  - option "Ireland"
+                  - option "New Zealand"
+                  - option "Taiwan"
+                  - option "Hong Kong"
+                  - option "Mexico"
+                  - option "Afghanistan"
+                  - option "Aland Islands"
+                  - option "Albania"
+                  - option "Algeria"
+                  - option "American Samoa"
+                  - option "Andorra"
+                  - option "Angola"
+                  - option "Anguilla"
+                  - option "Antarctica"
+                  - option "Antigua and Barbuda"
+                  - option "Argentina"
+                  - option "Armenia"
+                  - option "Aruba"
+                  - option "Australia"
+                  - option "Austria"
+                  - option "Azerbaijan"
+                  - option "Bahamas"
+                  - option "Bahrain"
+                  - option "Bangladesh"
+                  - option "Barbados"
+                  - option "Belarus"
+                  - option "Belgium"
+                  - option "Belize"
+                  - option "Benin"
+                  - option "Bermuda"
+                  - option "Bhutan"
+                  - option "Bolivia"
+                  - option "Bosnia and Herzegovina"
+                  - option "Botswana"
+                  - option "Bouvet Island"
+                  - option "Brazil"
+                  - option "British Antarctic Territory"
+                  - option "British Indian Ocean Territory"
+                  - option "British Virgin Islands"
+                  - option "Brunei"
+                  - option "Bulgaria"
+                  - option "Burkina Faso"
+                  - option "Burundi"
+                  - option "Cambodia"
+                  - option "Cameroon"
+                  - option "Canada"
+                  - option "Canton and Enderbury Islands"
+                  - option "Cape Verde"
+                  - option "Cayman Islands"
+                  - option "Central African Republic"
+                  - option "Chad"
+                  - option "Chile"
+                  - option "China"
+                  - option "Christmas Island"
+                  - option "Cocos Islands"
+                  - option "Colombia"
+                  - option "Comoros"
+                  - option "Congo - Brazzaville"
+                  - option "Congo - Kinshasa"
+                  - option "Cook Islands"
+                  - option "Costa Rica"
+                  - option "Côte d’Ivoire"
+                  - option "Croatia"
+                  - option "Cuba"
+                  - option "Cyprus"
+                  - option "Czech Republic"
+                  - option "Denmark"
+                  - option "Djibouti"
+                  - option "Dominica"
+                  - option "Dominican Republic"
+                  - option "Dronning Maud Land"
+                  - option "East Timor"
+                  - option "Ecuador"
+                  - option "Egypt"
+                  - option "El Salvador"
+                  - option "Equatorial Guinea"
+                  - option "Eritrea"
+                  - option "Estonia"
+                  - option "Eswatini"
+                  - option "Ethiopia"
+                  - option "Falkland Islands"
+                  - option "Faroe Islands"
+                  - option "Fiji"
+                  - option "Finland"
+                  - option "France"
+                  - option "French Guiana"
+                  - option "French Polynesia"
+                  - option "French Southern and Antarctic Territories"
+                  - option "French Southern Territories"
+                  - option "Gabon"
+                  - option "Gambia"
+                  - option "Georgia"
+                  - option "Germany"
+                  - option "Ghana"
+                  - option "Gibraltar"
+                  - option "Greece"
+                  - option "Greenland"
+                  - option "Grenada"
+                  - option "Guadeloupe"
+                  - option "Guam"
+                  - option "Guatemala"
+                  - option "Guernsey"
+                  - option "Guinea"
+                  - option "Guinea-Bissau"
+                  - option "Guyana"
+                  - option "Haiti"
+                  - option "Heard Island and McDonald Islands"
+                  - option "Honduras"
+                  - option "Hong Kong"
+                  - option "Hungary"
+                  - option "Iceland"
+                  - option "India"
+                  - option "Indonesia"
+                  - option "Iran"
+                  - option "Iraq"
+                  - option "Ireland"
+                  - option "Isle of Man"
+                  - option "Israel"
+                  - option "Italy"
+                  - option "Jamaica"
+                  - option "Japan"
+                  - option "Jersey"
+                  - option "Johnston Island"
+                  - option "Jordan"
+                  - option "Kazakhstan"
+                  - option "Kenya"
+                  - option "Kiribati"
+                  - option "Korea, Republic of"
+                  - option "Kosovo"
+                  - option "Kuwait"
+                  - option "Kyrgyzstan"
+                  - option "Laos"
+                  - option "Latvia"
+                  - option "Lebanon"
+                  - option "Lesotho"
+                  - option "Liberia"
+                  - option "Libya"
+                  - option "Liechtenstein"
+                  - option "Lithuania"
+                  - option "Luxembourg"
+                  - option "Macau"
+                  - option "Macedonia"
+                  - option "Madagascar"
+                  - option "Malawi"
+                  - option "Malaysia"
+                  - option "Maldives"
+                  - option "Mali"
+                  - option "Malta"
+                  - option "Marshall Islands"
+                  - option "Martinique"
+                  - option "Mauritania"
+                  - option "Mauritius"
+                  - option "Mayotte"
+                  - option "Metropolitan France"
+                  - option "Mexico"
+                  - option "Micronesia"
+                  - option "Midway Islands"
+                  - option "Moldova"
+                  - option "Monaco"
+                  - option "Mongolia"
+                  - option "Montenegro"
+                  - option "Montserrat"
+                  - option "Morocco"
+                  - option "Mozambique"
+                  - option "Myanmar"
+                  - option "Namibia"
+                  - option "Nauru"
+                  - option "Nepal"
+                  - option "Netherlands"
+                  - option "New Caledonia"
+                  - option "New Zealand"
+                  - option "Nicaragua"
+                  - option "Niger"
+                  - option "Nigeria"
+                  - option "Niue"
+                  - option "Norfolk Island"
+                  - option "North Korea"
+                  - option "Northern Mariana Islands"
+                  - option "Norway"
+                  - option "Oman"
+                  - option "Pacific Islands Trust Territory"
+                  - option "Pakistan"
+                  - option "Palau"
+                  - option "Palestinian Territory"
+                  - option "Panama"
+                  - option "Panama Canal Zone"
+                  - option "Papua New Guinea"
+                  - option "Paraguay"
+                  - option "Peru"
+                  - option "Philippines"
+                  - option "Pitcairn"
+                  - option "Poland"
+                  - option "Portugal"
+                  - option "Puerto Rico"
+                  - option "Qatar"
+                  - option "Reunion"
+                  - option "Romania"
+                  - option "Russia"
+                  - option "Rwanda"
+                  - option "Saint Barthélemy"
+                  - option "Saint Helena"
+                  - option "Saint Kitts and Nevis"
+                  - option "Saint Lucia"
+                  - option "Saint Martin"
+                  - option "Saint Pierre and Miquelon"
+                  - option "Saint Vincent and the Grenadines"
+                  - option "Samoa"
+                  - option "San Marino"
+                  - option "Sao Tome and Principe"
+                  - option "Saudi Arabia"
+                  - option "Senegal"
+                  - option "Serbia"
+                  - option "Seychelles"
+                  - option "Sierra Leone"
+                  - option "Singapore"
+                  - option "Slovakia"
+                  - option "Slovenia"
+                  - option "Solomon Islands"
+                  - option "Somalia"
+                  - option "South Africa"
+                  - option "South Georgia and the South Sandwich Islands"
+                  - option "South Sudan"
+                  - option "Spain"
+                  - option "Sri Lanka"
+                  - option "Sudan"
+                  - option "Suriname"
+                  - option "Svalbard and Jan Mayen"
+                  - option "Sweden"
+                  - option "Switzerland"
+                  - option "Syria"
+                  - option "Taiwan"
+                  - option "Tajikistan"
+                  - option "Tanzania"
+                  - option "Thailand"
+                  - option "Togo"
+                  - option "Tokelau"
+                  - option "Tonga"
+                  - option "Trinidad and Tobago"
+                  - option "Tunisia"
+                  - option "Türkiye"
+                  - option "Turkmenistan"
+                  - option "Turks and Caicos Islands"
+                  - option "Tuvalu"
+                  - option "U.S. Miscellaneous Pacific Islands"
+                  - option "U.S. Virgin Islands"
+                  - option "Uganda"
+                  - option "Ukraine"
+                  - option "United Arab Emirates"
+                  - option "United Kingdom"
+                  - option "United States"
+                  - option "United States Minor Outlying Islands"
+                  - option "Uruguay"
+                  - option "Uzbekistan"
+                  - option "Vanuatu"
+                  - option "Vatican"
+                  - option "Venezuela"
+                  - option "Vietnam"
+                  - option "Wake Island"
+                  - option "Wallis and Futuna"
+                  - option "Western Sahara"
+                  - option "Yemen"
+                  - option "Zambia"
+                  - option "Zimbabwe"
+              - generic [ref=e84]:
+                - generic [ref=e85]: State / Province
+                - combobox "State / Province" [disabled] [ref=e86]:
+                  - option "All"
+                  - option "Burgenland"
+                  - option "Kärnten"
+                  - option "Niederösterreich"
+                  - option "Oberösterreich"
+                  - option "Salzburg"
+                  - option "Steiermark"
+                  - option "Tirol"
+                  - option "Voralberg"
+                  - option "Wien"
+                  - option "Australian Capital Territory"
+                  - option "New South Wales"
+                  - option "Northern Territory"
+                  - option "Queensland"
+                  - option "South Australia"
+                  - option "Tasmania"
+                  - option "Victoria"
+                  - option "Western Australia"
+                  - option "Alberta"
+                  - option "British Columbia"
+                  - option "Manitoba"
+                  - option "New Brunswick"
+                  - option "Newfoundland"
+                  - option "Northwest Territories"
+                  - option "Nova Scotia"
+                  - option "Nunavut"
+                  - option "Ontario"
+                  - option "Prince Edward Island"
+                  - option "Quebec"
+                  - option "Saskatchewan"
+                  - option "Yukon Territory"
+                  - option "Aargau"
+                  - option "Appenzell Ausserrhoden"
+                  - option "Appenzell Innerrhoden"
+                  - option "Basel-Landschaft"
+                  - option "Basel-Stadt"
+                  - option "Bern"
+                  - option "Freiburg"
+                  - option "Genf"
+                  - option "Glarus"
+                  - option "Graubünden"
+                  - option "Jura"
+                  - option "Luzern"
+                  - option "Neuenburg"
+                  - option "Nidwalden"
+                  - option "Obwalden"
+                  - option "Schaffhausen"
+                  - option "Schwyz"
+                  - option "Solothurn"
+                  - option "St. Gallen"
+                  - option "Tessin"
+                  - option "Thurgau"
+                  - option "Uri"
+                  - option "Waadt"
+                  - option "Wallis"
+                  - option "Zug"
+                  - option "Zürich"
+                  - option "Anhui"
+                  - option "Beijing"
+                  - option "Chongqing"
+                  - option "Fujian"
+                  - option "Gansu"
+                  - option "Guangdong"
+                  - option "Guangxi"
+                  - option "Guizhou"
+                  - option "Hainan"
+                  - option "Hebei"
+                  - option "Heilongjiang"
+                  - option "Henan"
+                  - option "Hubei"
+                  - option "Hunan"
+                  - option "Jiangsu"
+                  - option "Jiangxi"
+                  - option "Jilin"
+                  - option "Liaoning"
+                  - option "Neimenggu"
+                  - option "Ningxia"
+                  - option "Qinghai"
+                  - option "Shaanxi"
+                  - option "Shandong"
+                  - option "Shanghai"
+                  - option "Shanxi"
+                  - option "Sichuan"
+                  - option "Tianjin"
+                  - option "Xinjiang"
+                  - option "Xizang"
+                  - option "Yunnan"
+                  - option "Zhejiang"
+                  - option "Baden-Württemberg"
+                  - option "Bayern"
+                  - option "Berlin"
+                  - option "Brandenburg"
+                  - option "Bremen"
+                  - option "Hamburg"
+                  - option "Hessen"
+                  - option "Mecklenburg-Vorpommern"
+                  - option "Niedersachsen"
+                  - option "Nordrhein-Westfalen"
+                  - option "Rheinland-Pfalz"
+                  - option "Saarland"
+                  - option "Sachsen"
+                  - option "Sachsen-Anhalt"
+                  - option "Schleswig-Holstein"
+                  - option "Thüringen"
+                  - option "A Coruña"
+                  - option "Alava"
+                  - option "Albacete"
+                  - option "Alicante"
+                  - option "Almeria"
+                  - option "Asturias"
+                  - option "Avila"
+                  - option "Badajoz"
+                  - option "Baleares"
+                  - option "Barcelona"
+                  - option "Burgos"
+                  - option "Caceres"
+                  - option "Cadiz"
+                  - option "Cantabria"
+                  - option "Castellon"
+                  - option "Ceuta"
+                  - option "Ciudad Real"
+                  - option "Cordoba"
+                  - option "Cuenca"
+                  - option "Girona"
+                  - option "Granada"
+                  - option "Guadalajara"
+                  - option "Guipuzcoa"
+                  - option "Huelva"
+                  - option "Huesca"
+                  - option "Jaen"
+                  - option "La Rioja"
+                  - option "Las Palmas"
+                  - option "Leon"
+                  - option "Lleida"
+                  - option "Lugo"
+                  - option "Madrid"
+                  - option "Malaga"
+                  - option "Melilla"
+                  - option "Murcia"
+                  - option "Navarra"
+                  - option "Ourense"
+                  - option "Palencia"
+                  - option "Pontevedra"
+                  - option "Salamanca"
+                  - option "Santa Cruz de Tenerife"
+                  - option "Segovia"
+                  - option "Sevilla"
+                  - option "Soria"
+                  - option "Tarragona"
+                  - option "Teruel"
+                  - option "Toledo"
+                  - option "Valencia"
+                  - option "Valladolid"
+                  - option "Vizcaya"
+                  - option "Zamora"
+                  - option "Zaragoza"
+                  - option "Ain"
+                  - option "Aisne"
+                  - option "Allier"
+                  - option "Alpes-de-Haute-Provence"
+                  - option "Alpes-Maritimes"
+                  - option "Ardèche"
+                  - option "Ardennes"
+                  - option "Ariège"
+                  - option "Aube"
+                  - option "Aude"
+                  - option "Aveyron"
+                  - option "Bas-Rhin"
+                  - option "Bouches-du-Rhône"
+                  - option "Calvados"
+                  - option "Cantal"
+                  - option "Charente"
+                  - option "Charente-Maritime"
+                  - option "Cher"
+                  - option "Corrèze"
+                  - option "Corse-du-Sud"
+                  - option "Côte-d'Or"
+                  - option "Côtes-d'Armor"
+                  - option "Creuse"
+                  - option "Deux-Sèvres"
+                  - option "Dordogne"
+                  - option "Doubs"
+                  - option "Drôme"
+                  - option "Essonne"
+                  - option "Eure"
+                  - option "Eure-et-Loir"
+                  - option "Finistère"
+                  - option "Gard"
+                  - option "Gers"
+                  - option "Gironde"
+                  - option "Haut-Rhin"
+                  - option "Haute-Corse"
+                  - option "Haute-Garonne"
+                  - option "Haute-Loire"
+                  - option "Haute-Marne"
+                  - option "Haute-Saône"
+                  - option "Haute-Savoie"
+                  - option "Haute-Vienne"
+                  - option "Hautes-Alpes"
+                  - option "Hautes-Pyrénées"
+                  - option "Hauts-de-Seine"
+                  - option "Hérault"
+                  - option "Ille-et-Vilaine"
+                  - option "Indre"
+                  - option "Indre-et-Loire"
+                  - option "Isère"
+                  - option "Jura"
+                  - option "Landes"
+                  - option "Loir-et-Cher"
+                  - option "Loire"
+                  - option "Loire-Atlantique"
+                  - option "Loiret"
+                  - option "Lot"
+                  - option "Lot-et-Garonne"
+                  - option "Lozère"
+                  - option "Maine-et-Loire"
+                  - option "Manche"
+                  - option "Marne"
+                  - option "Mayenne"
+                  - option "Meurthe-et-Moselle"
+                  - option "Meuse"
+                  - option "Morbihan"
+                  - option "Moselle"
+                  - option "Nièvre"
+                  - option "Nord"
+                  - option "Oise"
+                  - option "Orne"
+                  - option "Paris"
+                  - option "Pas-de-Calais"
+                  - option "Puy-de-Dôme"
+                  - option "Pyrénées-Atlantiques"
+                  - option "Pyrénées-Orientales"
+                  - option "Rhône"
+                  - option "Saône-et-Loire"
+                  - option "Sarthe"
+                  - option "Savoie"
+                  - option "Seine-et-Marne"
+                  - option "Seine-Maritime"
+                  - option "Seine-Saint-Denis"
+                  - option "Somme"
+                  - option "Tarn"
+                  - option "Tarn-et-Garonne"
+                  - option "Territoire-de-Belfort"
+                  - option "Val-d'Oise"
+                  - option "Val-de-Marne"
+                  - option "Var"
+                  - option "Vaucluse"
+                  - option "Vendée"
+                  - option "Vienne"
+                  - option "Vosges"
+                  - option "Yonne"
+                  - option "Yvelines"
+                  - option "Carlow"
+                  - option "Cavan"
+                  - option "Clare"
+                  - option "Cork"
+                  - option "Donegal"
+                  - option "Dublin"
+                  - option "Galway"
+                  - option "Kerry"
+                  - option "Kildare"
+                  - option "Kilkenny"
+                  - option "Laois"
+                  - option "Leitrim"
+                  - option "Limerick"
+                  - option "Longford"
+                  - option "Louth"
+                  - option "Mayo"
+                  - option "Meath"
+                  - option "Monaghan"
+                  - option "Offaly"
+                  - option "Roscommon"
+                  - option "Sligo"
+                  - option "Tipperary"
+                  - option "Waterford"
+                  - option "Westmeath"
+                  - option "Wexford"
+                  - option "Wicklow"
+                  - option "Aguascalientes"
+                  - option "Baja California"
+                  - option "Baja California Sur"
+                  - option "Campeche"
+                  - option "Chiapas"
+                  - option "Chihuahua"
+                  - option "Coahuila"
+                  - option "Colima"
+                  - option "Durango"
+                  - option "Guanajuato"
+                  - option "Guerrero"
+                  - option "Hidalgo"
+                  - option "Jalisco"
+                  - option "Mexico City"
+                  - option "Mexico State"
+                  - option "Michoacán"
+                  - option "Morelos"
+                  - option "Nayarit"
+                  - option "Nuevo León"
+                  - option "Oaxaca"
+                  - option "Puebla"
+                  - option "Querétaro"
+                  - option "Quintana Roo"
+                  - option "San Luis Potosí"
+                  - option "Sinaloa"
+                  - option "Sonora"
+                  - option "Tabasco"
+                  - option "Tamaulipas"
+                  - option "Tlaxcala"
+                  - option "Veracruz"
+                  - option "Yucatán"
+                  - option "Zacatecas"
+                  - option "Auckland"
+                  - option "Bay of Plenty"
+                  - option "Canterbury"
+                  - option "Chatham Islands Territory"
+                  - option "Gisborne District"
+                  - option "Hawke's Bay"
+                  - option "Manawatu-Wanganui"
+                  - option "Marlborough District"
+                  - option "Nelson City"
+                  - option "North Island"
+                  - option "Northland"
+                  - option "Otago"
+                  - option "South Island"
+                  - option "Southland"
+                  - option "Taranaki"
+                  - option "Tasman District"
+                  - option "Waikato"
+                  - option "Wellington"
+                  - option "West Coast"
+                  - option "Alabama"
+                  - option "Alaska"
+                  - option "Arizona"
+                  - option "Arkansas"
+                  - option "Armed Forces Africa"
+                  - option "Armed Forces Americas"
+                  - option "Armed Forces Canada"
+                  - option "Armed Forces Europe"
+                  - option "Armed Forces Middle East"
+                  - option "Armed Forces Pacific"
+                  - option "California"
+                  - option "Colorado"
+                  - option "Connecticut"
+                  - option "Delaware"
+                  - option "District of Columbia"
+                  - option "Federated States Of Micronesia"
+                  - option "Florida"
+                  - option "Georgia"
+                  - option "Hawaii"
+                  - option "Idaho"
+                  - option "Illinois"
+                  - option "Indiana"
+                  - option "Iowa"
+                  - option "Kansas"
+                  - option "Kentucky"
+                  - option "Louisiana"
+                  - option "Maine"
+                  - option "Maryland"
+                  - option "Massachusetts"
+                  - option "Michigan"
+                  - option "Minnesota"
+                  - option "Mississippi"
+                  - option "Missouri"
+                  - option "Montana"
+                  - option "Nebraska"
+                  - option "Nevada"
+                  - option "New Hampshire"
+                  - option "New Jersey"
+                  - option "New Mexico"
+                  - option "New York"
+                  - option "North Carolina"
+                  - option "North Dakota"
+                  - option "Ohio"
+                  - option "Oklahoma"
+                  - option "Oregon"
+                  - option "Palau"
+                  - option "Pennsylvania"
+                  - option "Rhode Island"
+                  - option "South Carolina"
+                  - option "South Dakota"
+                  - option "Tennessee"
+                  - option "Texas"
+                  - option "Utah"
+                  - option "Vermont"
+                  - option "Virginia"
+                  - option "Washington"
+                  - option "West Virginia"
+                  - option "Wisconsin"
+                  - option "Wyoming"
+              - generic [ref=e88]:
+                - generic [ref=e89]: Grade Level
+                - combobox "Grade Level" [ref=e90]:
+                  - option "High School" [selected]
+                  - option "Middle School"
+              - generic [ref=e92]:
+                - generic [ref=e93]: Team Affiliation
+                - button "All" [ref=e96] [cursor=pointer]:
+                  - generic [ref=e97]: All
+              - generic [ref=e100]:
+                - checkbox "Include Post Season Results" [ref=e101]
+                - generic [ref=e102]: Include Post Season Results
+          - generic [ref=e103]:
+            - paragraph [ref=e104]:
+              - button "Download as CSV" [ref=e105] [cursor=pointer]: Download as CSV
+            - table [ref=e108]:
+              - rowgroup [ref=e109]:
+                - row "Row Rank Score Autonomous Coding Skills Driver Skills Highest Autonomous Coding Skills Highest Driver Skills Highest Autonomous Score Timestamp Highest Driver Score Timestamp Highest Autonomous Score Stop Time Highest Driver Score Stop Time Team Number Team Name Organization Event Region Country / Region" [ref=e110]:
+                  - columnheader "Row" [ref=e111]
+                  - columnheader "Rank" [ref=e112]
+                  - columnheader "Score" [ref=e113]
+                  - columnheader "Autonomous Coding Skills" [ref=e114]
+                  - columnheader "Driver Skills" [ref=e115]
+                  - columnheader "Highest Autonomous Coding Skills" [ref=e116]
+                  - columnheader "Highest Driver Skills" [ref=e117]
+                  - columnheader "Highest Autonomous Score Timestamp" [ref=e118]
+                  - columnheader "Highest Driver Score Timestamp" [ref=e119]
+                  - columnheader "Highest Autonomous Score Stop Time" [ref=e120]
+                  - columnheader "Highest Driver Score Stop Time" [ref=e121]
+                  - columnheader "Team Number" [ref=e122]
+                  - columnheader "Team Name" [ref=e123]
+                  - columnheader "Organization" [ref=e124]
+                  - columnheader "Event Region" [ref=e125]
+                  - columnheader "Country / Region" [ref=e126]
+              - rowgroup [ref=e127]:
+                - row "1 1 229 112 117 112 117 2026-02-20 20:10:46 2026-02-20 20:10:22 0 0 47874J Occam's Chainsaw Squalicum High School Washington United States" [ref=e128]:
+                  - cell "1" [ref=e129]
+                  - cell "1" [ref=e130]
+                  - cell "229" [ref=e131]
+                  - cell "112" [ref=e132]
+                  - cell "117" [ref=e133]
+                  - cell "112" [ref=e134]
+                  - cell "117" [ref=e135]
+                  - cell "2026-02-20 20:10:46" [ref=e136]
+                  - cell "2026-02-20 20:10:22" [ref=e137]
+                  - cell "0" [ref=e138]
+                  - cell "0" [ref=e139]
+                  - cell "47874J" [ref=e140]:
+                    - link "47874J" [ref=e142] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/47874J
+                  - cell "Occam's Chainsaw" [ref=e143]
+                  - cell "Squalicum High School" [ref=e144]
+                  - cell "Washington" [ref=e145]
+                  - cell "United States" [ref=e146]
+                - row "2 2 223 115 108 115 108 2026-02-27 22:17:49 2026-02-28 00:03:14 0 0 16620B Bluey Getting There Blyth Academy The Glebe Ontario Canada" [ref=e147]:
+                  - cell "2" [ref=e148]
+                  - cell "2" [ref=e149]
+                  - cell "223" [ref=e150]
+                  - cell "115" [ref=e151]
+                  - cell "108" [ref=e152]
+                  - cell "115" [ref=e153]
+                  - cell "108" [ref=e154]
+                  - cell "2026-02-27 22:17:49" [ref=e155]
+                  - cell "2026-02-28 00:03:14" [ref=e156]
+                  - cell "0" [ref=e157]
+                  - cell "0" [ref=e158]
+                  - cell "16620B" [ref=e159]:
+                    - link "16620B" [ref=e161] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/16620B
+                  - cell "Bluey Getting There" [ref=e162]
+                  - cell "Blyth Academy The Glebe" [ref=e163]
+                  - cell "Ontario" [ref=e164]
+                  - cell "Canada" [ref=e165]
+                - row "3 3 219 109 110 109 111 2026-03-07 18:01:24 2026-02-07 19:49:09 3 0 89040B Dread Pirates MOAPA VALLEY HIGH SCHOOL Nevada United States" [ref=e166]:
+                  - cell "3" [ref=e167]
+                  - cell "3" [ref=e168]
+                  - cell "219" [ref=e169]
+                  - cell "109" [ref=e170]
+                  - cell "110" [ref=e171]
+                  - cell "109" [ref=e172]
+                  - cell "111" [ref=e173]
+                  - cell "2026-03-07 18:01:24" [ref=e174]
+                  - cell "2026-02-07 19:49:09" [ref=e175]
+                  - cell "3" [ref=e176]
+                  - cell "0" [ref=e177]
+                  - cell "89040B" [ref=e178]:
+                    - link "89040B" [ref=e180] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/89040B
+                  - cell "Dread Pirates" [ref=e181]
+                  - cell "MOAPA VALLEY HIGH SCHOOL" [ref=e182]
+                  - cell "Nevada" [ref=e183]
+                  - cell "United States" [ref=e184]
+                - row "4 4 219 102 117 102 117 2026-02-28 00:57:03 2026-02-28 02:14:09 0 0 1028A WASHED Brownell Talbot College Preparatory School Nebraska United States" [ref=e185]:
+                  - cell "4" [ref=e186]
+                  - cell "4" [ref=e187]
+                  - cell "219" [ref=e188]
+                  - cell "102" [ref=e189]
+                  - cell "117" [ref=e190]
+                  - cell "102" [ref=e191]
+                  - cell "117" [ref=e192]
+                  - cell "2026-02-28 00:57:03" [ref=e193]
+                  - cell "2026-02-28 02:14:09" [ref=e194]
+                  - cell "0" [ref=e195]
+                  - cell "0" [ref=e196]
+                  - cell "1028A" [ref=e197]:
+                    - link "1028A" [ref=e199] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/1028A
+                  - cell "WASHED" [ref=e200]
+                  - cell "Brownell Talbot College Preparatory School" [ref=e201]
+                  - cell "Nebraska" [ref=e202]
+                  - cell "United States" [ref=e203]
+                - row "5 5 219 100 119 100 119 2026-02-06 03:31:50 2026-02-07 00:11:09 0 0 13212D SixSeven MEOW Concordia International School Shanghai East China China" [ref=e204]:
+                  - cell "5" [ref=e205]
+                  - cell "5" [ref=e206]
+                  - cell "219" [ref=e207]
+                  - cell "100" [ref=e208]
+                  - cell "119" [ref=e209]
+                  - cell "100" [ref=e210]
+                  - cell "119" [ref=e211]
+                  - cell "2026-02-06 03:31:50" [ref=e212]
+                  - cell "2026-02-07 00:11:09" [ref=e213]
+                  - cell "0" [ref=e214]
+                  - cell "0" [ref=e215]
+                  - cell "13212D" [ref=e216]:
+                    - link "13212D" [ref=e218] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/13212D
+                  - cell "SixSeven MEOW" [ref=e219]
+                  - cell "Concordia International School Shanghai" [ref=e220]
+                  - cell "East China" [ref=e221]
+                  - cell "China" [ref=e222]
+                - row "6 6 217 102 115 102 115 2026-02-01 01:36:42 2026-02-01 02:53:44 0 0 3588X Galaxy Edubot Inc. California - Region 4 United States" [ref=e223]:
+                  - cell "6" [ref=e224]
+                  - cell "6" [ref=e225]
+                  - cell "217" [ref=e226]
+                  - cell "102" [ref=e227]
+                  - cell "115" [ref=e228]
+                  - cell "102" [ref=e229]
+                  - cell "115" [ref=e230]
+                  - cell "2026-02-01 01:36:42" [ref=e231]
+                  - cell "2026-02-01 02:53:44" [ref=e232]
+                  - cell "0" [ref=e233]
+                  - cell "0" [ref=e234]
+                  - cell "3588X" [ref=e235]:
+                    - link "3588X" [ref=e237] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/3588X
+                  - cell "Galaxy" [ref=e238]
+                  - cell "Edubot Inc." [ref=e239]
+                  - cell "California - Region 4" [ref=e240]
+                  - cell "United States" [ref=e241]
+                - row "7 7 217 99 118 99 118 2026-02-08 20:05:02 2026-02-08 17:11:40 0 0 16099A Overclock KG Computech New York-South United States" [ref=e242]:
+                  - cell "7" [ref=e243]
+                  - cell "7" [ref=e244]
+                  - cell "217" [ref=e245]
+                  - cell "99" [ref=e246]
+                  - cell "118" [ref=e247]
+                  - cell "99" [ref=e248]
+                  - cell "118" [ref=e249]
+                  - cell "2026-02-08 20:05:02" [ref=e250]
+                  - cell "2026-02-08 17:11:40" [ref=e251]
+                  - cell "0" [ref=e252]
+                  - cell "0" [ref=e253]
+                  - cell "16099A" [ref=e254]:
+                    - link "16099A" [ref=e256] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/16099A
+                  - cell "Overclock" [ref=e257]
+                  - cell "KG Computech" [ref=e258]
+                  - cell "New York-South" [ref=e259]
+                  - cell "United States" [ref=e260]
+                - row "8 8 213 94 119 97 119 2026-02-14 18:44:28 2026-03-14 23:04:02 0 0 10B Exothermic Burnout Exothermic Robotics Washington United States" [ref=e261]:
+                  - cell "8" [ref=e262]
+                  - cell "8" [ref=e263]
+                  - cell "213" [ref=e264]
+                  - cell "94" [ref=e265]
+                  - cell "119" [ref=e266]
+                  - cell "97" [ref=e267]
+                  - cell "119" [ref=e268]
+                  - cell "2026-02-14 18:44:28" [ref=e269]
+                  - cell "2026-03-14 23:04:02" [ref=e270]
+                  - cell "0" [ref=e271]
+                  - cell "0" [ref=e272]
+                  - cell "10B" [ref=e273]:
+                    - link "10B" [ref=e275] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/10B
+                  - cell "Exothermic Burnout" [ref=e276]
+                  - cell "Exothermic Robotics" [ref=e277]
+                  - cell "Washington" [ref=e278]
+                  - cell "United States" [ref=e279]
+                - row "9 9 213 96 117 96 117 2026-01-04 22:31:30 2026-01-05 01:27:29 0 0 16610A Snacky Cakes Techblazers Ontario Canada" [ref=e280]:
+                  - cell "9" [ref=e281]
+                  - cell "9" [ref=e282]
+                  - cell "213" [ref=e283]
+                  - cell "96" [ref=e284]
+                  - cell "117" [ref=e285]
+                  - cell "96" [ref=e286]
+                  - cell "117" [ref=e287]
+                  - cell "2026-01-04 22:31:30" [ref=e288]
+                  - cell "2026-01-05 01:27:29" [ref=e289]
+                  - cell "0" [ref=e290]
+                  - cell "0" [ref=e291]
+                  - cell "16610A" [ref=e292]:
+                    - link "16610A" [ref=e294] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/16610A
+                  - cell "Snacky Cakes" [ref=e295]
+                  - cell "Techblazers" [ref=e296]
+                  - cell "Ontario" [ref=e297]
+                  - cell "Canada" [ref=e298]
+                - row "10 10 211 95 116 95 116 2026-02-27 06:41:37 2026-02-27 07:42:14 0 4 2815Z Hongyi STEM International Academy 深圳市弘毅高级中学STEM国际书院 South China China" [ref=e299]:
+                  - cell "10" [ref=e300]
+                  - cell "10" [ref=e301]
+                  - cell "211" [ref=e302]
+                  - cell "95" [ref=e303]
+                  - cell "116" [ref=e304]
+                  - cell "95" [ref=e305]
+                  - cell "116" [ref=e306]
+                  - cell "2026-02-27 06:41:37" [ref=e307]
+                  - cell "2026-02-27 07:42:14" [ref=e308]
+                  - cell "0" [ref=e309]
+                  - cell "4" [ref=e310]
+                  - cell "2815Z" [ref=e311]:
+                    - link "2815Z" [ref=e313] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/2815Z
+                  - cell "Hongyi STEM International Academy" [ref=e314]
+                  - cell "深圳市弘毅高级中学STEM国际书院" [ref=e315]
+                  - cell "South China" [ref=e316]
+                  - cell "China" [ref=e317]
+                - row "11 11 210 92 118 92 118 2026-02-14 15:11:13 2026-02-14 21:00:26 0 0 8151W Parts on Order Grand Island Senior High School Nebraska United States" [ref=e318]:
+                  - cell "11" [ref=e319]
+                  - cell "11" [ref=e320]
+                  - cell "210" [ref=e321]
+                  - cell "92" [ref=e322]
+                  - cell "118" [ref=e323]
+                  - cell "92" [ref=e324]
+                  - cell "118" [ref=e325]
+                  - cell "2026-02-14 15:11:13" [ref=e326]
+                  - cell "2026-02-14 21:00:26" [ref=e327]
+                  - cell "0" [ref=e328]
+                  - cell "0" [ref=e329]
+                  - cell "8151W" [ref=e330]:
+                    - link "8151W" [ref=e332] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/8151W
+                  - cell "Parts on Order" [ref=e333]
+                  - cell "Grand Island Senior High School" [ref=e334]
+                  - cell "Nebraska" [ref=e335]
+                  - cell "United States" [ref=e336]
+                - row "12 12 209 112 97 112 97 2026-03-13 22:07:52 2026-03-14 17:19:03 0 0 38535A TitanTron GLENBROOK SOUTH HIGH SCHOOL Illinois United States" [ref=e337]:
+                  - cell "12" [ref=e338]
+                  - cell "12" [ref=e339]
+                  - cell "209" [ref=e340]
+                  - cell "112" [ref=e341]
+                  - cell "97" [ref=e342]
+                  - cell "112" [ref=e343]
+                  - cell "97" [ref=e344]
+                  - cell "2026-03-13 22:07:52" [ref=e345]
+                  - cell "2026-03-14 17:19:03" [ref=e346]
+                  - cell "0" [ref=e347]
+                  - cell "0" [ref=e348]
+                  - cell "38535A" [ref=e349]:
+                    - link "38535A" [ref=e351] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/38535A
+                  - cell "TitanTron" [ref=e352]
+                  - cell "GLENBROOK SOUTH HIGH SCHOOL" [ref=e353]
+                  - cell "Illinois" [ref=e354]
+                  - cell "United States" [ref=e355]
+                - row "13 13 209 97 112 97 112 2026-03-07 23:35:11 2026-03-07 22:44:31 0 0 11101K Catch me if you can Barcbots California - Region 2 United States" [ref=e356]:
+                  - cell "13" [ref=e357]
+                  - cell "13" [ref=e358]
+                  - cell "209" [ref=e359]
+                  - cell "97" [ref=e360]
+                  - cell "112" [ref=e361]
+                  - cell "97" [ref=e362]
+                  - cell "112" [ref=e363]
+                  - cell "2026-03-07 23:35:11" [ref=e364]
+                  - cell "2026-03-07 22:44:31" [ref=e365]
+                  - cell "0" [ref=e366]
+                  - cell "0" [ref=e367]
+                  - cell "11101K" [ref=e368]:
+                    - link "11101K" [ref=e370] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/11101K
+                  - cell "Catch me if you can" [ref=e371]
+                  - cell "Barcbots" [ref=e372]
+                  - cell "California - Region 2" [ref=e373]
+                  - cell "United States" [ref=e374]
+                - row "14 14 209 93 116 96 116 2026-02-07 19:35:35 2026-02-28 19:52:51 0 0 74074Y Bamboozled Pioneer Robotics Oklahoma United States" [ref=e375]:
+                  - cell "14" [ref=e376]
+                  - cell "14" [ref=e377]
+                  - cell "209" [ref=e378]
+                  - cell "93" [ref=e379]
+                  - cell "116" [ref=e380]
+                  - cell "96" [ref=e381]
+                  - cell "116" [ref=e382]
+                  - cell "2026-02-07 19:35:35" [ref=e383]
+                  - cell "2026-02-28 19:52:51" [ref=e384]
+                  - cell "0" [ref=e385]
+                  - cell "0" [ref=e386]
+                  - cell "74074Y" [ref=e387]:
+                    - link "74074Y" [ref=e389] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/74074Y
+                  - cell "Bamboozled" [ref=e390]
+                  - cell "Pioneer Robotics" [ref=e391]
+                  - cell "Oklahoma" [ref=e392]
+                  - cell "United States" [ref=e393]
+                - row "15 15 208 92 116 96 116 2026-02-27 22:33:45 2026-01-17 19:20:34 0 3 3150A Silver Owl Silver Owl Robotics Inc. Ontario Canada" [ref=e394]:
+                  - cell "15" [ref=e395]
+                  - cell "15" [ref=e396]
+                  - cell "208" [ref=e397]
+                  - cell "92" [ref=e398]
+                  - cell "116" [ref=e399]
+                  - cell "96" [ref=e400]
+                  - cell "116" [ref=e401]
+                  - cell "2026-02-27 22:33:45" [ref=e402]
+                  - cell "2026-01-17 19:20:34" [ref=e403]
+                  - cell "0" [ref=e404]
+                  - cell "3" [ref=e405]
+                  - cell "3150A" [ref=e406]:
+                    - link "3150A" [ref=e408] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/3150A
+                  - cell "Silver Owl" [ref=e409]
+                  - cell "Silver Owl Robotics Inc." [ref=e410]
+                  - cell "Ontario" [ref=e411]
+                  - cell "Canada" [ref=e412]
+                - row "16 16 207 103 104 103 104 2026-02-14 03:29:45 2026-02-14 04:14:37 0 0 937X Aurora Team Aurora Arizona United States" [ref=e413]:
+                  - cell "16" [ref=e414]
+                  - cell "16" [ref=e415]
+                  - cell "207" [ref=e416]
+                  - cell "103" [ref=e417]
+                  - cell "104" [ref=e418]
+                  - cell "103" [ref=e419]
+                  - cell "104" [ref=e420]
+                  - cell "2026-02-14 03:29:45" [ref=e421]
+                  - cell "2026-02-14 04:14:37" [ref=e422]
+                  - cell "0" [ref=e423]
+                  - cell "0" [ref=e424]
+                  - cell "937X" [ref=e425]:
+                    - link "937X" [ref=e427] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/937X
+                  - cell "Aurora" [ref=e428]
+                  - cell "Team Aurora" [ref=e429]
+                  - cell "Arizona" [ref=e430]
+                  - cell "United States" [ref=e431]
+                - row "17 17 207 101 106 101 106 2026-02-26 22:41:22 2026-02-26 22:13:59 0 0 6842K Killer Instinct PARK TUDOR SCHOOL Indiana - Region 2 - Central United States" [ref=e432]:
+                  - cell "17" [ref=e433]
+                  - cell "17" [ref=e434]
+                  - cell "207" [ref=e435]
+                  - cell "101" [ref=e436]
+                  - cell "106" [ref=e437]
+                  - cell "101" [ref=e438]
+                  - cell "106" [ref=e439]
+                  - cell "2026-02-26 22:41:22" [ref=e440]
+                  - cell "2026-02-26 22:13:59" [ref=e441]
+                  - cell "0" [ref=e442]
+                  - cell "0" [ref=e443]
+                  - cell "6842K" [ref=e444]:
+                    - link "6842K" [ref=e446] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/6842K
+                  - cell "Killer Instinct" [ref=e447]
+                  - cell "PARK TUDOR SCHOOL" [ref=e448]
+                  - cell "Indiana - Region 2 - Central" [ref=e449]
+                  - cell "United States" [ref=e450]
+                - 'row "18 18 203 98 105 98 105 2026-02-28 14:00:16 2026-02-28 15:39:59 1 0 4610Z Zenith: Robot Rev Robot Revolution New Jersey United States" [ref=e451]':
+                  - cell "18" [ref=e452]
+                  - cell "18" [ref=e453]
+                  - cell "203" [ref=e454]
+                  - cell "98" [ref=e455]
+                  - cell "105" [ref=e456]
+                  - cell "98" [ref=e457]
+                  - cell "105" [ref=e458]
+                  - cell "2026-02-28 14:00:16" [ref=e459]
+                  - cell "2026-02-28 15:39:59" [ref=e460]
+                  - cell "1" [ref=e461]
+                  - cell "0" [ref=e462]
+                  - cell "4610Z" [ref=e463]:
+                    - link "4610Z" [ref=e465] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/4610Z
+                  - 'cell "Zenith: Robot Rev" [ref=e466]'
+                  - cell "Robot Revolution" [ref=e467]
+                  - cell "New Jersey" [ref=e468]
+                  - cell "United States" [ref=e469]
+                - row "19 19 203 98 105 98 105 2026-03-14 02:56:08 2026-03-14 18:02:13 0 0 917X Aviation Nerds Quantum Robotics Washington United States" [ref=e470]:
+                  - cell "19" [ref=e471]
+                  - cell "19" [ref=e472]
+                  - cell "203" [ref=e473]
+                  - cell "98" [ref=e474]
+                  - cell "105" [ref=e475]
+                  - cell "98" [ref=e476]
+                  - cell "105" [ref=e477]
+                  - cell "2026-03-14 02:56:08" [ref=e478]
+                  - cell "2026-03-14 18:02:13" [ref=e479]
+                  - cell "0" [ref=e480]
+                  - cell "0" [ref=e481]
+                  - cell "917X" [ref=e482]:
+                    - link "917X" [ref=e484] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/917X
+                  - cell "Aviation Nerds" [ref=e485]
+                  - cell "Quantum Robotics" [ref=e486]
+                  - cell "Washington" [ref=e487]
+                  - cell "United States" [ref=e488]
+                - row "20 20 203 84 119 84 119 2026-01-02 02:01:16 2026-01-02 06:12:05 0 2 8977A 上海市市北初级中学＆达罗捷派学院联队 Shanghai Shibei Junior High School East China China" [ref=e489]:
+                  - cell "20" [ref=e490]
+                  - cell "20" [ref=e491]
+                  - cell "203" [ref=e492]
+                  - cell "84" [ref=e493]
+                  - cell "119" [ref=e494]
+                  - cell "84" [ref=e495]
+                  - cell "119" [ref=e496]
+                  - cell "2026-01-02 02:01:16" [ref=e497]
+                  - cell "2026-01-02 06:12:05" [ref=e498]
+                  - cell "0" [ref=e499]
+                  - cell "2" [ref=e500]
+                  - cell "8977A" [ref=e501]:
+                    - link "8977A" [ref=e503] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/8977A
+                  - cell "上海市市北初级中学＆达罗捷派学院联队" [ref=e504]
+                  - cell "Shanghai Shibei Junior High School" [ref=e505]
+                  - cell "East China" [ref=e506]
+                  - cell "China" [ref=e507]
+                - row "21 21 202 96 106 96 106 2026-02-28 13:36:01 2026-02-28 14:55:54 1 0 7405R Millburn Riptide Millburn High School New Jersey United States" [ref=e508]:
+                  - cell "21" [ref=e509]
+                  - cell "21" [ref=e510]
+                  - cell "202" [ref=e511]
+                  - cell "96" [ref=e512]
+                  - cell "106" [ref=e513]
+                  - cell "96" [ref=e514]
+                  - cell "106" [ref=e515]
+                  - cell "2026-02-28 13:36:01" [ref=e516]
+                  - cell "2026-02-28 14:55:54" [ref=e517]
+                  - cell "1" [ref=e518]
+                  - cell "0" [ref=e519]
+                  - cell "7405R" [ref=e520]:
+                    - link "7405R" [ref=e522] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/7405R
+                  - cell "Millburn Riptide" [ref=e523]
+                  - cell "Millburn High School" [ref=e524]
+                  - cell "New Jersey" [ref=e525]
+                  - cell "United States" [ref=e526]
+                - row "22 22 202 92 110 92 110 2026-02-07 02:26:11 2026-02-08 02:06:55 0 0 86669A EDS_Bunreal Edison Schools Vietnam Vietnam" [ref=e527]:
+                  - cell "22" [ref=e528]
+                  - cell "22" [ref=e529]
+                  - cell "202" [ref=e530]
+                  - cell "92" [ref=e531]
+                  - cell "110" [ref=e532]
+                  - cell "92" [ref=e533]
+                  - cell "110" [ref=e534]
+                  - cell "2026-02-07 02:26:11" [ref=e535]
+                  - cell "2026-02-08 02:06:55" [ref=e536]
+                  - cell "0" [ref=e537]
+                  - cell "0" [ref=e538]
+                  - cell "86669A" [ref=e539]:
+                    - link "86669A" [ref=e541] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/86669A
+                  - cell "EDS_Bunreal" [ref=e542]
+                  - cell "Edison Schools" [ref=e543]
+                  - cell "Vietnam" [ref=e544]
+                  - cell "Vietnam" [ref=e545]
+                - row "23 23 201 100 101 100 112 2026-01-24 15:38:29 2025-12-30 18:03:21 0 6 98601Y Atlantis (Troy) TROY HIGH NJROTC California - Region 4 United States" [ref=e546]:
+                  - cell "23" [ref=e547]
+                  - cell "23" [ref=e548]
+                  - cell "201" [ref=e549]
+                  - cell "100" [ref=e550]
+                  - cell "101" [ref=e551]
+                  - cell "100" [ref=e552]
+                  - cell "112" [ref=e553]
+                  - cell "2026-01-24 15:38:29" [ref=e554]
+                  - cell "2025-12-30 18:03:21" [ref=e555]
+                  - cell "0" [ref=e556]
+                  - cell "6" [ref=e557]
+                  - cell "98601Y" [ref=e558]:
+                    - link "98601Y" [ref=e560] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/98601Y
+                  - cell "Atlantis (Troy)" [ref=e561]
+                  - cell "TROY HIGH NJROTC" [ref=e562]
+                  - cell "California - Region 4" [ref=e563]
+                  - cell "United States" [ref=e564]
+                - row "24 24 200 94 106 94 116 2026-03-14 03:16:29 2026-02-21 17:37:27 0 0 10W Exothermic Willy Wonkers Exothermic Robotics Washington United States" [ref=e565]:
+                  - cell "24" [ref=e566]
+                  - cell "24" [ref=e567]
+                  - cell "200" [ref=e568]
+                  - cell "94" [ref=e569]
+                  - cell "106" [ref=e570]
+                  - cell "94" [ref=e571]
+                  - cell "116" [ref=e572]
+                  - cell "2026-03-14 03:16:29" [ref=e573]
+                  - cell "2026-02-21 17:37:27" [ref=e574]
+                  - cell "0" [ref=e575]
+                  - cell "0" [ref=e576]
+                  - cell "10W" [ref=e577]:
+                    - link "10W" [ref=e579] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/10W
+                  - cell "Exothermic Willy Wonkers" [ref=e580]
+                  - cell "Exothermic Robotics" [ref=e581]
+                  - cell "Washington" [ref=e582]
+                  - cell "United States" [ref=e583]
+                - row "25 25 200 90 110 90 110 2026-03-13 21:41:16 2026-03-13 22:13:31 0 2 41618H Hermes CAMDEN CATHOLIC HIGH SCHOOL New Jersey United States" [ref=e584]:
+                  - cell "25" [ref=e585]
+                  - cell "25" [ref=e586]
+                  - cell "200" [ref=e587]
+                  - cell "90" [ref=e588]
+                  - cell "110" [ref=e589]
+                  - cell "90" [ref=e590]
+                  - cell "110" [ref=e591]
+                  - cell "2026-03-13 21:41:16" [ref=e592]
+                  - cell "2026-03-13 22:13:31" [ref=e593]
+                  - cell "0" [ref=e594]
+                  - cell "2" [ref=e595]
+                  - cell "41618H" [ref=e596]:
+                    - link "41618H" [ref=e598] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/41618H
+                  - cell "Hermes" [ref=e599]
+                  - cell "CAMDEN CATHOLIC HIGH SCHOOL" [ref=e600]
+                  - cell "New Jersey" [ref=e601]
+                  - cell "United States" [ref=e602]
+                - row "26 26 200 86 114 86 114 2026-03-08 13:48:38 2026-03-07 17:56:14 0 0 10102Z [Vinci] Hard Drive iSTEAM Academy Massachusetts United States" [ref=e603]:
+                  - cell "26" [ref=e604]
+                  - cell "26" [ref=e605]
+                  - cell "200" [ref=e606]
+                  - cell "86" [ref=e607]
+                  - cell "114" [ref=e608]
+                  - cell "86" [ref=e609]
+                  - cell "114" [ref=e610]
+                  - cell "2026-03-08 13:48:38" [ref=e611]
+                  - cell "2026-03-07 17:56:14" [ref=e612]
+                  - cell "0" [ref=e613]
+                  - cell "0" [ref=e614]
+                  - cell "10102Z" [ref=e615]:
+                    - link "10102Z" [ref=e617] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/10102Z
+                  - cell "[Vinci] Hard Drive" [ref=e618]
+                  - cell "iSTEAM Academy" [ref=e619]
+                  - cell "Massachusetts" [ref=e620]
+                  - cell "United States" [ref=e621]
+                - row "27 27 198 88 110 98 110 2026-02-07 02:37:08 2026-03-14 03:14:58 0 0 8931R V-Bots Arsenic LAKE STEVENS SR HIGH SCHOOL Washington United States" [ref=e622]:
+                  - cell "27" [ref=e623]
+                  - cell "27" [ref=e624]
+                  - cell "198" [ref=e625]
+                  - cell "88" [ref=e626]
+                  - cell "110" [ref=e627]
+                  - cell "98" [ref=e628]
+                  - cell "110" [ref=e629]
+                  - cell "2026-02-07 02:37:08" [ref=e630]
+                  - cell "2026-03-14 03:14:58" [ref=e631]
+                  - cell "0" [ref=e632]
+                  - cell "0" [ref=e633]
+                  - cell "8931R" [ref=e634]:
+                    - link "8931R" [ref=e636] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/8931R
+                  - cell "V-Bots Arsenic" [ref=e637]
+                  - cell "LAKE STEVENS SR HIGH SCHOOL" [ref=e638]
+                  - cell "Washington" [ref=e639]
+                  - cell "United States" [ref=e640]
+                - row "28 28 197 100 97 100 101 2026-02-14 03:36:05 2026-01-25 20:30:51 1 0 2154A ad astra Robobotics California - Region 2 United States" [ref=e641]:
+                  - cell "28" [ref=e642]
+                  - cell "28" [ref=e643]
+                  - cell "197" [ref=e644]
+                  - cell "100" [ref=e645]
+                  - cell "97" [ref=e646]
+                  - cell "100" [ref=e647]
+                  - cell "101" [ref=e648]
+                  - cell "2026-02-14 03:36:05" [ref=e649]
+                  - cell "2026-01-25 20:30:51" [ref=e650]
+                  - cell "1" [ref=e651]
+                  - cell "0" [ref=e652]
+                  - cell "2154A" [ref=e653]:
+                    - link "2154A" [ref=e655] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/2154A
+                  - cell "ad astra" [ref=e656]
+                  - cell "Robobotics" [ref=e657]
+                  - cell "California - Region 2" [ref=e658]
+                  - cell "United States" [ref=e659]
+                - row "29 29 197 97 100 97 100 2026-02-21 18:24:08 2026-02-21 19:53:40 0 0 80001X Double Double Double Play California - Region 2 United States" [ref=e660]:
+                  - cell "29" [ref=e661]
+                  - cell "29" [ref=e662]
+                  - cell "197" [ref=e663]
+                  - cell "97" [ref=e664]
+                  - cell "100" [ref=e665]
+                  - cell "97" [ref=e666]
+                  - cell "100" [ref=e667]
+                  - cell "2026-02-21 18:24:08" [ref=e668]
+                  - cell "2026-02-21 19:53:40" [ref=e669]
+                  - cell "0" [ref=e670]
+                  - cell "0" [ref=e671]
+                  - cell "80001X" [ref=e672]:
+                    - link "80001X" [ref=e674] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/80001X
+                  - cell "Double Double" [ref=e675]
+                  - cell "Double Play" [ref=e676]
+                  - cell "California - Region 2" [ref=e677]
+                  - cell "United States" [ref=e678]
+                - row "30 30 197 97 100 97 100 2026-02-21 23:06:33 2026-02-21 17:36:09 0 0 95071Y Saratoga High Yabbadabbadoo Saratoga High School California - Region 2 United States" [ref=e679]:
+                  - cell "30" [ref=e680]
+                  - cell "30" [ref=e681]
+                  - cell "197" [ref=e682]
+                  - cell "97" [ref=e683]
+                  - cell "100" [ref=e684]
+                  - cell "97" [ref=e685]
+                  - cell "100" [ref=e686]
+                  - cell "2026-02-21 23:06:33" [ref=e687]
+                  - cell "2026-02-21 17:36:09" [ref=e688]
+                  - cell "0" [ref=e689]
+                  - cell "0" [ref=e690]
+                  - cell "95071Y" [ref=e691]:
+                    - link "95071Y" [ref=e693] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/95071Y
+                  - cell "Saratoga High Yabbadabbadoo" [ref=e694]
+                  - cell "Saratoga High School" [ref=e695]
+                  - cell "California - Region 2" [ref=e696]
+                  - cell "United States" [ref=e697]
+                - 'row "31 31 197 94 103 94 103 2026-03-13 23:10:43 2026-03-13 22:12:40 0 0 4610W Wreckage: Robot Rev Robot Revolution New Jersey United States" [ref=e698]':
+                  - cell "31" [ref=e699]
+                  - cell "31" [ref=e700]
+                  - cell "197" [ref=e701]
+                  - cell "94" [ref=e702]
+                  - cell "103" [ref=e703]
+                  - cell "94" [ref=e704]
+                  - cell "103" [ref=e705]
+                  - cell "2026-03-13 23:10:43" [ref=e706]
+                  - cell "2026-03-13 22:12:40" [ref=e707]
+                  - cell "0" [ref=e708]
+                  - cell "0" [ref=e709]
+                  - cell "4610W" [ref=e710]:
+                    - link "4610W" [ref=e712] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/4610W
+                  - 'cell "Wreckage: Robot Rev" [ref=e713]'
+                  - cell "Robot Revolution" [ref=e714]
+                  - cell "New Jersey" [ref=e715]
+                  - cell "United States" [ref=e716]
+                - row "32 32 196 100 96 100 96 2026-03-07 18:12:04 2026-03-08 13:27:44 0 0 2602K Hopkinetics KryptoKnights HOPKINTON HIGH Massachusetts United States" [ref=e717]:
+                  - cell "32" [ref=e718]
+                  - cell "32" [ref=e719]
+                  - cell "196" [ref=e720]
+                  - cell "100" [ref=e721]
+                  - cell "96" [ref=e722]
+                  - cell "100" [ref=e723]
+                  - cell "96" [ref=e724]
+                  - cell "2026-03-07 18:12:04" [ref=e725]
+                  - cell "2026-03-08 13:27:44" [ref=e726]
+                  - cell "0" [ref=e727]
+                  - cell "0" [ref=e728]
+                  - cell "2602K" [ref=e729]:
+                    - link "2602K" [ref=e731] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/2602K
+                  - cell "Hopkinetics KryptoKnights" [ref=e732]
+                  - cell "HOPKINTON HIGH" [ref=e733]
+                  - cell "Massachusetts" [ref=e734]
+                  - cell "United States" [ref=e735]
+                - row "33 33 196 96 100 96 100 2026-02-21 19:56:39 2026-02-21 22:08:02 0 0 77277C Quantum Crew Private Washington United States" [ref=e736]:
+                  - cell "33" [ref=e737]
+                  - cell "33" [ref=e738]
+                  - cell "196" [ref=e739]
+                  - cell "96" [ref=e740]
+                  - cell "100" [ref=e741]
+                  - cell "96" [ref=e742]
+                  - cell "100" [ref=e743]
+                  - cell "2026-02-21 19:56:39" [ref=e744]
+                  - cell "2026-02-21 22:08:02" [ref=e745]
+                  - cell "0" [ref=e746]
+                  - cell "0" [ref=e747]
+                  - cell "77277C" [ref=e748]:
+                    - link "77277C" [ref=e750] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/77277C
+                  - cell "Quantum Crew" [ref=e751]
+                  - cell "Private" [ref=e752]
+                  - cell "Washington" [ref=e753]
+                  - cell "United States" [ref=e754]
+                - row "34 34 195 97 98 97 98 2026-03-06 23:43:40 2026-03-07 00:55:33 0 0 65162A Déjà vu BOB JONES ACADEMY South Carolina United States" [ref=e755]:
+                  - cell "34" [ref=e756]
+                  - cell "34" [ref=e757]
+                  - cell "195" [ref=e758]
+                  - cell "97" [ref=e759]
+                  - cell "98" [ref=e760]
+                  - cell "97" [ref=e761]
+                  - cell "98" [ref=e762]
+                  - cell "2026-03-06 23:43:40" [ref=e763]
+                  - cell "2026-03-07 00:55:33" [ref=e764]
+                  - cell "0" [ref=e765]
+                  - cell "0" [ref=e766]
+                  - cell "65162A" [ref=e767]:
+                    - link "65162A" [ref=e769] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/65162A
+                  - cell "Déjà vu" [ref=e770]
+                  - cell "BOB JONES ACADEMY" [ref=e771]
+                  - cell "South Carolina" [ref=e772]
+                  - cell "United States" [ref=e773]
+                - row "35 35 195 96 99 96 99 2026-03-08 16:07:54 2026-03-08 18:06:56 0 0 2550R Rowdy Grizzlies GRANITE BAY HIGH California - Region 2 United States" [ref=e774]:
+                  - cell "35" [ref=e775]
+                  - cell "35" [ref=e776]
+                  - cell "195" [ref=e777]
+                  - cell "96" [ref=e778]
+                  - cell "99" [ref=e779]
+                  - cell "96" [ref=e780]
+                  - cell "99" [ref=e781]
+                  - cell "2026-03-08 16:07:54" [ref=e782]
+                  - cell "2026-03-08 18:06:56" [ref=e783]
+                  - cell "0" [ref=e784]
+                  - cell "0" [ref=e785]
+                  - cell "2550R" [ref=e786]:
+                    - link "2550R" [ref=e788] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/2550R
+                  - cell "Rowdy Grizzlies" [ref=e789]
+                  - cell "GRANITE BAY HIGH" [ref=e790]
+                  - cell "California - Region 2" [ref=e791]
+                  - cell "United States" [ref=e792]
+                - row "36 36 195 95 100 95 100 2026-03-13 21:43:37 2026-03-14 15:05:05 0 0 586E Easy Breezy PLYMOUTH HIGH SCHOOL Indiana - Region 1 - North United States" [ref=e793]:
+                  - cell "36" [ref=e794]
+                  - cell "36" [ref=e795]
+                  - cell "195" [ref=e796]
+                  - cell "95" [ref=e797]
+                  - cell "100" [ref=e798]
+                  - cell "95" [ref=e799]
+                  - cell "100" [ref=e800]
+                  - cell "2026-03-13 21:43:37" [ref=e801]
+                  - cell "2026-03-14 15:05:05" [ref=e802]
+                  - cell "0" [ref=e803]
+                  - cell "0" [ref=e804]
+                  - cell "586E" [ref=e805]:
+                    - link "586E" [ref=e807] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/586E
+                  - cell "Easy Breezy" [ref=e808]
+                  - cell "PLYMOUTH HIGH SCHOOL" [ref=e809]
+                  - cell "Indiana - Region 1 - North" [ref=e810]
+                  - cell "United States" [ref=e811]
+                - row "37 37 195 91 104 91 104 2026-02-20 20:05:53 2026-02-20 20:05:17 0 0 47874Z SUB ZERO Squalicum High School Washington United States" [ref=e812]:
+                  - cell "37" [ref=e813]
+                  - cell "37" [ref=e814]
+                  - cell "195" [ref=e815]
+                  - cell "91" [ref=e816]
+                  - cell "104" [ref=e817]
+                  - cell "91" [ref=e818]
+                  - cell "104" [ref=e819]
+                  - cell "2026-02-20 20:05:53" [ref=e820]
+                  - cell "2026-02-20 20:05:17" [ref=e821]
+                  - cell "0" [ref=e822]
+                  - cell "0" [ref=e823]
+                  - cell "47874Z" [ref=e824]:
+                    - link "47874Z" [ref=e826] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/47874Z
+                  - cell "SUB ZERO" [ref=e827]
+                  - cell "Squalicum High School" [ref=e828]
+                  - cell "Washington" [ref=e829]
+                  - cell "United States" [ref=e830]
+                - row "38 38 195 86 109 86 110 2026-02-14 17:22:22 2026-03-07 17:18:58 0 0 2054V Pika Pika Pika Pika Robotics Utah United States" [ref=e831]:
+                  - cell "38" [ref=e832]
+                  - cell "38" [ref=e833]
+                  - cell "195" [ref=e834]
+                  - cell "86" [ref=e835]
+                  - cell "109" [ref=e836]
+                  - cell "86" [ref=e837]
+                  - cell "110" [ref=e838]
+                  - cell "2026-02-14 17:22:22" [ref=e839]
+                  - cell "2026-03-07 17:18:58" [ref=e840]
+                  - cell "0" [ref=e841]
+                  - cell "0" [ref=e842]
+                  - cell "2054V" [ref=e843]:
+                    - link "2054V" [ref=e845] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/2054V
+                  - cell "Pika Pika" [ref=e846]
+                  - cell "Pika Pika Robotics" [ref=e847]
+                  - cell "Utah" [ref=e848]
+                  - cell "United States" [ref=e849]
+                - row "39 39 193 98 95 98 99 2026-02-14 19:47:00 2026-02-27 23:11:59 0 6 3150X Three One Five Zero A Silver Owl Robotics Inc. Ontario Canada" [ref=e850]:
+                  - cell "39" [ref=e851]
+                  - cell "39" [ref=e852]
+                  - cell "193" [ref=e853]
+                  - cell "98" [ref=e854]
+                  - cell "95" [ref=e855]
+                  - cell "98" [ref=e856]
+                  - cell "99" [ref=e857]
+                  - cell "2026-02-14 19:47:00" [ref=e858]
+                  - cell "2026-02-27 23:11:59" [ref=e859]
+                  - cell "0" [ref=e860]
+                  - cell "6" [ref=e861]
+                  - cell "3150X" [ref=e862]:
+                    - link "3150X" [ref=e864] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/3150X
+                  - cell "Three One Five Zero A" [ref=e865]
+                  - cell "Silver Owl Robotics Inc." [ref=e866]
+                  - cell "Ontario" [ref=e867]
+                  - cell "Canada" [ref=e868]
+                - row "40 40 193 95 98 95 98 2026-01-11 16:45:26 2026-01-09 19:58:23 1 0 1523C Charisma Steamoji Washington United States" [ref=e869]:
+                  - cell "40" [ref=e870]
+                  - cell "40" [ref=e871]
+                  - cell "193" [ref=e872]
+                  - cell "95" [ref=e873]
+                  - cell "98" [ref=e874]
+                  - cell "95" [ref=e875]
+                  - cell "98" [ref=e876]
+                  - cell "2026-01-11 16:45:26" [ref=e877]
+                  - cell "2026-01-09 19:58:23" [ref=e878]
+                  - cell "1" [ref=e879]
+                  - cell "0" [ref=e880]
+                  - cell "1523C" [ref=e881]:
+                    - link "1523C" [ref=e883] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/1523C
+                  - cell "Charisma" [ref=e884]
+                  - cell "Steamoji" [ref=e885]
+                  - cell "Washington" [ref=e886]
+                  - cell "United States" [ref=e887]
+                - 'row "41 41 193 92 101 92 101 2026-02-28 03:10:24 2026-02-28 18:00:37 0 0 1010X TenTon Robotics West Vancouver School District #45 British Columbia (BC) Canada" [ref=e888]':
+                  - cell "41" [ref=e889]
+                  - cell "41" [ref=e890]
+                  - cell "193" [ref=e891]
+                  - cell "92" [ref=e892]
+                  - cell "101" [ref=e893]
+                  - cell "92" [ref=e894]
+                  - cell "101" [ref=e895]
+                  - cell "2026-02-28 03:10:24" [ref=e896]
+                  - cell "2026-02-28 18:00:37" [ref=e897]
+                  - cell "0" [ref=e898]
+                  - cell "0" [ref=e899]
+                  - cell "1010X" [ref=e900]:
+                    - link "1010X" [ref=e902] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/1010X
+                  - cell "TenTon Robotics" [ref=e903]
+                  - 'cell "West Vancouver School District #45" [ref=e904]'
+                  - cell "British Columbia (BC)" [ref=e905]
+                  - cell "Canada" [ref=e906]
+                - row "42 42 192 96 96 96 96 2026-01-25 23:23:29 2026-01-25 22:35:01 2 6 95111V Garage Productions Hackathon4Kids California - Region 2 United States" [ref=e907]:
+                  - cell "42" [ref=e908]
+                  - cell "42" [ref=e909]
+                  - cell "192" [ref=e910]
+                  - cell "96" [ref=e911]
+                  - cell "96" [ref=e912]
+                  - cell "96" [ref=e913]
+                  - cell "96" [ref=e914]
+                  - cell "2026-01-25 23:23:29" [ref=e915]
+                  - cell "2026-01-25 22:35:01" [ref=e916]
+                  - cell "2" [ref=e917]
+                  - cell "6" [ref=e918]
+                  - cell "95111V" [ref=e919]:
+                    - link "95111V" [ref=e921] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/95111V
+                  - cell "Garage Productions" [ref=e922]
+                  - cell "Hackathon4Kids" [ref=e923]
+                  - cell "California - Region 2" [ref=e924]
+                  - cell "United States" [ref=e925]
+                - row "43 43 192 90 102 90 103 2026-01-25 19:11:45 2026-03-08 18:00:54 0 0 77787W Whiteout T-REX CLUB Corporation California - Region 2 United States" [ref=e926]:
+                  - cell "43" [ref=e927]
+                  - cell "43" [ref=e928]
+                  - cell "192" [ref=e929]
+                  - cell "90" [ref=e930]
+                  - cell "102" [ref=e931]
+                  - cell "90" [ref=e932]
+                  - cell "103" [ref=e933]
+                  - cell "2026-01-25 19:11:45" [ref=e934]
+                  - cell "2026-03-08 18:00:54" [ref=e935]
+                  - cell "0" [ref=e936]
+                  - cell "0" [ref=e937]
+                  - cell "77787W" [ref=e938]:
+                    - link "77787W" [ref=e940] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/77787W
+                  - cell "Whiteout" [ref=e941]
+                  - cell "T-REX CLUB Corporation" [ref=e942]
+                  - cell "California - Region 2" [ref=e943]
+                  - cell "United States" [ref=e944]
+                - row "44 44 192 89 103 89 103 2026-02-28 22:48:07 2026-02-28 17:52:26 0 0 839Z // Caution Tape ZOOM! // Caution Tape Robotics //// Ontario Canada" [ref=e945]:
+                  - cell "44" [ref=e946]
+                  - cell "44" [ref=e947]
+                  - cell "192" [ref=e948]
+                  - cell "89" [ref=e949]
+                  - cell "103" [ref=e950]
+                  - cell "89" [ref=e951]
+                  - cell "103" [ref=e952]
+                  - cell "2026-02-28 22:48:07" [ref=e953]
+                  - cell "2026-02-28 17:52:26" [ref=e954]
+                  - cell "0" [ref=e955]
+                  - cell "0" [ref=e956]
+                  - cell "839Z" [ref=e957]:
+                    - link "839Z" [ref=e959] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/839Z
+                  - cell // Caution Tape ZOOM! // [ref=e960]
+                  - cell "Caution Tape Robotics ////" [ref=e961]
+                  - cell "Ontario" [ref=e962]
+                  - cell "Canada" [ref=e963]
+                - row "45 45 192 78 114 78 114 2026-02-14 20:49:55 2026-02-14 19:56:55 0 0 9123S Shanghai RuiGuan Team 9123S ShangHai RuiGuan Robotics Activity Center East China China" [ref=e964]:
+                  - cell "45" [ref=e965]
+                  - cell "45" [ref=e966]
+                  - cell "192" [ref=e967]
+                  - cell "78" [ref=e968]
+                  - cell "114" [ref=e969]
+                  - cell "78" [ref=e970]
+                  - cell "114" [ref=e971]
+                  - cell "2026-02-14 20:49:55" [ref=e972]
+                  - cell "2026-02-14 19:56:55" [ref=e973]
+                  - cell "0" [ref=e974]
+                  - cell "0" [ref=e975]
+                  - cell "9123S" [ref=e976]:
+                    - link "9123S" [ref=e978] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/9123S
+                  - cell "Shanghai RuiGuan Team 9123S" [ref=e979]
+                  - cell "ShangHai RuiGuan Robotics Activity Center" [ref=e980]
+                  - cell "East China" [ref=e981]
+                  - cell "China" [ref=e982]
+                - row "46 46 191 96 95 96 97 2026-02-15 02:14:12 2025-10-25 17:46:16 0 1 2570R Royal Flush Next Gen AI Bots California - Region 2 United States" [ref=e983]:
+                  - cell "46" [ref=e984]
+                  - cell "46" [ref=e985]
+                  - cell "191" [ref=e986]
+                  - cell "96" [ref=e987]
+                  - cell "95" [ref=e988]
+                  - cell "96" [ref=e989]
+                  - cell "97" [ref=e990]
+                  - cell "2026-02-15 02:14:12" [ref=e991]
+                  - cell "2025-10-25 17:46:16" [ref=e992]
+                  - cell "0" [ref=e993]
+                  - cell "1" [ref=e994]
+                  - cell "2570R" [ref=e995]:
+                    - link "2570R" [ref=e997] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/2570R
+                  - cell "Royal Flush" [ref=e998]
+                  - cell "Next Gen AI Bots" [ref=e999]
+                  - cell "California - Region 2" [ref=e1000]
+                  - cell "United States" [ref=e1001]
+                - row "47 47 191 91 100 91 100 2026-02-14 21:29:03 2026-02-14 02:52:08 0 0 88909X Parallelogram INOBOTICS California - Region 2 United States" [ref=e1002]:
+                  - cell "47" [ref=e1003]
+                  - cell "47" [ref=e1004]
+                  - cell "191" [ref=e1005]
+                  - cell "91" [ref=e1006]
+                  - cell "100" [ref=e1007]
+                  - cell "91" [ref=e1008]
+                  - cell "100" [ref=e1009]
+                  - cell "2026-02-14 21:29:03" [ref=e1010]
+                  - cell "2026-02-14 02:52:08" [ref=e1011]
+                  - cell "0" [ref=e1012]
+                  - cell "0" [ref=e1013]
+                  - cell "88909X" [ref=e1014]:
+                    - link "88909X" [ref=e1016] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/88909X
+                  - cell "Parallelogram" [ref=e1017]
+                  - cell "INOBOTICS" [ref=e1018]
+                  - cell "California - Region 2" [ref=e1019]
+                  - cell "United States" [ref=e1020]
+                - row "48 48 191 90 101 90 101 2026-03-07 00:38:20 2026-03-07 19:30:43 0 0 9447G Exploding Kittens Palmetto Scholars Academy South Carolina United States" [ref=e1021]:
+                  - cell "48" [ref=e1022]
+                  - cell "48" [ref=e1023]
+                  - cell "191" [ref=e1024]
+                  - cell "90" [ref=e1025]
+                  - cell "101" [ref=e1026]
+                  - cell "90" [ref=e1027]
+                  - cell "101" [ref=e1028]
+                  - cell "2026-03-07 00:38:20" [ref=e1029]
+                  - cell "2026-03-07 19:30:43" [ref=e1030]
+                  - cell "0" [ref=e1031]
+                  - cell "0" [ref=e1032]
+                  - cell "9447G" [ref=e1033]:
+                    - link "9447G" [ref=e1035] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/9447G
+                  - cell "Exploding Kittens" [ref=e1036]
+                  - cell "Palmetto Scholars Academy" [ref=e1037]
+                  - cell "South Carolina" [ref=e1038]
+                  - cell "United States" [ref=e1039]
+                - row "49 49 191 89 102 89 102 2026-02-07 04:37:52 2026-02-08 02:04:43 0 0 50922T LSTS MAKO MANIACS Lawrence S.Ting School Vietnam Vietnam" [ref=e1040]:
+                  - cell "49" [ref=e1041]
+                  - cell "49" [ref=e1042]
+                  - cell "191" [ref=e1043]
+                  - cell "89" [ref=e1044]
+                  - cell "102" [ref=e1045]
+                  - cell "89" [ref=e1046]
+                  - cell "102" [ref=e1047]
+                  - cell "2026-02-07 04:37:52" [ref=e1048]
+                  - cell "2026-02-08 02:04:43" [ref=e1049]
+                  - cell "0" [ref=e1050]
+                  - cell "0" [ref=e1051]
+                  - cell "50922T" [ref=e1052]:
+                    - link "50922T" [ref=e1054] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/50922T
+                  - cell "LSTS MAKO MANIACS" [ref=e1055]
+                  - cell "Lawrence S.Ting School" [ref=e1056]
+                  - cell "Vietnam" [ref=e1057]
+                  - cell "Vietnam" [ref=e1058]
+                - row "50 50 190 101 89 101 98 2026-02-28 18:26:59 2026-01-24 23:29:26 1 4 360H Half Circle Vexcellent Minds California - Region 4 United States" [ref=e1059]:
+                  - cell "50" [ref=e1060]
+                  - cell "50" [ref=e1061]
+                  - cell "190" [ref=e1062]
+                  - cell "101" [ref=e1063]
+                  - cell "89" [ref=e1064]
+                  - cell "101" [ref=e1065]
+                  - cell "98" [ref=e1066]
+                  - cell "2026-02-28 18:26:59" [ref=e1067]
+                  - cell "2026-01-24 23:29:26" [ref=e1068]
+                  - cell "1" [ref=e1069]
+                  - cell "4" [ref=e1070]
+                  - cell "360H" [ref=e1071]:
+                    - link "360H" [ref=e1073] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/360H
+                  - cell "Half Circle" [ref=e1074]
+                  - cell "Vexcellent Minds" [ref=e1075]
+                  - cell "California - Region 4" [ref=e1076]
+                  - cell "United States" [ref=e1077]
+                - row "51 51 190 86 104 86 104 2026-03-06 18:34:36 2026-03-06 18:12:44 0 0 7225F Red 40 Southland High School Minnesota United States" [ref=e1078]:
+                  - cell "51" [ref=e1079]
+                  - cell "51" [ref=e1080]
+                  - cell "190" [ref=e1081]
+                  - cell "86" [ref=e1082]
+                  - cell "104" [ref=e1083]
+                  - cell "86" [ref=e1084]
+                  - cell "104" [ref=e1085]
+                  - cell "2026-03-06 18:34:36" [ref=e1086]
+                  - cell "2026-03-06 18:12:44" [ref=e1087]
+                  - cell "0" [ref=e1088]
+                  - cell "0" [ref=e1089]
+                  - cell "7225F" [ref=e1090]:
+                    - link "7225F" [ref=e1092] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/7225F
+                  - cell "Red 40" [ref=e1093]
+                  - cell "Southland High School" [ref=e1094]
+                  - cell "Minnesota" [ref=e1095]
+                  - cell "United States" [ref=e1096]
+                - row "52 52 190 85 105 85 105 2026-03-07 20:16:21 2026-03-07 20:28:18 0 0 32092G Mile High Mechanics Stargate Charter School Colorado United States" [ref=e1097]:
+                  - cell "52" [ref=e1098]
+                  - cell "52" [ref=e1099]
+                  - cell "190" [ref=e1100]
+                  - cell "85" [ref=e1101]
+                  - cell "105" [ref=e1102]
+                  - cell "85" [ref=e1103]
+                  - cell "105" [ref=e1104]
+                  - cell "2026-03-07 20:16:21" [ref=e1105]
+                  - cell "2026-03-07 20:28:18" [ref=e1106]
+                  - cell "0" [ref=e1107]
+                  - cell "0" [ref=e1108]
+                  - cell "32092G" [ref=e1109]:
+                    - link "32092G" [ref=e1111] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/32092G
+                  - cell "Mile High Mechanics" [ref=e1112]
+                  - cell "Stargate Charter School" [ref=e1113]
+                  - cell "Colorado" [ref=e1114]
+                  - cell "United States" [ref=e1115]
+                - row "53 53 189 107 82 107 82 2026-03-07 20:00:36 2026-03-07 18:30:37 0 0 3332A Astrabot Astrabot California - Region 2 United States" [ref=e1116]:
+                  - cell "53" [ref=e1117]
+                  - cell "53" [ref=e1118]
+                  - cell "189" [ref=e1119]
+                  - cell "107" [ref=e1120]
+                  - cell "82" [ref=e1121]
+                  - cell "107" [ref=e1122]
+                  - cell "82" [ref=e1123]
+                  - cell "2026-03-07 20:00:36" [ref=e1124]
+                  - cell "2026-03-07 18:30:37" [ref=e1125]
+                  - cell "0" [ref=e1126]
+                  - cell "0" [ref=e1127]
+                  - cell "3332A" [ref=e1128]:
+                    - link "3332A" [ref=e1130] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/3332A
+                  - cell "Astrabot" [ref=e1131]
+                  - cell "Astrabot" [ref=e1132]
+                  - cell "California - Region 2" [ref=e1133]
+                  - cell "United States" [ref=e1134]
+                - row "54 54 189 90 99 91 99 2026-01-10 15:04:43 2026-02-21 15:49:57 0 0 2790B buh Valparaiso High School Indiana - Region 1 - North United States" [ref=e1135]:
+                  - cell "54" [ref=e1136]
+                  - cell "54" [ref=e1137]
+                  - cell "189" [ref=e1138]
+                  - cell "90" [ref=e1139]
+                  - cell "99" [ref=e1140]
+                  - cell "91" [ref=e1141]
+                  - cell "99" [ref=e1142]
+                  - cell "2026-01-10 15:04:43" [ref=e1143]
+                  - cell "2026-02-21 15:49:57" [ref=e1144]
+                  - cell "0" [ref=e1145]
+                  - cell "0" [ref=e1146]
+                  - cell "2790B" [ref=e1147]:
+                    - link "2790B" [ref=e1149] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/2790B
+                  - cell "buh" [ref=e1150]
+                  - cell "Valparaiso High School" [ref=e1151]
+                  - cell "Indiana - Region 1 - North" [ref=e1152]
+                  - cell "United States" [ref=e1153]
+                - row "55 55 189 90 99 90 99 2026-03-14 00:24:53 2026-03-14 16:18:28 0 0 24658J The Danny Devitos Jay High School Oklahoma United States" [ref=e1154]:
+                  - cell "55" [ref=e1155]
+                  - cell "55" [ref=e1156]
+                  - cell "189" [ref=e1157]
+                  - cell "90" [ref=e1158]
+                  - cell "99" [ref=e1159]
+                  - cell "90" [ref=e1160]
+                  - cell "99" [ref=e1161]
+                  - cell "2026-03-14 00:24:53" [ref=e1162]
+                  - cell "2026-03-14 16:18:28" [ref=e1163]
+                  - cell "0" [ref=e1164]
+                  - cell "0" [ref=e1165]
+                  - cell "24658J" [ref=e1166]:
+                    - link "24658J" [ref=e1168] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/24658J
+                  - cell "The Danny Devitos" [ref=e1169]
+                  - cell "Jay High School" [ref=e1170]
+                  - cell "Oklahoma" [ref=e1171]
+                  - cell "United States" [ref=e1172]
+                - row "56 56 189 85 104 85 104 2025-11-15 13:25:42 2025-11-15 13:46:11 0 0 15442A Capybara CANYON HIGH California - Region 4 United States" [ref=e1173]:
+                  - cell "56" [ref=e1174]
+                  - cell "56" [ref=e1175]
+                  - cell "189" [ref=e1176]
+                  - cell "85" [ref=e1177]
+                  - cell "104" [ref=e1178]
+                  - cell "85" [ref=e1179]
+                  - cell "104" [ref=e1180]
+                  - cell "2025-11-15 13:25:42" [ref=e1181]
+                  - cell "2025-11-15 13:46:11" [ref=e1182]
+                  - cell "0" [ref=e1183]
+                  - cell "0" [ref=e1184]
+                  - cell "15442A" [ref=e1185]:
+                    - link "15442A" [ref=e1187] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/15442A
+                  - cell "Capybara" [ref=e1188]
+                  - cell "CANYON HIGH" [ref=e1189]
+                  - cell "California - Region 4" [ref=e1190]
+                  - cell "United States" [ref=e1191]
+                - row "57 57 189 74 115 78 115 2026-02-14 22:26:14 2026-03-14 22:36:30 0 0 1523W Washington Football Team Steamoji Washington United States" [ref=e1192]:
+                  - cell "57" [ref=e1193]
+                  - cell "57" [ref=e1194]
+                  - cell "189" [ref=e1195]
+                  - cell "74" [ref=e1196]
+                  - cell "115" [ref=e1197]
+                  - cell "78" [ref=e1198]
+                  - cell "115" [ref=e1199]
+                  - cell "2026-02-14 22:26:14" [ref=e1200]
+                  - cell "2026-03-14 22:36:30" [ref=e1201]
+                  - cell "0" [ref=e1202]
+                  - cell "0" [ref=e1203]
+                  - cell "1523W" [ref=e1204]:
+                    - link "1523W" [ref=e1206] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/1523W
+                  - cell "Washington Football Team" [ref=e1207]
+                  - cell "Steamoji" [ref=e1208]
+                  - cell "Washington" [ref=e1209]
+                  - cell "United States" [ref=e1210]
+                - row "58 58 188 114 74 114 74 2026-02-14 19:25:28 2026-02-14 18:33:12 0 0 58676R Corsaires R Ecole Pointe-Levy Quebec Canada" [ref=e1211]:
+                  - cell "58" [ref=e1212]
+                  - cell "58" [ref=e1213]
+                  - cell "188" [ref=e1214]
+                  - cell "114" [ref=e1215]
+                  - cell "74" [ref=e1216]
+                  - cell "114" [ref=e1217]
+                  - cell "74" [ref=e1218]
+                  - cell "2026-02-14 19:25:28" [ref=e1219]
+                  - cell "2026-02-14 18:33:12" [ref=e1220]
+                  - cell "0" [ref=e1221]
+                  - cell "0" [ref=e1222]
+                  - cell "58676R" [ref=e1223]:
+                    - link "58676R" [ref=e1225] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/58676R
+                  - cell "Corsaires R" [ref=e1226]
+                  - cell "Ecole Pointe-Levy" [ref=e1227]
+                  - cell "Quebec" [ref=e1228]
+                  - cell "Canada" [ref=e1229]
+                - row "59 59 188 94 94 94 102 2026-02-21 19:17:01 2026-02-14 22:57:18 0 0 1023E Evolution Evolution Robotics Washington United States" [ref=e1230]:
+                  - cell "59" [ref=e1231]
+                  - cell "59" [ref=e1232]
+                  - cell "188" [ref=e1233]
+                  - cell "94" [ref=e1234]
+                  - cell "94" [ref=e1235]
+                  - cell "94" [ref=e1236]
+                  - cell "102" [ref=e1237]
+                  - cell "2026-02-21 19:17:01" [ref=e1238]
+                  - cell "2026-02-14 22:57:18" [ref=e1239]
+                  - cell "0" [ref=e1240]
+                  - cell "0" [ref=e1241]
+                  - cell "1023E" [ref=e1242]:
+                    - link "1023E" [ref=e1244] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/1023E
+                  - cell "Evolution" [ref=e1245]
+                  - cell "Evolution Robotics" [ref=e1246]
+                  - cell "Washington" [ref=e1247]
+                  - cell "United States" [ref=e1248]
+                - row "60 60 188 87 101 92 101 2026-03-15 13:46:31 2025-12-27 23:24:02 0 0 64411B B>U STEM SQUAD ROBOTICS Florida - South United States" [ref=e1249]:
+                  - cell "60" [ref=e1250]
+                  - cell "60" [ref=e1251]
+                  - cell "188" [ref=e1252]
+                  - cell "87" [ref=e1253]
+                  - cell "101" [ref=e1254]
+                  - cell "92" [ref=e1255]
+                  - cell "101" [ref=e1256]
+                  - cell "2026-03-15 13:46:31" [ref=e1257]
+                  - cell "2025-12-27 23:24:02" [ref=e1258]
+                  - cell "0" [ref=e1259]
+                  - cell "0" [ref=e1260]
+                  - cell "64411B" [ref=e1261]:
+                    - link "64411B" [ref=e1263] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/64411B
+                  - cell "B>U" [ref=e1264]
+                  - cell "STEM SQUAD ROBOTICS" [ref=e1265]
+                  - cell "Florida - South" [ref=e1266]
+                  - cell "United States" [ref=e1267]
+                - row "61 61 188 90 98 90 98 2026-03-06 17:50:25 2026-03-06 16:12:56 0 0 8110W Whisper Mankato West Robotics Minnesota United States" [ref=e1268]:
+                  - cell "61" [ref=e1269]
+                  - cell "61" [ref=e1270]
+                  - cell "188" [ref=e1271]
+                  - cell "90" [ref=e1272]
+                  - cell "98" [ref=e1273]
+                  - cell "90" [ref=e1274]
+                  - cell "98" [ref=e1275]
+                  - cell "2026-03-06 17:50:25" [ref=e1276]
+                  - cell "2026-03-06 16:12:56" [ref=e1277]
+                  - cell "0" [ref=e1278]
+                  - cell "0" [ref=e1279]
+                  - cell "8110W" [ref=e1280]:
+                    - link "8110W" [ref=e1282] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/8110W
+                  - cell "Whisper" [ref=e1283]
+                  - cell "Mankato West Robotics" [ref=e1284]
+                  - cell "Minnesota" [ref=e1285]
+                  - cell "United States" [ref=e1286]
+                - row "62 62 188 89 99 89 99 2026-01-18 00:41:20 2026-01-17 23:43:42 0 9 6374B Bionic Bruins BRANHAM HIGH California - Region 2 United States" [ref=e1287]:
+                  - cell "62" [ref=e1288]
+                  - cell "62" [ref=e1289]
+                  - cell "188" [ref=e1290]
+                  - cell "89" [ref=e1291]
+                  - cell "99" [ref=e1292]
+                  - cell "89" [ref=e1293]
+                  - cell "99" [ref=e1294]
+                  - cell "2026-01-18 00:41:20" [ref=e1295]
+                  - cell "2026-01-17 23:43:42" [ref=e1296]
+                  - cell "0" [ref=e1297]
+                  - cell "9" [ref=e1298]
+                  - cell "6374B" [ref=e1299]:
+                    - link "6374B" [ref=e1301] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/6374B
+                  - cell "Bionic Bruins" [ref=e1302]
+                  - cell "BRANHAM HIGH" [ref=e1303]
+                  - cell "California - Region 2" [ref=e1304]
+                  - cell "United States" [ref=e1305]
+                - row "63 63 188 87 101 87 104 2026-01-25 04:09:01 2026-02-04 01:36:58 2 0 1791V JOINUS Curious X-Lab Chinese Taipei Taiwan" [ref=e1306]:
+                  - cell "63" [ref=e1307]
+                  - cell "63" [ref=e1308]
+                  - cell "188" [ref=e1309]
+                  - cell "87" [ref=e1310]
+                  - cell "101" [ref=e1311]
+                  - cell "87" [ref=e1312]
+                  - cell "104" [ref=e1313]
+                  - cell "2026-01-25 04:09:01" [ref=e1314]
+                  - cell "2026-02-04 01:36:58" [ref=e1315]
+                  - cell "2" [ref=e1316]
+                  - cell "0" [ref=e1317]
+                  - cell "1791V" [ref=e1318]:
+                    - link "1791V" [ref=e1320] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/1791V
+                  - cell "JOINUS" [ref=e1321]
+                  - cell "Curious X-Lab" [ref=e1322]
+                  - cell "Chinese Taipei" [ref=e1323]
+                  - cell "Taiwan" [ref=e1324]
+                - row "64 64 187 96 91 96 91 2026-02-15 18:30:33 2026-02-15 16:04:41 0 0 5956A Bangarang TIMBER CREEK HIGH Florida - North/Central United States" [ref=e1325]:
+                  - cell "64" [ref=e1326]
+                  - cell "64" [ref=e1327]
+                  - cell "187" [ref=e1328]
+                  - cell "96" [ref=e1329]
+                  - cell "91" [ref=e1330]
+                  - cell "96" [ref=e1331]
+                  - cell "91" [ref=e1332]
+                  - cell "2026-02-15 18:30:33" [ref=e1333]
+                  - cell "2026-02-15 16:04:41" [ref=e1334]
+                  - cell "0" [ref=e1335]
+                  - cell "0" [ref=e1336]
+                  - cell "5956A" [ref=e1337]:
+                    - link "5956A" [ref=e1339] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/5956A
+                  - cell "Bangarang" [ref=e1340]
+                  - cell "TIMBER CREEK HIGH" [ref=e1341]
+                  - cell "Florida - North/Central" [ref=e1342]
+                  - cell "United States" [ref=e1343]
+                - row "65 65 187 90 97 90 97 2026-02-02 09:12:45 2026-02-03 06:34:38 0 0 81988B Artemis Shanghai Hongkou Robotics Club East China China" [ref=e1344]:
+                  - cell "65" [ref=e1345]
+                  - cell "65" [ref=e1346]
+                  - cell "187" [ref=e1347]
+                  - cell "90" [ref=e1348]
+                  - cell "97" [ref=e1349]
+                  - cell "90" [ref=e1350]
+                  - cell "97" [ref=e1351]
+                  - cell "2026-02-02 09:12:45" [ref=e1352]
+                  - cell "2026-02-03 06:34:38" [ref=e1353]
+                  - cell "0" [ref=e1354]
+                  - cell "0" [ref=e1355]
+                  - cell "81988B" [ref=e1356]:
+                    - link "81988B" [ref=e1358] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/81988B
+                  - cell "Artemis" [ref=e1359]
+                  - cell "Shanghai Hongkou Robotics Club" [ref=e1360]
+                  - cell "East China" [ref=e1361]
+                  - cell "China" [ref=e1362]
+                - row "66 66 187 89 98 89 98 2026-02-27 02:32:49 2026-02-26 07:38:56 0 0 1690X RAVEN X Chengdu ShuDe High School West China China" [ref=e1363]:
+                  - cell "66" [ref=e1364]
+                  - cell "66" [ref=e1365]
+                  - cell "187" [ref=e1366]
+                  - cell "89" [ref=e1367]
+                  - cell "98" [ref=e1368]
+                  - cell "89" [ref=e1369]
+                  - cell "98" [ref=e1370]
+                  - cell "2026-02-27 02:32:49" [ref=e1371]
+                  - cell "2026-02-26 07:38:56" [ref=e1372]
+                  - cell "0" [ref=e1373]
+                  - cell "0" [ref=e1374]
+                  - cell "1690X" [ref=e1375]:
+                    - link "1690X" [ref=e1377] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/1690X
+                  - cell "RAVEN X" [ref=e1378]
+                  - cell "Chengdu ShuDe High School" [ref=e1379]
+                  - cell "West China" [ref=e1380]
+                  - cell "China" [ref=e1381]
+                - row "67 67 187 86 101 86 101 2026-02-26 08:14:19 2026-02-26 06:04:25 0 0 7618A Earthmover Shanghai Xiangming High School East China China" [ref=e1382]:
+                  - cell "67" [ref=e1383]
+                  - cell "67" [ref=e1384]
+                  - cell "187" [ref=e1385]
+                  - cell "86" [ref=e1386]
+                  - cell "101" [ref=e1387]
+                  - cell "86" [ref=e1388]
+                  - cell "101" [ref=e1389]
+                  - cell "2026-02-26 08:14:19" [ref=e1390]
+                  - cell "2026-02-26 06:04:25" [ref=e1391]
+                  - cell "0" [ref=e1392]
+                  - cell "0" [ref=e1393]
+                  - cell "7618A" [ref=e1394]:
+                    - link "7618A" [ref=e1396] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/7618A
+                  - cell "Earthmover" [ref=e1397]
+                  - cell "Shanghai Xiangming High School" [ref=e1398]
+                  - cell "East China" [ref=e1399]
+                  - cell "China" [ref=e1400]
+                - row "68 68 187 85 102 85 102 2026-01-17 10:07:26 2026-01-17 10:09:56 0 0 2623K Kingsmen Independent United Kingdom United Kingdom" [ref=e1401]:
+                  - cell "68" [ref=e1402]
+                  - cell "68" [ref=e1403]
+                  - cell "187" [ref=e1404]
+                  - cell "85" [ref=e1405]
+                  - cell "102" [ref=e1406]
+                  - cell "85" [ref=e1407]
+                  - cell "102" [ref=e1408]
+                  - cell "2026-01-17 10:07:26" [ref=e1409]
+                  - cell "2026-01-17 10:09:56" [ref=e1410]
+                  - cell "0" [ref=e1411]
+                  - cell "0" [ref=e1412]
+                  - cell "2623K" [ref=e1413]:
+                    - link "2623K" [ref=e1415] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/2623K
+                  - cell "Kingsmen" [ref=e1416]
+                  - cell "Independent" [ref=e1417]
+                  - cell "United Kingdom" [ref=e1418]
+                  - cell "United Kingdom" [ref=e1419]
+                - row "69 69 187 81 106 81 106 2026-02-13 14:34:47 2026-02-12 21:23:26 0 0 91231C IRVINE RUIGUAN IRVINE RUIGUAN California - Region 4 United States" [ref=e1420]:
+                  - cell "69" [ref=e1421]
+                  - cell "69" [ref=e1422]
+                  - cell "187" [ref=e1423]
+                  - cell "81" [ref=e1424]
+                  - cell "106" [ref=e1425]
+                  - cell "81" [ref=e1426]
+                  - cell "106" [ref=e1427]
+                  - cell "2026-02-13 14:34:47" [ref=e1428]
+                  - cell "2026-02-12 21:23:26" [ref=e1429]
+                  - cell "0" [ref=e1430]
+                  - cell "0" [ref=e1431]
+                  - cell "91231C" [ref=e1432]:
+                    - link "91231C" [ref=e1434] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/91231C
+                  - cell "IRVINE RUIGUAN" [ref=e1435]
+                  - cell "IRVINE RUIGUAN" [ref=e1436]
+                  - cell "California - Region 4" [ref=e1437]
+                  - cell "United States" [ref=e1438]
+                - row "70 70 187 80 107 80 107 2026-02-28 17:06:41 2026-02-28 18:54:20 8 2 8675A Jenny NRAI Nebraska United States" [ref=e1439]:
+                  - cell "70" [ref=e1440]
+                  - cell "70" [ref=e1441]
+                  - cell "187" [ref=e1442]
+                  - cell "80" [ref=e1443]
+                  - cell "107" [ref=e1444]
+                  - cell "80" [ref=e1445]
+                  - cell "107" [ref=e1446]
+                  - cell "2026-02-28 17:06:41" [ref=e1447]
+                  - cell "2026-02-28 18:54:20" [ref=e1448]
+                  - cell "8" [ref=e1449]
+                  - cell "2" [ref=e1450]
+                  - cell "8675A" [ref=e1451]:
+                    - link "8675A" [ref=e1453] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/8675A
+                  - cell "Jenny" [ref=e1454]
+                  - cell "NRAI" [ref=e1455]
+                  - cell "Nebraska" [ref=e1456]
+                  - cell "United States" [ref=e1457]
+                - 'row "71 71 187 79 108 79 108 2026-03-14 02:49:21 2026-03-14 21:51:13 0 0 10C Ex Machina: Rush, Jame, S, P, S2, NoLegDay, Vivian Exothermic Robotics Washington United States" [ref=e1458]':
+                  - cell "71" [ref=e1459]
+                  - cell "71" [ref=e1460]
+                  - cell "187" [ref=e1461]
+                  - cell "79" [ref=e1462]
+                  - cell "108" [ref=e1463]
+                  - cell "79" [ref=e1464]
+                  - cell "108" [ref=e1465]
+                  - cell "2026-03-14 02:49:21" [ref=e1466]
+                  - cell "2026-03-14 21:51:13" [ref=e1467]
+                  - cell "0" [ref=e1468]
+                  - cell "0" [ref=e1469]
+                  - cell "10C" [ref=e1470]:
+                    - link "10C" [ref=e1472] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/10C
+                  - 'cell "Ex Machina: Rush, Jame, S, P, S2, NoLegDay, Vivian" [ref=e1473]'
+                  - cell "Exothermic Robotics" [ref=e1474]
+                  - cell "Washington" [ref=e1475]
+                  - cell "United States" [ref=e1476]
+                - row "72 72 187 78 109 78 109 2026-02-28 17:44:36 2026-02-28 21:43:07 0 0 92087S Sage Hill Robotics Sage Hill School California - Region 4 United States" [ref=e1477]:
+                  - cell "72" [ref=e1478]
+                  - cell "72" [ref=e1479]
+                  - cell "187" [ref=e1480]
+                  - cell "78" [ref=e1481]
+                  - cell "109" [ref=e1482]
+                  - cell "78" [ref=e1483]
+                  - cell "109" [ref=e1484]
+                  - cell "2026-02-28 17:44:36" [ref=e1485]
+                  - cell "2026-02-28 21:43:07" [ref=e1486]
+                  - cell "0" [ref=e1487]
+                  - cell "0" [ref=e1488]
+                  - cell "92087S" [ref=e1489]:
+                    - link "92087S" [ref=e1491] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/92087S
+                  - cell "Sage Hill Robotics" [ref=e1492]
+                  - cell "Sage Hill School" [ref=e1493]
+                  - cell "California - Region 4" [ref=e1494]
+                  - cell "United States" [ref=e1495]
+                - row "73 73 186 87 99 89 99 2026-02-13 14:44:46 2026-02-28 17:43:14 0 0 11211X Xelsius OCSA California - Region 4 United States" [ref=e1496]:
+                  - cell "73" [ref=e1497]
+                  - cell "73" [ref=e1498]
+                  - cell "186" [ref=e1499]
+                  - cell "87" [ref=e1500]
+                  - cell "99" [ref=e1501]
+                  - cell "89" [ref=e1502]
+                  - cell "99" [ref=e1503]
+                  - cell "2026-02-13 14:44:46" [ref=e1504]
+                  - cell "2026-02-28 17:43:14" [ref=e1505]
+                  - cell "0" [ref=e1506]
+                  - cell "0" [ref=e1507]
+                  - cell "11211X" [ref=e1508]:
+                    - link "11211X" [ref=e1510] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/11211X
+                  - cell "Xelsius" [ref=e1511]
+                  - cell "OCSA" [ref=e1512]
+                  - cell "California - Region 4" [ref=e1513]
+                  - cell "United States" [ref=e1514]
+                - row "74 74 186 87 99 87 99 2026-03-13 22:58:31 2026-03-13 23:43:02 0 0 7405M Millburn Mayhem Millburn High School New Jersey United States" [ref=e1515]:
+                  - cell "74" [ref=e1516]
+                  - cell "74" [ref=e1517]
+                  - cell "186" [ref=e1518]
+                  - cell "87" [ref=e1519]
+                  - cell "99" [ref=e1520]
+                  - cell "87" [ref=e1521]
+                  - cell "99" [ref=e1522]
+                  - cell "2026-03-13 22:58:31" [ref=e1523]
+                  - cell "2026-03-13 23:43:02" [ref=e1524]
+                  - cell "0" [ref=e1525]
+                  - cell "0" [ref=e1526]
+                  - cell "7405M" [ref=e1527]:
+                    - link "7405M" [ref=e1529] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/7405M
+                  - cell "Millburn Mayhem" [ref=e1530]
+                  - cell "Millburn High School" [ref=e1531]
+                  - cell "New Jersey" [ref=e1532]
+                  - cell "United States" [ref=e1533]
+                - 'row "75 75 186 86 100 86 102 2026-02-28 03:28:55 2025-12-13 18:54:38 0 0 1010G TenTon Robotics West Vancouver School District #45 British Columbia (BC) Canada" [ref=e1534]':
+                  - cell "75" [ref=e1535]
+                  - cell "75" [ref=e1536]
+                  - cell "186" [ref=e1537]
+                  - cell "86" [ref=e1538]
+                  - cell "100" [ref=e1539]
+                  - cell "86" [ref=e1540]
+                  - cell "102" [ref=e1541]
+                  - cell "2026-02-28 03:28:55" [ref=e1542]
+                  - cell "2025-12-13 18:54:38" [ref=e1543]
+                  - cell "0" [ref=e1544]
+                  - cell "0" [ref=e1545]
+                  - cell "1010G" [ref=e1546]:
+                    - link "1010G" [ref=e1548] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/1010G
+                  - cell "TenTon Robotics" [ref=e1549]
+                  - 'cell "West Vancouver School District #45" [ref=e1550]'
+                  - cell "British Columbia (BC)" [ref=e1551]
+                  - cell "Canada" [ref=e1552]
+                - row "76 76 186 85 101 85 106 2026-01-23 14:30:42 2026-03-07 01:40:10 0 0 6219B Rock Em' Sock Em' Robot NEENAH HIGH Wisconsin United States" [ref=e1553]:
+                  - cell "76" [ref=e1554]
+                  - cell "76" [ref=e1555]
+                  - cell "186" [ref=e1556]
+                  - cell "85" [ref=e1557]
+                  - cell "101" [ref=e1558]
+                  - cell "85" [ref=e1559]
+                  - cell "106" [ref=e1560]
+                  - cell "2026-01-23 14:30:42" [ref=e1561]
+                  - cell "2026-03-07 01:40:10" [ref=e1562]
+                  - cell "0" [ref=e1563]
+                  - cell "0" [ref=e1564]
+                  - cell "6219B" [ref=e1565]:
+                    - link "6219B" [ref=e1567] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/6219B
+                  - cell "Rock Em' Sock Em' Robot" [ref=e1568]
+                  - cell "NEENAH HIGH" [ref=e1569]
+                  - cell "Wisconsin" [ref=e1570]
+                  - cell "United States" [ref=e1571]
+                - row "77 77 186 84 102 84 113 2026-02-03 03:20:29 2026-01-25 03:19:25 1 7 17022A Pangolin Happy Robot Chinese Taipei Taiwan" [ref=e1572]:
+                  - cell "77" [ref=e1573]
+                  - cell "77" [ref=e1574]
+                  - cell "186" [ref=e1575]
+                  - cell "84" [ref=e1576]
+                  - cell "102" [ref=e1577]
+                  - cell "84" [ref=e1578]
+                  - cell "113" [ref=e1579]
+                  - cell "2026-02-03 03:20:29" [ref=e1580]
+                  - cell "2026-01-25 03:19:25" [ref=e1581]
+                  - cell "1" [ref=e1582]
+                  - cell "7" [ref=e1583]
+                  - cell "17022A" [ref=e1584]:
+                    - link "17022A" [ref=e1586] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/17022A
+                  - cell "Pangolin" [ref=e1587]
+                  - cell "Happy Robot" [ref=e1588]
+                  - cell "Chinese Taipei" [ref=e1589]
+                  - cell "Taiwan" [ref=e1590]
+                - row "78 78 185 92 93 92 94 2026-03-14 18:55:00 2025-11-14 17:56:36 0 0 40000E Equinox Brentwood Community Robotics Tennessee United States" [ref=e1591]:
+                  - cell "78" [ref=e1592]
+                  - cell "78" [ref=e1593]
+                  - cell "185" [ref=e1594]
+                  - cell "92" [ref=e1595]
+                  - cell "93" [ref=e1596]
+                  - cell "92" [ref=e1597]
+                  - cell "94" [ref=e1598]
+                  - cell "2026-03-14 18:55:00" [ref=e1599]
+                  - cell "2025-11-14 17:56:36" [ref=e1600]
+                  - cell "0" [ref=e1601]
+                  - cell "0" [ref=e1602]
+                  - cell "40000E" [ref=e1603]:
+                    - link "40000E" [ref=e1605] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/40000E
+                  - cell "Equinox" [ref=e1606]
+                  - cell "Brentwood Community Robotics" [ref=e1607]
+                  - cell "Tennessee" [ref=e1608]
+                  - cell "United States" [ref=e1609]
+                - row "79 79 185 91 94 91 94 2026-02-07 08:44:42 2026-02-08 01:08:40 0 0 2597Z I0veless A啊拉丁 South China China" [ref=e1610]:
+                  - cell "79" [ref=e1611]
+                  - cell "79" [ref=e1612]
+                  - cell "185" [ref=e1613]
+                  - cell "91" [ref=e1614]
+                  - cell "94" [ref=e1615]
+                  - cell "91" [ref=e1616]
+                  - cell "94" [ref=e1617]
+                  - cell "2026-02-07 08:44:42" [ref=e1618]
+                  - cell "2026-02-08 01:08:40" [ref=e1619]
+                  - cell "0" [ref=e1620]
+                  - cell "0" [ref=e1621]
+                  - cell "2597Z" [ref=e1622]:
+                    - link "2597Z" [ref=e1624] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/2597Z
+                  - cell "I0veless" [ref=e1625]
+                  - cell "A啊拉丁" [ref=e1626]
+                  - cell "South China" [ref=e1627]
+                  - cell "China" [ref=e1628]
+                - row "80 80 185 85 100 87 103 2026-03-13 22:52:30 2026-02-28 14:20:10 0 0 59218B Cedar Grove Panthers CEDAR GROVE HIGH SCHOOL New Jersey United States" [ref=e1629]:
+                  - cell "80" [ref=e1630]
+                  - cell "80" [ref=e1631]
+                  - cell "185" [ref=e1632]
+                  - cell "85" [ref=e1633]
+                  - cell "100" [ref=e1634]
+                  - cell "87" [ref=e1635]
+                  - cell "103" [ref=e1636]
+                  - cell "2026-03-13 22:52:30" [ref=e1637]
+                  - cell "2026-02-28 14:20:10" [ref=e1638]
+                  - cell "0" [ref=e1639]
+                  - cell "0" [ref=e1640]
+                  - cell "59218B" [ref=e1641]:
+                    - link "59218B" [ref=e1643] [cursor=pointer]:
+                      - /url: https://www.robotevents.com/teams/V5RC/59218B
+                  - cell "Cedar Grove Panthers" [ref=e1644]
+                  - cell "CEDAR GROVE HIGH SCHOOL" [ref=e1645]
+                  - cell "New Jersey" [ref=e1646]
+                  - cell "United States" [ref=e1647]
+            - navigation [ref=e1648]:
+              - list [ref=e1649]:
+                - listitem [ref=e1650]:
+                  - button "Prev" [ref=e1652] [cursor=pointer]
+                - listitem [ref=e1653]: "1"
+                - listitem [ref=e1654]: "2"
+                - listitem [ref=e1655]: "3"
+                - listitem [ref=e1656]: "4"
+                - listitem [ref=e1657]: "5"
+                - listitem [ref=e1658]: ...
+                - listitem [ref=e1659]: "86"
+                - listitem [ref=e1660]:
+                  - button "Next" [ref=e1662] [cursor=pointer]
+  - contentinfo [ref=e1664]:
+    - generic [ref=e1666]:
+      - link "Innovation First, International" [ref=e1668] [cursor=pointer]:
+        - /url: https://www.innovationfirst.com
+        - img "Innovation First, International" [ref=e1669]
+      - paragraph [ref=e1671]:
+        - text: VEX and VEX Robotics are trademarks or service marks of Innovation First, Inc.
+        - link "Copyright ©2026" [ref=e1672] [cursor=pointer]:
+          - /url: https://www.vexrobotics.com/copyright-notice
+        - text: . All Rights Reserved. VEX Robotics, Inc. is a subsidiary of Innovation First International, Inc
+        - text: All other product names / marks of others are the property of their respective owners. Patents and / or Patents Pending -
+        - link "innovationfirst.com/patents" [ref=e1673] [cursor=pointer]:
+          - /url: https://www.innovationfirst.com/patents
+        - link "Site Privacy Policy" [ref=e1674] [cursor=pointer]:
+          - /url: https://www.vexrobotics.com/privacy-policy
+        - text: /
+        - link "Site Terms of Use" [ref=e1675] [cursor=pointer]:
+          - /url: https://www.vexrobotics.com/terms-of-use
+        - text: /
+        - link "Software Privacy Policy" [ref=e1676] [cursor=pointer]:
+          - /url: https://www.vexrobotics.com/software-privacy-policy
+        - text: /
+        - link "Accessibility Statement" [ref=e1677] [cursor=pointer]:
+          - /url: https://accessibility.vex.com/
+      - generic [ref=e1679]:
+        - link "Facebook" [ref=e1680] [cursor=pointer]:
+          - /url: https://www.facebook.com/vexrobotics
+          - img "Facebook" [ref=e1681]
+        - link "X (formerly Twitter)" [ref=e1682] [cursor=pointer]:
+          - /url: https://x.com/vexrobotics
+          - img "X (formerly Twitter)" [ref=e1683]
+        - link "Instagram" [ref=e1684] [cursor=pointer]:
+          - /url: https://www.instagram.com/vexrobotics
+          - img "Instagram" [ref=e1685]
+        - link "Youtube" [ref=e1686] [cursor=pointer]:
+          - /url: https://www.youtube.com/vexroboticstv
+          - img "Youtube" [ref=e1687]
+  - button "TrustedSite Certified" [ref=e1688] [cursor=pointer]

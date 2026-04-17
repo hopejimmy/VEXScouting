@@ -434,8 +434,8 @@ function TeamCard({ team, onClick }: { team: Team; onClick?: () => void }) {
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (isFavorite(team.teamNumber)) {
-      removeFromFavorites(team.teamNumber);
+    if (isFavorite(team.teamNumber, team.matchType)) {
+      removeFromFavorites(team.teamNumber, team.matchType);
     } else {
       addToFavorites(team);
     }
@@ -489,12 +489,12 @@ function TeamCard({ team, onClick }: { team: Team; onClick?: () => void }) {
                 variant="ghost"
                 onClick={handleFavoriteClick}
                 className={`h-8 w-8 p-0 ${
-                  isFavorite(team.teamNumber) 
+                  isFavorite(team.teamNumber, team.matchType) 
                     ? 'text-red-500 hover:text-red-600' 
                     : 'text-gray-400 hover:text-red-500'
                 }`}
               >
-                <Heart className={`h-4 w-4 ${isFavorite(team.teamNumber) ? 'fill-current' : ''}`} />
+                <Heart className={`h-4 w-4 ${isFavorite(team.teamNumber, team.matchType) ? 'fill-current' : ''}`} />
               </Button>
               <Button
                 size="sm"

@@ -61,8 +61,8 @@ export default function ComparePage() {
   }
 
   const handleFavoriteClick = (team: Team) => {
-    if (isFavorite(team.teamNumber)) {
-      removeFromFavorites(team.teamNumber);
+    if (isFavorite(team.teamNumber, team.matchType)) {
+      removeFromFavorites(team.teamNumber, team.matchType);
     } else {
       addToFavorites(team);
     }
@@ -194,7 +194,7 @@ export default function ComparePage() {
                     team={team}
                     onRemove={() => removeFromCompare(team.teamNumber)}
                     onFavorite={() => handleFavoriteClick(team)}
-                    isFavorite={isFavorite(team.teamNumber)}
+                    isFavorite={isFavorite(team.teamNumber, team.matchType)}
                     onClick={() => router.push(`/team/${team.teamNumber}?matchType=${encodeURIComponent(team.matchType)}`)}
                     getMatchTypeBadgeColor={getMatchTypeBadgeColor}
                   />

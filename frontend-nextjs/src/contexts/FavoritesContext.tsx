@@ -6,10 +6,16 @@ import type { Team } from '@/types/skills';
 interface FavoritesContextType {
   favorites: Team[];
   addToFavorites: (team: Team) => void;
-  removeFromFavorites: (teamNumber: string) => void;
-  isFavorite: (teamNumber: string) => boolean;
+  removeFromFavorites: (teamNumber: string, matchType: string) => void;
+  isFavorite: (teamNumber: string, matchType: string) => boolean;
   clearFavorites: () => void;
 }
+
+// Favorites are keyed by (teamNumber, matchType) because the same team number
+// can exist as separate registrations across programs (e.g. "252A" in both VRC
+// and VEXIQ). Keying by teamNumber alone caused the second program's favorite
+// to be silently rejected and the heart UI to lie.
+const favKey = (teamNumber: string, matchType: string) => `${teamNumber}::${matchType}`;
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
 
@@ -39,19 +45,22 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
 
   const addToFavorites = (team: Team) => {
     setFavorites(prev => {
-      if (prev.some(fav => fav.teamNumber === team.teamNumber)) {
-        return prev; // Already in favorites
+      const key = favKey(team.teamNumber, team.matchType);
+      if (prev.some(fav => favKey(fav.teamNumber, fav.matchType) === key)) {
+        return prev; // Already in favorites for this matchType
       }
       return [...prev, team];
     });
   };
 
-  const removeFromFavorites = (teamNumber: string) => {
-    setFavorites(prev => prev.filter(team => team.teamNumber !== teamNumber));
+  const removeFromFavorites = (teamNumber: string, matchType: string) => {
+    const key = favKey(teamNumber, matchType);
+    setFavorites(prev => prev.filter(team => favKey(team.teamNumber, team.matchType) !== key));
   };
 
-  const isFavorite = (teamNumber: string) => {
-    return favorites.some(team => team.teamNumber === teamNumber);
+  const isFavorite = (teamNumber: string, matchType: string) => {
+    const key = favKey(teamNumber, matchType);
+    return favorites.some(team => favKey(team.teamNumber, team.matchType) === key);
   };
 
   const clearFavorites = () => {

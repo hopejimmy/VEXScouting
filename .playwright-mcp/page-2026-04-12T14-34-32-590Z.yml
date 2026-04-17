@@ -1,0 +1,374 @@
+- generic [ref=e3]:
+  - link "Skip to main content" [ref=e4] [cursor=pointer]:
+    - /url: "#main-container"
+  - generic [ref=e9]:
+    - button "Sidebar" [expanded] [ref=e11] [cursor=pointer]:
+      - img [ref=e12]
+    - link "VEX Forum" [ref=e15] [cursor=pointer]:
+      - /url: /
+      - img "VEX Forum" [ref=e16]
+    - generic [ref=e18]:
+      - link "VEX V5" [ref=e19] [cursor=pointer]:
+        - /url: https://www.vex.com/
+        - img "VEX V5" [ref=e21]
+      - link "Coding Starts Early for Grades K+" [ref=e22] [cursor=pointer]:
+        - /url: https://www.vexrobotics.com/123
+        - img "Coding Starts Early for Grades K+" [ref=e24]
+      - link "STEM Starts Early for Grades 3+" [ref=e25] [cursor=pointer]:
+        - /url: https://www.vexrobotics.com/go
+        - img "STEM Starts Early for Grades 3+" [ref=e27]
+      - link "VEX AIM" [ref=e28] [cursor=pointer]:
+        - /url: https://www.vexrobotics.com/aim
+        - img "VEX AIM" [ref=e30]
+      - link "Applied STEM Learning for Grades 6+" [ref=e31] [cursor=pointer]:
+        - /url: https://www.vexrobotics.com/iq
+        - img "Applied STEM Learning for Grades 6+" [ref=e33]
+      - link "Real World STEM for Classroom Grades 9+" [ref=e34] [cursor=pointer]:
+        - /url: https://www.vexrobotics.com/exp
+        - img "Real World STEM for Classroom Grades 9+" [ref=e36]
+      - link "Invigorating students with a passion for STEM with robotics! Grade 9+" [ref=e37] [cursor=pointer]:
+        - /url: https://www.vexrobotics.com/v5
+        - img "Invigorating students with a passion for STEM with robotics! Grade 9+" [ref=e39]
+      - link "Elevating tomorrow's workforce" [ref=e40] [cursor=pointer]:
+        - /url: https://www.vexrobotics.com/cte
+        - img "Elevating tomorrow's workforce" [ref=e42]
+      - link "VEX AIR" [ref=e43] [cursor=pointer]:
+        - /url: https://www.vexrobotics.com/air
+        - img "VEX AIR" [ref=e45]
+    - navigation [ref=e46]:
+      - generic [ref=e48]:
+        - button "Sign Up" [ref=e49] [cursor=pointer]:
+          - generic [ref=e50]: Sign Up
+        - button "Log In" [ref=e51] [cursor=pointer]:
+          - img [ref=e52]
+          - generic [ref=e53]: Log In
+      - list [ref=e54]:
+        - listitem [ref=e55]:
+          - button "Search" [ref=e56] [cursor=pointer]:
+            - img [ref=e57]
+  - main [ref=e58]:
+    - generic [ref=e60]:
+      - generic [ref=e61]:
+        - list [ref=e64]:
+          - listitem [ref=e65]:
+            - link "Topics" [ref=e66] [cursor=pointer]:
+              - /url: /latest
+              - img [ref=e68]
+              - generic [ref=e69]: Topics
+          - listitem [ref=e70]:
+            - link "RobotEvents" [ref=e71] [cursor=pointer]:
+              - /url: https://www.robotevents.com/
+              - img [ref=e73]
+              - generic [ref=e74]: RobotEvents
+          - listitem [ref=e75]:
+            - link "V5RC Push Back Game Manual" [ref=e76] [cursor=pointer]:
+              - /url: https://link.vex.com/docs/25-26/v5rc-pushback-manual
+              - img [ref=e78]
+              - generic [ref=e79]: V5RC Push Back Game Manual
+          - listitem [ref=e80]:
+            - link "VIQRC Mix & Match Game Manual" [ref=e81] [cursor=pointer]:
+              - /url: https://link.vex.com/docs/25-26/viqrc-mixandmatch-manual
+              - img [ref=e83]
+              - generic [ref=e84]: VIQRC Mix & Match Game Manual
+          - listitem [ref=e85]:
+            - button "More" [ref=e86] [cursor=pointer]:
+              - img [ref=e88]
+              - generic [ref=e89]: More
+        - generic [ref=e90]:
+          - button "Categories" [expanded] [ref=e92] [cursor=pointer]:
+            - img [ref=e94]
+            - generic [ref=e95]: Categories
+          - list [ref=e96]:
+            - listitem [ref=e97]:
+              - link "VEX IQ General Discussion" [ref=e98] [cursor=pointer]:
+                - /url: /c/vex-iq-general-discussion/5
+                - generic [ref=e101]: VEX IQ General Discussion
+            - listitem [ref=e102]:
+              - link "VEX V5 Technical Support" [ref=e103] [cursor=pointer]:
+                - /url: /c/v5-technical-support/29
+                - generic [ref=e106]: VEX V5 Technical Support
+            - listitem [ref=e107]:
+              - link "VEX Robotics Competition Discussion" [ref=e108] [cursor=pointer]:
+                - /url: /c/vrc-discussion/31
+                - generic [ref=e111]: VEX Robotics Competition Discussion
+            - listitem [ref=e112]:
+              - link "Website/Forum Support" [ref=e113] [cursor=pointer]:
+                - /url: /c/website-forum-support/32
+                - generic [ref=e116]: Website/Forum Support
+            - listitem [ref=e117]:
+              - link "All categories" [ref=e118] [cursor=pointer]:
+                - /url: /categories
+                - img [ref=e120]
+                - generic [ref=e121]: All categories
+        - generic [ref=e122]:
+          - button "Tags" [expanded] [ref=e124] [cursor=pointer]:
+            - img [ref=e126]
+            - generic [ref=e127]: Tags
+          - list [ref=e128]:
+            - listitem [ref=e129]:
+              - link "programming:vexcode" [ref=e130] [cursor=pointer]:
+                - /url: /tag/programming:vexcode
+                - img [ref=e132]
+                - generic [ref=e133]: programming:vexcode
+            - listitem [ref=e134]:
+              - link "programming" [ref=e135] [cursor=pointer]:
+                - /url: /tag/programming
+                - img [ref=e137]
+                - generic [ref=e138]: programming
+            - listitem [ref=e139]:
+              - link "programming:pros" [ref=e140] [cursor=pointer]:
+                - /url: /tag/programming:pros
+                - img [ref=e142]
+                - generic [ref=e143]: programming:pros
+            - listitem [ref=e144]:
+              - link "tower-takeover" [ref=e145] [cursor=pointer]:
+                - /url: /tag/tower-takeover
+                - img [ref=e147]
+                - generic [ref=e148]: tower-takeover
+            - listitem [ref=e149]:
+              - link "spin-up" [ref=e150] [cursor=pointer]:
+                - /url: /tag/spin-up
+                - img [ref=e152]
+                - generic [ref=e153]: spin-up
+            - listitem [ref=e154]:
+              - link "All tags" [ref=e155] [cursor=pointer]:
+                - /url: /tags
+                - img [ref=e157]
+                - generic [ref=e158]: All tags
+      - button "Keyboard Shortcuts" [ref=e162] [cursor=pointer]:
+        - img [ref=e163]
+    - generic [ref=e164]:
+      - generic [ref=e165]:
+        - generic [ref=e167]:
+          - heading "Trouble accessing robotevents API" [level=1] [ref=e168]:
+            - link "Trouble accessing robotevents API" [ref=e169] [cursor=pointer]:
+              - /url: /t/trouble-accessing-robotevents-api/110946
+          - generic [ref=e170]:
+            - link "Programming Support" [ref=e171] [cursor=pointer]:
+              - /url: /c/programming-support/77
+              - generic [ref=e173]: Programming Support
+            - list "Tags" [ref=e176]:
+              - link "robotevents-api" [ref=e177] [cursor=pointer]:
+                - /url: /tag/robotevents-api
+        - generic [ref=e178]:
+          - generic [ref=e182]:
+            - link "Jan 2023" [ref=e184] [cursor=pointer]:
+              - /url: /t/trouble-accessing-robotevents-api/110946/1
+              - generic [ref=e185]: Jan 2023
+            - generic [ref=e189]:
+              - generic [ref=e190]: 1 / 2
+              - generic [ref=e191]: Jan 2023
+            - link "Jan 2023" [ref=e194] [cursor=pointer]:
+              - /url: /t/trouble-accessing-robotevents-api/110946/2
+              - generic [ref=e195]: Jan 2023
+          - generic [ref=e200]:
+            - 'region "post #1 by @Joey_24K" [ref=e202]':
+              - generic [ref=e203]:
+                - link [ref=e206] [cursor=pointer]:
+                  - /url: /u/Joey_24K
+                  - img [ref=e207]
+                - generic [ref=e208]:
+                  - heading "Joey_24K Jan 2023" [level=2] [ref=e209]:
+                    - link "Joey_24K" [ref=e212] [cursor=pointer]:
+                      - /url: /u/Joey_24K
+                    - link "Jan 2023" [ref=e215] [cursor=pointer]:
+                      - /url: /t/trouble-accessing-robotevents-api/110946
+                  - generic [ref=e216]:
+                    - generic [ref=e217]:
+                      - paragraph [ref=e218]:
+                        - text: So recently, I’ve been working on a Discord bot written in C# that needs to access the
+                        - link "robotevents API link clicked 2 times" [ref=e219] [cursor=pointer]:
+                          - /url: https://www.robotevents.com/api/v2/
+                          - text: robotevents API 2
+                        - text: ", and until now I’ve had no issues with it. I logged into the site and created an access token, and everything worked perfectly, up until today. Without changing any of the relevant code,"
+                        - link "robotevents.com link clicked 1 time" [ref=e220] [cursor=pointer]:
+                          - /url: http://robotevents.com
+                          - text: robotevents.com 1
+                        - text: "suddenly stopped responding. I can still load the website in a browser perfectly fine, but my http GET request freezes up. I’m able to make a request from the API page without issue:"
+                      - group [ref=e221]:
+                        - generic "► image" [ref=e222] [cursor=pointer]
+                      - paragraph [ref=e223]: "Here’s a program showing the code I use, which previously would have worked:"
+                      - group [ref=e224]:
+                        - generic "► code" [ref=e225] [cursor=pointer]
+                      - paragraph [ref=e226]:
+                        - text: I’ve tried this code on multiple machines, each getting stuck no matter what part of
+                        - link "robotevents.com link clicked 1 time" [ref=e227] [cursor=pointer]:
+                          - /url: http://robotevents.com
+                          - text: robotevents.com 1
+                        - text: I try to access, api or otherwise. If I change the url to a generic website like
+                        - link "https://vexforum.com" [ref=e228] [cursor=pointer]:
+                          - /url: https://vexforum.com
+                        - text: then it works as expected, printing the received html. This would lead me to believe there is currently a problem with the robotevents site, which is puzzling as other Discord bots which access robotevents are still working.
+                    - generic [ref=e229]:
+                      - navigation [ref=e230]:
+                        - generic [ref=e231]:
+                          - generic [ref=e232]:
+                            - button "1 person liked this post." [ref=e233] [cursor=pointer]: "1"
+                            - button "like this post" [ref=e234] [cursor=pointer]:
+                              - img [ref=e235]
+                          - button "copy a link to this post to clipboard" [ref=e236] [cursor=pointer]:
+                            - img [ref=e237]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+              - generic [ref=e240]:
+                - button "658 views" [ref=e241] [cursor=pointer]:
+                  - generic [ref=e242]: "658"
+                  - generic [ref=e243]: views
+                - button "2 links" [ref=e244] [cursor=pointer]:
+                  - generic [ref=e245]: "2"
+                  - generic [ref=e246]: links
+            - 'region "post #2 by @Mentor_355U" [ref=e248]':
+              - generic [ref=e249]:
+                - link [ref=e252] [cursor=pointer]:
+                  - /url: /u/Mentor_355U
+                  - img [ref=e253]
+                - generic [ref=e254]:
+                  - heading "Mentor_355U Jan 2023" [level=2] [ref=e255]:
+                    - link "Mentor_355U" [ref=e258] [cursor=pointer]:
+                      - /url: /u/Mentor_355U
+                    - link "Jan 2023" [ref=e261] [cursor=pointer]:
+                      - /url: /t/trouble-accessing-robotevents-api/110946/2
+                  - generic [ref=e262]:
+                    - paragraph [ref=e264]: Try trapping the response code from RobotEvents. Earlier this year, I noticed that they’ve started implementing some sort of rate limiter. You’ll probably want to add retry logic to your code - in most situations like this “Exponential Backoff Retry” is the way to go
+                    - generic [ref=e265]:
+                      - navigation [ref=e266]:
+                        - generic [ref=e267]:
+                          - generic [ref=e268]:
+                            - button "2 people liked this post." [ref=e269] [cursor=pointer]: "2"
+                            - button "like this post" [ref=e270] [cursor=pointer]:
+                              - img [ref=e271]
+                          - button "copy a link to this post to clipboard" [ref=e272] [cursor=pointer]:
+                            - img [ref=e273]
+                      - generic:
+                        - list
+                      - generic:
+                        - list
+        - region [ref=e276]:
+          - button "Reply" [ref=e278] [cursor=pointer]:
+            - img [ref=e279]
+            - generic [ref=e280]: Reply
+        - generic [ref=e281]:
+          - complementary "New & Unread Topics" [ref=e283]:
+            - heading "New & Unread Topics" [level=3] [ref=e284]
+            - table "Topic list, column headers with buttons are sortable." [ref=e288]:
+              - caption [ref=e289]: Topic list, column headers with buttons are sortable.
+              - rowgroup [ref=e290]:
+                - row "Topic Replies Activity" [ref=e291]:
+                  - columnheader "Topic" [ref=e292]:
+                    - generic [ref=e293]: Topic
+                  - columnheader "Replies" [ref=e294]:
+                    - generic [ref=e295]: Replies
+                  - columnheader "Activity" [ref=e296]:
+                    - generic [ref=e297]: Activity
+              - rowgroup [ref=e298]:
+                - row "Proportional (PID Honor) Programming Support Tags 1 reply, jump to first post Dec 2025" [ref=e299]:
+                  - cell "Proportional (PID Honor) Programming Support Tags" [ref=e300]:
+                    - heading "Proportional (PID Honor)" [level=2] [ref=e301]:
+                      - button "Proportional (PID Honor)" [ref=e302] [cursor=pointer]:
+                        - link "Proportional (PID Honor)" [ref=e304]:
+                          - /url: /t/proportional-pid-honor/142229
+                    - generic [ref=e305]:
+                      - link "Programming Support" [ref=e306] [cursor=pointer]:
+                        - /url: /c/programming-support/77
+                        - generic [ref=e308]: Programming Support
+                      - list "Tags" [ref=e309]:
+                        - link "programming" [ref=e310] [cursor=pointer]:
+                          - /url: /tag/programming
+                  - cell "1 reply, jump to first post" [ref=e311]:
+                    - link "1 reply, jump to first post" [ref=e312] [cursor=pointer]:
+                      - /url: /t/proportional-pid-honor/142229/1
+                      - text: "1"
+                  - cell "Dec 2025" [ref=e313]:
+                    - link "Dec 2025" [ref=e314] [cursor=pointer]:
+                      - /url: /t/proportional-pid-honor/142229/2
+                - row "Event programming Programming Support 2 replies, jump to first post Jan 9" [ref=e315]:
+                  - cell "Event programming Programming Support" [ref=e316]:
+                    - heading "Event programming" [level=2] [ref=e317]:
+                      - button "Event programming" [ref=e318] [cursor=pointer]:
+                        - link "Event programming" [ref=e320]:
+                          - /url: /t/event-programming/142998
+                    - link "Programming Support" [ref=e322] [cursor=pointer]:
+                      - /url: /c/programming-support/77
+                      - generic [ref=e324]: Programming Support
+                  - cell "2 replies, jump to first post" [ref=e325]:
+                    - link "2 replies, jump to first post" [ref=e326] [cursor=pointer]:
+                      - /url: /t/event-programming/142998/1
+                      - text: "2"
+                  - cell "Jan 9" [ref=e327]:
+                    - link "Jan 9" [ref=e328] [cursor=pointer]:
+                      - /url: /t/event-programming/142998/3
+                - row "Help! PID code in blocks wont drive! frowning Programming Support Tags 3 replies, jump to first post Apr 2025" [ref=e329]:
+                  - cell "Help! PID code in blocks wont drive! frowning Programming Support Tags" [ref=e330]:
+                    - heading "Help! PID code in blocks wont drive! frowning" [level=2] [ref=e331]:
+                      - button "Help! PID code in blocks wont drive! frowning" [ref=e332] [cursor=pointer]:
+                        - link "Help! PID code in blocks wont drive! frowning" [ref=e334]:
+                          - /url: /t/help-pid-code-in-blocks-wont-drive/136244
+                          - text: Help! PID code in blocks wont drive!
+                          - img "frowning"
+                    - generic [ref=e335]:
+                      - link "Programming Support" [ref=e336] [cursor=pointer]:
+                        - /url: /c/programming-support/77
+                        - generic [ref=e338]: Programming Support
+                      - list "Tags" [ref=e339]:
+                        - link "programming:vexcode" [ref=e340] [cursor=pointer]:
+                          - /url: /tag/programming:vexcode
+                        - generic [ref=e341]: ","
+                        - link "programming" [ref=e342] [cursor=pointer]:
+                          - /url: /tag/programming
+                        - generic [ref=e343]: ","
+                        - link "high-stakes" [ref=e344] [cursor=pointer]:
+                          - /url: /tag/high-stakes
+                        - generic [ref=e345]: ","
+                        - link "pid" [ref=e346] [cursor=pointer]:
+                          - /url: /tag/pid
+                  - cell "3 replies, jump to first post" [ref=e347]:
+                    - link "3 replies, jump to first post" [ref=e348] [cursor=pointer]:
+                      - /url: /t/help-pid-code-in-blocks-wont-drive/136244/1
+                      - text: "3"
+                  - cell "Apr 2025" [ref=e349]:
+                    - link "Apr 2025" [ref=e350] [cursor=pointer]:
+                      - /url: /t/help-pid-code-in-blocks-wont-drive/136244/4
+                - row "Vex EXP Programming Support For Linux (Lubuntu/Ubuntu) Programming Support 6 replies, jump to first post Oct 2025" [ref=e351]:
+                  - cell "Vex EXP Programming Support For Linux (Lubuntu/Ubuntu) Programming Support" [ref=e352]:
+                    - heading "Vex EXP Programming Support For Linux (Lubuntu/Ubuntu)" [level=2] [ref=e353]:
+                      - button "Vex EXP Programming Support For Linux (Lubuntu/Ubuntu)" [ref=e354] [cursor=pointer]:
+                        - link "Vex EXP Programming Support For Linux (Lubuntu/Ubuntu)" [ref=e356]:
+                          - /url: /t/vex-exp-programming-support-for-linux-lubuntu-ubuntu/140415
+                    - link "Programming Support" [ref=e358] [cursor=pointer]:
+                      - /url: /c/programming-support/77
+                      - generic [ref=e360]: Programming Support
+                  - cell "6 replies, jump to first post" [ref=e361]:
+                    - link "6 replies, jump to first post" [ref=e362] [cursor=pointer]:
+                      - /url: /t/vex-exp-programming-support-for-linux-lubuntu-ubuntu/140415/1
+                      - text: "6"
+                  - cell "Oct 2025" [ref=e363]:
+                    - link "Oct 2025" [ref=e364] [cursor=pointer]:
+                      - /url: /t/vex-exp-programming-support-for-linux-lubuntu-ubuntu/140415/7
+                - row "Vex Go Electromagnet Not Working Programming Support 2 replies, jump to first post 15d" [ref=e365]:
+                  - cell "Vex Go Electromagnet Not Working Programming Support" [ref=e366]:
+                    - heading "Vex Go Electromagnet Not Working" [level=2] [ref=e367]:
+                      - button "Vex Go Electromagnet Not Working" [ref=e368] [cursor=pointer]:
+                        - link "Vex Go Electromagnet Not Working" [ref=e370]:
+                          - /url: /t/vex-go-electromagnet-not-working/145105
+                    - link "Programming Support" [ref=e372] [cursor=pointer]:
+                      - /url: /c/programming-support/77
+                      - generic [ref=e374]: Programming Support
+                  - cell "2 replies, jump to first post" [ref=e375]:
+                    - link "2 replies, jump to first post" [ref=e376] [cursor=pointer]:
+                      - /url: /t/vex-go-electromagnet-not-working/145105/1
+                      - text: "2"
+                  - cell "15d" [ref=e377]:
+                    - link "15d" [ref=e378] [cursor=pointer]:
+                      - /url: /t/vex-go-electromagnet-not-working/145105/3
+          - heading "Want to read more? Browse other topics in Programming Support or view latest topics." [level=3] [ref=e379]:
+            - text: Want to read more? Browse other topics in
+            - link "Programming Support" [ref=e380] [cursor=pointer]:
+              - /url: /c/programming-support/77
+              - generic [ref=e382]: Programming Support
+            - text: or
+            - link "view latest topics" [ref=e383] [cursor=pointer]:
+              - /url: /latest
+            - text: .
+      - dialog "User card"
