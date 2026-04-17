@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, Calendar, MapPin, Trophy, TrendingUp, Users, Download } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Trophy, TrendingUp, Users, Download, Tag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -126,11 +126,6 @@ export default function EventRankingsPage() {
                     <Badge className="bg-blue-100 text-blue-700 border-blue-200">
                       {data.matchType}
                     </Badge>
-                    {(divisionName || data.divisionName) && (
-                      <Badge className="bg-purple-100 text-purple-700 border-purple-200">
-                        {divisionName || data.divisionName}
-                      </Badge>
-                    )}
                     <span className="text-sm">Event ID: {data.eventId}</span>
                   </div>
                 </div>
@@ -175,17 +170,40 @@ export default function EventRankingsPage() {
 
             {/* Statistics Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-gray-600 flex items-center space-x-2">
-                    <Users className="w-4 h-4" />
-                    <span>{divisionId ? 'Division Teams' : 'Total Teams'}</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold text-gray-900">{data.teamsInEvent}</p>
-                </CardContent>
-              </Card>
+              {(() => {
+                const resolvedDivisionName = divisionName || data.divisionName;
+                if (resolvedDivisionName) {
+                  return (
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-medium text-gray-600 flex items-center space-x-2">
+                          <Tag className="w-4 h-4" />
+                          <span>Division</span>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-2xl font-bold text-gray-900 truncate" title={resolvedDivisionName}>
+                          {resolvedDivisionName}
+                        </p>
+                        <p className="text-sm text-gray-500 mt-1">{data.teamsInEvent} teams</p>
+                      </CardContent>
+                    </Card>
+                  );
+                }
+                return (
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium text-gray-600 flex items-center space-x-2">
+                        <Users className="w-4 h-4" />
+                        <span>Total Teams</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-3xl font-bold text-gray-900">{data.teamsInEvent}</p>
+                    </CardContent>
+                  </Card>
+                );
+              })()}
 
               <Card>
                 <CardHeader className="pb-3">
