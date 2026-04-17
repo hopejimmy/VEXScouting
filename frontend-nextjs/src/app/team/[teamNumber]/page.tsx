@@ -302,8 +302,8 @@ function TeamActions({ team }: { team: Team }) {
   const { addToCompare, removeFromCompare, isInCompare, canAddToCompare } = useCompare();
 
   const handleFavoriteClick = () => {
-    if (isFavorite(team.teamNumber)) {
-      removeFromFavorites(team.teamNumber);
+    if (isFavorite(team.teamNumber, team.matchType)) {
+      removeFromFavorites(team.teamNumber, team.matchType);
     } else {
       addToFavorites(team);
     }
@@ -323,14 +323,14 @@ function TeamActions({ team }: { team: Team }) {
         size="icon"
         variant="outline"
         onClick={handleFavoriteClick}
-        title={isFavorite(team.teamNumber) ? 'Remove from Favorites' : 'Add to Favorites'}
+        title={isFavorite(team.teamNumber, team.matchType) ? 'Remove from Favorites' : 'Add to Favorites'}
         className={`h-10 w-10 ${
-          isFavorite(team.teamNumber)
+          isFavorite(team.teamNumber, team.matchType)
             ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100'
             : 'text-gray-600 hover:text-red-600'
         }`}
       >
-        <Heart className={`h-5 w-5 ${isFavorite(team.teamNumber) ? 'fill-current' : ''}`} />
+        <Heart className={`h-5 w-5 ${isFavorite(team.teamNumber, team.matchType) ? 'fill-current' : ''}`} />
       </Button>
       <Button
         size="icon"

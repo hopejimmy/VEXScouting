@@ -40,7 +40,7 @@ export default function FavoritesPage() {
 
   // Fetch fresh data for favorites
   const { data: freshFavorites } = useQuery<Team[]>({
-    queryKey: ['favorites-fresh', favorites.map(f => f.teamNumber).join(',')],
+    queryKey: ['favorites-fresh', favorites.map(f => `${f.teamNumber}::${f.matchType}`).sort().join(',')],
     queryFn: async () => {
       if (favorites.length === 0) return [];
 
@@ -57,16 +57,18 @@ export default function FavoritesPage() {
     staleTime: 60 * 1000, // 1 minute
   });
 
-  // Use fresh data if available, otherwise fall back to localStorage data
-  // We also need to preserve the order or just use the fresh list (which is ranked)
-  // But wait, the fresh list might contain multiple entries for the same team if they have different matchTypes?
-  // Actually the backend endpoint returns all matches. 
-  // If a team is in favorites, we probably want to show the version that was favorited (specific matchType) 
-  // OR show the latest best rank?
-  // The current favorites implementation stores the whole Team object including matchType.
-  // So we should probably match them up.
-
-  const displayFavorites = freshFavorites || favorites;
+  // Match each saved favorite (teamNumber, matchType) to its corresponding fresh row.
+  // /api/teams?teams=... returns one row per (teamNumber, matchType) registration in
+  // skills_standings, so a team like 252A registered in both VRC and VEXIQ comes back
+  // twice. We pick the row that matches the favorite's matchType; if the API didn't
+  // return that variant (e.g. team dropped from standings), we fall back to the
+  // localStorage snapshot so the entry doesn't silently disappear.
+  const displayFavorites = favorites.map(fav => {
+    const fresh = freshFavorites?.find(
+      t => t.teamNumber === fav.teamNumber && t.matchType === fav.matchType
+    );
+    return fresh ?? fav;
+  });
 
   useEffect(() => {
     setMounted(true);
@@ -99,9 +101,9 @@ export default function FavoritesPage() {
     }
   };
 
-  const handleRemoveFavorite = (teamNumber: string, e: React.MouseEvent) => {
+  const handleRemoveFavorite = (teamNumber: string, matchType: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    removeFromFavorites(teamNumber);
+    removeFromFavorites(teamNumber, matchType);
   };
 
   // Filter favorites by match type
@@ -219,7 +221,7 @@ export default function FavoritesPage() {
           >
             {filteredFavorites.map((team, index) => (
               <motion.div
-                key={team.teamNumber}
+                key={`${team.teamNumber}::${team.matchType}`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
@@ -255,7 +257,7 @@ function FavoriteTeamCard({
   getMatchTypeBadgeColor
 }: {
   team: Team;
-  onRemove: (teamNumber: string, e: React.MouseEvent) => void;
+  onRemove: (teamNumber: string, matchType: string, e: React.MouseEvent) => void;
   onCompare: (team: Team, e: React.MouseEvent) => void;
   isInCompare: boolean;
   canAddToCompare: boolean;
@@ -305,7 +307,7 @@ function FavoriteTeamCard({
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={(e) => onRemove(team.teamNumber, e)}
+                onClick={(e) => onRemove(team.teamNumber, team.matchType, e)}
                 className="h-8 w-8 p-0 text-red-500 hover:text-red-600"
               >
                 <Heart className="h-4 w-4 fill-current" />

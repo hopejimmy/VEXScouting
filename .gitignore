@@ -112,3 +112,7 @@ Desktop.ini
 #curosr rule file
 *.mdc
 .superpowers/
+
+# Claude Code and tooling artifacts
+.claude/
+.playwright-mcp/
