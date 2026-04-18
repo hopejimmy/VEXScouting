@@ -98,6 +98,7 @@ export function EventsSection({
         start: event.start,
         end: event.end
       });
+      if (divisionName) params.append('divisionName', divisionName);
       router.push(`/team/${teamNumber}/event/${event.id}?${params.toString()}`);
     } else {
       // Future event → rankings page
