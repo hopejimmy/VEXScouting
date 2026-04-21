@@ -1508,6 +1508,39 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
         divPage++;
       }
       console.log(`Found ${divisionTeamNumbers.size} teams in division ${parsedDivisionId} for event ${eventId}`);
+
+      // Fallback: if the rankings endpoint returned no teams (common before an event
+      // starts — rankings only exist once matches have been played), derive division
+      // membership from the match schedule instead. Match schedules are typically
+      // published before the event runs.
+      if (divisionTeamNumbers.size === 0) {
+        let matchPage = 1;
+        let matchHasMore = true;
+        while (matchHasMore) {
+          const matchRes = await fetch(
+            `https://www.robotevents.com/api/v2/events/${eventId}/divisions/${parsedDivisionId}/matches?page=${matchPage}&per_page=250`,
+            {
+              headers: {
+                'Authorization': `Bearer ${apiToken}`,
+                'Accept': 'application/json'
+              }
+            }
+          );
+          if (!matchRes.ok) break;
+          const matchData = await matchRes.json();
+          (matchData.data || []).forEach(m => {
+            (m.alliances || []).forEach(a => {
+              (a.teams || []).forEach(t => {
+                if (t.team?.name) divisionTeamNumbers.add(t.team.name.toUpperCase());
+              });
+            });
+          });
+          const matchMeta = matchData.meta || {};
+          matchHasMore = matchMeta.current_page < matchMeta.last_page;
+          matchPage++;
+        }
+        console.log(`Matches-endpoint fallback found ${divisionTeamNumbers.size} teams in division ${parsedDivisionId}`);
+      }
     }
 
     // Step 1b: Fetch ALL teams registered for this event (for grade info and team metadata).
@@ -1557,8 +1590,12 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
 
     console.log(`Fetched ${allTeams.length} teams for event ${eventId} across ${currentPage - 1} page(s)`);
 
-    // If filtering by division, narrow allTeams to only those in the division
-    if (divisionTeamNumbers && divisionTeamNumbers.size > 0) {
+    // If filtering by division, narrow allTeams to only those in the division.
+    // Note: we gate on `divisionTeamNumbers` (not `.size > 0`). If a division was
+    // requested but membership couldn't be resolved from either rankings or the
+    // match schedule, return zero teams rather than silently unfiltering to the
+    // whole event.
+    if (divisionTeamNumbers) {
       allTeams = allTeams.filter(t => divisionTeamNumbers.has(t.number.toUpperCase()));
       console.log(`Filtered to ${allTeams.length} teams in division ${parsedDivisionId}`);
     }
