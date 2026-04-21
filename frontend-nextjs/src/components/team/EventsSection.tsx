@@ -59,8 +59,14 @@ export function EventsSection({
   const handleEventClick = async (event: TeamEvent) => {
     if (resolvingEventId === event.id) return; // prevent double-click during lookup
 
-    let divisionId: string = event.divisions[0]?.id?.toString() || '';
-    let divisionName: string = event.divisions[0]?.name || '';
+    // Single-division events: safe to use the sole division directly.
+    // Multi-division events: leave empty and let the resolver decide — we must
+    // NOT guess `divisions[0]`, because that masquerades as a real resolution
+    // (e.g. labels an upcoming Worlds entry as "Science" before the match
+    // schedule is posted, then the rankings page filters to a division the
+    // team isn't actually in).
+    let divisionId: string = event.divisions.length === 1 ? (event.divisions[0]?.id?.toString() || '') : '';
+    let divisionName: string = event.divisions.length === 1 ? (event.divisions[0]?.name || '') : '';
 
     // Multi-division events (World Championship) need an API call to find which
     // specific division this team competes in. Single-division events skip this.
