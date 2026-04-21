@@ -26,6 +26,7 @@ export default function MatchListPage() {
 
     // Get query params passed from the previous page
     const divisionId = searchParams.get('divisionId') || '';
+    const divisionName = searchParams.get('divisionName') || '';
     const matchType = searchParams.get('matchType') || 'VRC';
     const eventName = searchParams.get('eventName') || 'Event Matches';
     const eventStart = searchParams.get('start') || '';
@@ -131,8 +132,7 @@ export default function MatchListPage() {
             highlightTeam: teamNumber,
         });
         if (divisionId) params.append('divisionId', divisionId);
-        // divisionName isn't in the URL params for this page, but divisionId is enough
-        // for the rankings page to scope the results correctly.
+        if (divisionName) params.append('divisionName', divisionName);
         router.push(`/event-rankings/${eventId}?${params.toString()}`);
     };
 
