@@ -250,7 +250,12 @@ async function testDatabaseConnection() {
 }
 
 // In-memory cache for team division assignments.
-// Division assignments never change during an event so lifetime caching is safe.
+// Hits (resolved divisionId): cached for the process lifetime — division
+// assignments don't change once published.
+// Misses (divisionId === null): NOT cached. RobotEvents publishes division
+// data progressively (matches first, then rankings); a null answer today can
+// become a real answer tomorrow, and a permanent negative cache would freeze
+// every team in the "unknown division" state until the dyno restarted.
 // Key: "eventId:TEAMNUMBER" → value: { divisionId: number, divisionName: string }
 const divisionCache = new Map();
 
@@ -1457,10 +1462,59 @@ app.get('/api/events/:eventId/teams/:teamNumber/division', async (req, res) => {
       }
     }
 
-    // Team not found in any of the provided divisions
-    const notFound = { divisionId: null, divisionName: null };
-    divisionCache.set(cacheKey, notFound);
-    return res.json(notFound);
+    // Fallback: if rankings didn't resolve the team, try the matches endpoint.
+    // RobotEvents publishes the match schedule before rankings exist (rankings
+    // only appear once matches have been played), so during the early hours of
+    // an event the team is findable in matches alliances but not in rankings.
+    for (let i = 0; i < ids.length; i++) {
+      const divId = ids[i];
+      const divName = names[i] || `Division ${divId}`;
+      let matchPage = 1;
+      let matchHasMore = true;
+
+      while (matchHasMore) {
+        const matchRes = await fetch(
+          `https://www.robotevents.com/api/v2/events/${eventId}/divisions/${divId}/matches?page=${matchPage}&per_page=250`,
+          {
+            headers: {
+              'Authorization': `Bearer ${apiToken}`,
+              'Accept': 'application/json'
+            }
+          }
+        );
+
+        if (!matchRes.ok) {
+          if (matchRes.status === 429) {
+            return res.status(429).json({ error: 'RobotEvents API rate limit exceeded' });
+          }
+          break;
+        }
+
+        const matchData = await matchRes.json();
+        const matches = matchData.data || [];
+        const found = matches.some(m =>
+          (m.alliances || []).some(a =>
+            (a.teams || []).some(t => t.team?.name?.toUpperCase() === teamNumber.toUpperCase())
+          )
+        );
+
+        if (found) {
+          const result = { divisionId: divId, divisionName: divName };
+          divisionCache.set(cacheKey, result);
+          return res.json(result);
+        }
+
+        const matchMeta = matchData.meta || {};
+        matchHasMore = matchMeta.current_page < matchMeta.last_page;
+        matchPage++;
+      }
+    }
+
+    // Team not found in any division — return null but DO NOT cache. Division
+    // data may be published later in the event lifecycle, and a permanent
+    // negative cache would make the team's "unknown division" state stick
+    // until the dyno restarts.
+    return res.json({ divisionId: null, divisionName: null });
 
   } catch (error) {
     console.error(`Error resolving division for team ${teamNumber} at event ${eventId}:`, error);
