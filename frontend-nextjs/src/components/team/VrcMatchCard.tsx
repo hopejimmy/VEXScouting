@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Match } from '@/hooks/useTeamMatches';
 import { PerformanceData } from '@/hooks/useTeamPerformance';
 import { MatchAnalysisCard } from '@/components/analysis/MatchAnalysisCard';
+import { TierChip } from '@/components/team/TierChip';
+import { Tooltip, TooltipProvider } from '@/components/ui/tooltip';
 
 export function VrcMatchCard({
     match,
@@ -61,7 +63,7 @@ export function VrcMatchCard({
                             <span className="text-2xl font-bold text-gray-900">{redScore}</span>
                         </div>
                         <div className="space-y-2">
-                            {redAlliance?.teams.map((t) => (
+                            {redAlliance?.teams.filter(t => !t.sitting).map((t) => (
                                 <TeamRow
                                     key={t.team.id}
                                     team={t}
@@ -78,7 +80,7 @@ export function VrcMatchCard({
                             <span className="text-2xl font-bold text-gray-900">{blueScore}</span>
                         </div>
                         <div className="space-y-2">
-                            {blueAlliance?.teams.map((t) => (
+                            {blueAlliance?.teams.filter(t => !t.sitting).map((t) => (
                                 <TeamRow
                                     key={t.team.id}
                                     team={t}
@@ -92,8 +94,8 @@ export function VrcMatchCard({
                 </div>
                 {predictionMode && (
                     <MatchAnalysisCard
-                        redAlliance={redAlliance?.teams.map(t => t.team.name) || []}
-                        blueAlliance={blueAlliance?.teams.map(t => t.team.name) || []}
+                        redAlliance={redAlliance?.teams.filter(t => !t.sitting).map(t => t.team.name) || []}
+                        blueAlliance={blueAlliance?.teams.filter(t => !t.sitting).map(t => t.team.name) || []}
                         performanceMap={performanceMap}
                     />
                 )}
@@ -119,16 +121,34 @@ function TeamRow({
                 <span className={`font-medium ${isFocused ? 'text-gray-900' : 'text-gray-600'}`}>
                     {team.team.name}
                 </span>
-                {team.sitting && (
-                    <Badge variant="secondary" className="text-[10px] h-4 px-1">Sit</Badge>
-                )}
             </div>
 
             <div className="flex items-center space-x-2">
-                {showAnalysis && (
-                    <Badge variant="secondary" className="text-xs font-normal bg-gray-100 text-gray-700">
-                        {performanceData ? `WR: ${performanceData.winRate}` : 'WR: N/A'}
-                    </Badge>
+                {showAnalysis && performanceData && (
+                    <>
+                        <TierChip tier={performanceData.tier} />
+                        <TooltipProvider>
+                            <Tooltip
+                                content={
+                                    <div className="text-xs space-y-0.5">
+                                        <div>WR: {performanceData.winRate}</div>
+                                        <div>CCWM: {performanceData.ccwm ?? '—'}</div>
+                                        <div>Skills: {performanceData.skills}</div>
+                                        <div>Events: {performanceData.n ?? '—'}</div>
+                                    </div>
+                                }
+                            >
+                                <Badge variant="secondary" className="text-xs font-normal bg-gray-100 text-gray-700 cursor-help">
+                                    S:{performanceData.strength}
+                                </Badge>
+                            </Tooltip>
+                        </TooltipProvider>
+                        {(performanceData.n ?? 0) > 0 && (performanceData.n ?? 0) <= 2 && (
+                            <span className="text-xs text-amber-600" title={`Based on only ${performanceData.n} event(s) — score may be unreliable.`}>
+                                ?
+                            </span>
+                        )}
+                    </>
                 )}
                 {team.team.rank && (
                     <Badge variant="outline" className="text-xs font-normal text-gray-500 bg-white">
