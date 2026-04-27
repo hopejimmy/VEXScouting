@@ -22,28 +22,38 @@ interface MatchAnalysisCardProps {
  * needs calibration data — out of scope here.
  */
 export function MatchAnalysisCard({ redAlliance, blueAlliance, performanceMap }: MatchAnalysisCardProps) {
+    // Teams without performance data (no team_event_stats rows in the
+    // current season) count as zero. Skipping them — the previous behavior
+    // — silently averaged over a smaller denominator and could flip the
+    // prediction direction when a missing-data team was on the same
+    // alliance as one with data. Treating no-data as zero is harsh but
+    // honest: missing data correlates strongly with low-activity teams,
+    // and a self-correcting once they get processed.
+    const missingCount = (teams: string[]) =>
+        teams.filter(t => !performanceMap[t]).length;
+
     const getStats = (teams: string[]) => {
         let totalStrength = 0;
         let totalCcwm = 0;
         let totalSkills = 0;
-        let count = 0;
 
         teams.forEach(t => {
             const data = performanceMap[t];
-            if (data) {
-                totalStrength += data.strength;
-                totalCcwm += parseFloat(data.ccwm ?? '0');
-                totalSkills += data.skills;
-                count++;
-            }
+            totalStrength += data?.strength ?? 0;
+            totalCcwm += parseFloat(data?.ccwm ?? '0');
+            totalSkills += data?.skills ?? 0;
         });
 
+        const denom = teams.length || 1;
         return {
-            strength: count > 0 ? Math.round(totalStrength / count) : 0,
-            ccwm: count > 0 ? (totalCcwm / count).toFixed(1) : '0.0',
-            skills: count > 0 ? Math.round(totalSkills / count) : 0
+            strength: Math.round(totalStrength / denom),
+            ccwm: (totalCcwm / denom).toFixed(1),
+            skills: Math.round(totalSkills / denom),
         };
     };
+
+    const redMissing = missingCount(redAlliance);
+    const blueMissing = missingCount(blueAlliance);
 
     const redStats = getStats(redAlliance);
     const blueStats = getStats(blueAlliance);
@@ -96,6 +106,15 @@ export function MatchAnalysisCard({ redAlliance, blueAlliance, performanceMap }:
                         <div className="text-gray-600">{blueStats.skills}</div>
                     </div>
                 </div>
+
+                {(redMissing > 0 || blueMissing > 0) && (
+                    <div className="mt-3 text-xs text-amber-600 text-center">
+                        ⚠ {redMissing > 0 && `${redMissing} red team(s) without data`}
+                        {redMissing > 0 && blueMissing > 0 && ' • '}
+                        {blueMissing > 0 && `${blueMissing} blue team(s) without data`}
+                        {' '}— counted as zero strength.
+                    </div>
+                )}
             </CardContent>
         </Card>
     );

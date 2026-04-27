@@ -124,6 +124,11 @@ function TeamRow({
             </div>
 
             <div className="flex items-center space-x-2">
+                {showAnalysis && !performanceData && (
+                    <Badge variant="outline" className="text-xs font-normal bg-amber-50 text-amber-700 border-amber-200" title="No performance data — team has not played in any processed events this season. Counted as zero in alliance prediction.">
+                        no data
+                    </Badge>
+                )}
                 {showAnalysis && performanceData && (
                     <>
                         <TierChip tier={performanceData.tier} />
