@@ -12,7 +12,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { ensureTeamAnalysis, getTeamPerformance } from './services/analysis.js';
+import { ensureTeamAnalysis, getTeamPerformance, getTeamPerformanceV2 } from './services/analysis.js';
 import { analysisWorker } from './services/analysis-worker.js';
 import { publicLimiter, authLimiter, adminLimiter } from './middleware/rateLimiter.js';
 import { getCurrentSeasonId } from './services/seasonResolver.js';
@@ -1317,17 +1317,23 @@ app.get('/api/analysis/performance', async (req, res) => {
 
     const teamList = teams.split(',').map(t => t.trim());
     const seasonId = req.query.season || await getCurrentSeasonId(pool, 1) || 197;
+    const matchType = req.query.matchType || 'VRC';
 
     // 1. Ensure caching (Trigger orchestrator)
     // 1. Ensure caching: SKIPPED
-    // Requirement: Use Admin Dashboard to pre-process data. 
+    // Requirement: Use Admin Dashboard to pre-process data.
     // This endpoint should only read existing stats to avoid API limits during browsing.
-    /* 
-    if (process.env.ROBOTEVENTS_API_TOKEN) { ... } 
+    /*
+    if (process.env.ROBOTEVENTS_API_TOKEN) { ... }
     */
 
     // 2. Get calculated stats
-    const performanceData = await getTeamPerformance(pool, teamList, seasonId);
+    // VRC uses v2 (CCWM/Skills/WinRate weighted with shrinkage). VEXU and any
+    // other program continues to use the legacy formula until they get their
+    // own v2.
+    const performanceData = matchType === 'VRC'
+      ? await getTeamPerformanceV2(pool, teamList, seasonId)
+      : await getTeamPerformance(pool, teamList, seasonId);
 
     // 3. Return results
     res.json(performanceData);
