@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import { create, all } from 'mathjs';
+import { applyShrinkage, computeStrength, tierOf } from './perfScore.js';
 
 const math = create(all);
 const ROBOTEVENTS_BASE_URL = 'https://www.robotevents.com/api/v2';
@@ -438,4 +439,111 @@ export async function getTeamPerformance(pool, teamNumbers, seasonId) {
             tier: tier
         };
     });
+}
+
+/**
+ * v2 performance query for VRC teams.
+ *
+ * Computes a 50% CCWM + 25% Skills + 25% Win Rate weighted score with
+ * Bayesian shrinkage (k=5) on the noisy averages. Per-season
+ * normalization uses the 99th percentile so a single outlier doesn't
+ * compress the scale.
+ *
+ * VRC scoping: events table doesn't have a program column, so we filter
+ * by SKU prefix `RE-V5RC-%` (the RobotEvents SKU pattern for V5RC events).
+ *
+ * Season scoping: events.seasonid and events.start_date are not populated
+ * by the current ingest pipeline, so we don't filter by season here. All
+ * stored team_event_stats rows are from the current VRC season today, so
+ * this is safe in practice. The `seasonId` parameter is accepted for
+ * forward compatibility but currently unused.
+ *
+ * Returns the same shape as getTeamPerformance plus `ccwm` and `n`.
+ */
+const SHRINKAGE_K = 5;
+
+export async function getTeamPerformanceV2(pool, teamNumbers, seasonId) {
+  if (teamNumbers.length === 0) return [];
+
+  const placeholders = teamNumbers.map((_, i) => `$${i + 2}`).join(',');
+
+  const query = `
+    WITH season_events AS (
+      SELECT sku FROM events WHERE sku LIKE 'RE-V5RC-%'
+    ),
+    per_team_avg AS (
+      SELECT t.team_number,
+             COUNT(*) AS n,
+             AVG(t.ccwm) AS avg_ccwm,
+             AVG(t.win_rate) AS avg_win_rate,
+             AVG(t.opr) AS avg_opr
+      FROM team_event_stats t
+      JOIN season_events se ON t.sku = se.sku
+      GROUP BY t.team_number
+    ),
+    season_pop AS (
+      SELECT
+        AVG(avg_ccwm)     AS pop_ccwm,
+        AVG(avg_win_rate) AS pop_win_rate,
+        percentile_cont(0.99) WITHIN GROUP (ORDER BY avg_ccwm) AS max_ccwm
+      FROM per_team_avg
+    ),
+    skills_pop AS (
+      SELECT percentile_cont(0.99) WITHIN GROUP (ORDER BY score) AS max_skills_cap
+      FROM skills_standings
+      WHERE matchtype = $1
+    )
+    SELECT
+      pta.team_number,
+      pta.n,
+      pta.avg_ccwm,
+      pta.avg_win_rate,
+      pta.avg_opr,
+      (SELECT MAX(score) FROM skills_standings s
+        WHERE s.teamnumber = pta.team_number AND s.matchtype = $1) AS max_skills,
+      sp.pop_ccwm, sp.pop_win_rate, sp.max_ccwm,
+      skp.max_skills_cap
+    FROM per_team_avg pta
+    CROSS JOIN season_pop sp
+    CROSS JOIN skills_pop skp
+    WHERE pta.team_number IN (${placeholders});
+  `;
+
+  const result = await pool.query(query, ['VRC', ...teamNumbers]);
+
+  return result.rows.map(row => {
+    const n = parseInt(row.n) || 0;
+    const avgCcwm = parseFloat(row.avg_ccwm) || 0;
+    const avgWinRate = parseFloat(row.avg_win_rate) || 0;
+    const maxSkills = parseInt(row.max_skills) || 0;
+    const avgOpr = parseFloat(row.avg_opr) || 0;
+    const popCcwm = parseFloat(row.pop_ccwm) || 0;
+    const popWinRate = parseFloat(row.pop_win_rate) || 0;
+    const maxCcwm = parseFloat(row.max_ccwm) || 1;        // avoid /0
+    const maxSkillsCap = parseFloat(row.max_skills_cap) || 1;
+
+    const ccwmShrunk = applyShrinkage({
+      n, observed: avgCcwm, populationMean: popCcwm, k: SHRINKAGE_K,
+    });
+    const winRateShrunk = applyShrinkage({
+      n, observed: avgWinRate, populationMean: popWinRate, k: SHRINKAGE_K,
+    });
+
+    const strength = computeStrength({
+      ccwmShrunk, maxCcwm,
+      maxSkills, maxSkillsCap,
+      winRateShrunk,
+    });
+
+    return {
+      teamNumber: row.team_number,
+      opr: avgOpr.toFixed(2),
+      ccwm: avgCcwm.toFixed(2),
+      winRate: (avgWinRate * 100).toFixed(1) + '%',
+      skills: maxSkills,
+      strength,
+      tier: tierOf(strength),
+      n,
+    };
+  });
 }
