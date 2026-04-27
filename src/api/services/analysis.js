@@ -458,6 +458,12 @@ export async function getTeamPerformance(pool, teamNumbers, seasonId) {
  * this is safe in practice. The `seasonId` parameter is accepted for
  * forward compatibility but currently unused.
  *
+ * TODO(season-scoping): when a second VRC season's data lands in the DB,
+ * the population stats (pop_ccwm, pop_win_rate, max_ccwm, max_skills_cap)
+ * will smear across seasons and silently shift the 99th-percentile caps.
+ * Fix by either backfilling events.seasonid + filtering on it, or by
+ * encoding season in the SKU pattern (RE-V5RC-25-% for current season).
+ *
  * Returns the same shape as getTeamPerformance plus `ccwm` and `n`.
  */
 const SHRINKAGE_K = 5;
