@@ -32,16 +32,25 @@ export function computeStrength({
 }
 
 /**
- * Tier thresholds. These PLACEHOLDER values produce a roughly
- * pyramid-shaped distribution but will be replaced after running
- * `scripts/preview-perf-v2.js` against actual season data — see
- * Task 5 / Task 6 in the implementation plan.
+ * Tier thresholds, calibrated from preview-perf-v2 against season 197
+ * (VRC 2025-26, Push Back) on 2026-04-27. 1740 teams scored, producing
+ * a 5/15/25/30/25 pyramid:
+ *   Elite      ≥ 39   (top  5%)
+ *   High       ≥ 28   (next 15%)
+ *   Mid-High   ≥ 18   (next 25%)
+ *   Mid        ≥ 13   (next 30%)
+ *   Developing < 13   (rest 25%)
+ *
+ * Numbers feel low vs the legacy 0-100 scale (top scorer is 63 because
+ * no team simultaneously hits the 99th percentile in all three weighted
+ * metrics). Tier labels still represent the same pyramid percentiles —
+ * relative ranking is what matters, not the absolute number.
  */
 export const TIER_THRESHOLDS = {
-  ELITE: 78,
-  HIGH: 64,
-  MID_HIGH: 51,
-  MID: 38,
+  ELITE: 39,
+  HIGH: 28,
+  MID_HIGH: 18,
+  MID: 13,
 };
 
 export function tierOf(strength) {
