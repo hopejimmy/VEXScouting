@@ -9,10 +9,22 @@ interface MatchAnalysisCardProps {
     performanceMap: Record<string, PerformanceData>;
 }
 
+/**
+ * Alliance-level aggregate for the v2 prediction view.
+ *
+ * Sitting teams are filtered at the call site (see VrcMatchCard) — they
+ * don't appear in the redAlliance/blueAlliance arrays this component
+ * receives, so they don't influence the averages or the win probability.
+ *
+ * The win-probability formula `red.strength / (red.strength + blue.strength)`
+ * is naive (treats Strength as ratio-scale) but unchanged in this work.
+ * A logistic mapping of strength differential would be more honest but
+ * needs calibration data — out of scope here.
+ */
 export function MatchAnalysisCard({ redAlliance, blueAlliance, performanceMap }: MatchAnalysisCardProps) {
     const getStats = (teams: string[]) => {
         let totalStrength = 0;
-        let totalOpr = 0;
+        let totalCcwm = 0;
         let totalSkills = 0;
         let count = 0;
 
@@ -20,7 +32,7 @@ export function MatchAnalysisCard({ redAlliance, blueAlliance, performanceMap }:
             const data = performanceMap[t];
             if (data) {
                 totalStrength += data.strength;
-                totalOpr += parseFloat(data.opr);
+                totalCcwm += parseFloat(data.ccwm ?? '0');
                 totalSkills += data.skills;
                 count++;
             }
@@ -28,7 +40,7 @@ export function MatchAnalysisCard({ redAlliance, blueAlliance, performanceMap }:
 
         return {
             strength: count > 0 ? Math.round(totalStrength / count) : 0,
-            opr: totalOpr.toFixed(1),
+            ccwm: count > 0 ? (totalCcwm / count).toFixed(1) : '0.0',
             skills: count > 0 ? Math.round(totalSkills / count) : 0
         };
     };
@@ -40,18 +52,18 @@ export function MatchAnalysisCard({ redAlliance, blueAlliance, performanceMap }:
     const redWinProb = totalStrength > 0 ? (redStats.strength / totalStrength) * 100 : 50;
     const blueWinProb = 100 - redWinProb;
 
-    let prediction = "Toss Up";
-    if (redWinProb > 60) prediction = "Red Favored";
-    if (redWinProb > 75) prediction = "Red Dominant";
-    if (blueWinProb > 60) prediction = "Blue Favored";
-    if (blueWinProb > 75) prediction = "Blue Dominant";
+    let prediction = 'Toss Up';
+    if (redWinProb > 60) prediction = 'Red Favored';
+    if (redWinProb > 75) prediction = 'Red Dominant';
+    if (blueWinProb > 60) prediction = 'Blue Favored';
+    if (blueWinProb > 75) prediction = 'Blue Dominant';
 
     return (
         <Card className="mt-2 border-dashed border-gray-200 bg-gray-50/50">
             <CardContent className="p-4">
                 <div className="flex justify-between items-center mb-4">
                     <span className="text-sm font-semibold text-gray-500">MATCH PREDICTION</span>
-                    <Badge variant={prediction.includes("Red") ? "destructive" : prediction.includes("Blue") ? "default" : "secondary"}>
+                    <Badge variant={prediction.includes('Red') ? 'destructive' : prediction.includes('Blue') ? 'default' : 'secondary'}>
                         {prediction} {Math.max(redWinProb, blueWinProb).toFixed(0)}%
                     </Badge>
                 </div>
@@ -70,17 +82,17 @@ export function MatchAnalysisCard({ redAlliance, blueAlliance, performanceMap }:
                 <div className="grid grid-cols-3 gap-2 text-center text-sm">
                     <div className="space-y-2">
                         <div className="text-red-700 font-bold">{redStats.strength}</div>
-                        <div className="text-gray-600">{redStats.opr}</div>
+                        <div className="text-gray-600">{redStats.ccwm}</div>
                         <div className="text-gray-600">{redStats.skills}</div>
                     </div>
                     <div className="space-y-2 text-gray-400 font-medium">
                         <div>STRENGTH</div>
-                        <div>OPR (Sum)</div>
+                        <div>CCWM (Avg)</div>
                         <div>SKILLS (Avg)</div>
                     </div>
                     <div className="space-y-2">
                         <div className="text-blue-700 font-bold">{blueStats.strength}</div>
-                        <div className="text-gray-600">{blueStats.opr}</div>
+                        <div className="text-gray-600">{blueStats.ccwm}</div>
                         <div className="text-gray-600">{blueStats.skills}</div>
                     </div>
                 </div>

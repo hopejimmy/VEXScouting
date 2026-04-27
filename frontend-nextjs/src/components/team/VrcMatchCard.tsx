@@ -94,8 +94,8 @@ export function VrcMatchCard({
                 </div>
                 {predictionMode && (
                     <MatchAnalysisCard
-                        redAlliance={redAlliance?.teams.map(t => t.team.name) || []}
-                        blueAlliance={blueAlliance?.teams.map(t => t.team.name) || []}
+                        redAlliance={redAlliance?.teams.filter(t => !t.sitting).map(t => t.team.name) || []}
+                        blueAlliance={blueAlliance?.teams.filter(t => !t.sitting).map(t => t.team.name) || []}
                         performanceMap={performanceMap}
                     />
                 )}
