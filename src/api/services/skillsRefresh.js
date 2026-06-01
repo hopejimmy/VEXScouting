@@ -1,6 +1,7 @@
 // src/api/services/skillsRefresh.js
 import fetch from 'node-fetch';
 import { refreshSeasonId } from './seasonResolver.js';
+import { ROBOTEVENTS_ORIGIN } from '../config/robotevents.js';
 
 // In-memory status for admin visibility
 export const refreshStatus = {
@@ -163,7 +164,7 @@ async function fetchAndUpsertDataset(pool, seasonId, dataset) {
  */
 async function fetchSkillsData(seasonId, gradeLevel) {
   try {
-    const url = `https://www.robotevents.com/api/seasons/${seasonId}/skills?post_season=0&grade_level=${encodeURIComponent(gradeLevel)}`;
+    const url = `${ROBOTEVENTS_ORIGIN}/api/seasons/${seasonId}/skills?post_season=0&grade_level=${encodeURIComponent(gradeLevel)}`;
     const response = await fetch(url, {
       headers: {
         'Accept': 'application/json',

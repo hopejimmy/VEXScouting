@@ -36,6 +36,7 @@ export function MatchAnalysisCard({ redAlliance, blueAlliance, performanceMap }:
         let totalStrength = 0;
         let totalCcwm = 0;
         let totalSkills = 0;
+        let count = 0;
 
         teams.forEach(t => {
             const data = performanceMap[t];

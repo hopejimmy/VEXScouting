@@ -30,6 +30,9 @@ export default function TeamDetailPage() {
   const matchTypeParam = searchParams.get('matchType') || undefined;
   const [mounted, setMounted] = useState(false);
   const [selectedSeasonId, setSelectedSeasonId] = useState<string | null>(null);
+  // Auto-selection keeps refining the default season until it lands on one that
+  // has events for this team. A manual pick from the dropdown turns it off.
+  const [autoSelectSeason, setAutoSelectSeason] = useState(true);
 
   useEffect(() => {
     setMounted(true);
@@ -41,10 +44,10 @@ export default function TeamDetailPage() {
   // This ensures we get the correct seasons for the team's program
   const { data: seasons, isLoading: isSeasonsLoading } = useSeasons(team?.matchType);
   
-  // Auto-select current season when seasons load.
-  // The seasons array is sorted by start date descending, but RobotEvents sometimes
-  // publishes an upcoming season before it begins, so seasons[0] can be a future
-  // season with no events. Pick the first one that has actually started.
+  // Stage 1 — initial pick: the most recently started season.
+  // Seasons are sorted by start date descending. The newest one can be a just-
+  // published season that has already "started" (e.g. 2026-2027 opens in April
+  // 2026) but has no events yet, so Stage 2 below corrects for that.
   useEffect(() => {
     if (seasons && seasons.length > 0 && selectedSeasonId === null) {
       const now = Date.now();
@@ -52,14 +55,32 @@ export default function TeamDetailPage() {
       setSelectedSeasonId(current.id.toString());
     }
   }, [seasons, selectedSeasonId]);
-  
+
   // CRITICAL: Pass matchType to useTeamEvents to prevent race condition
   // Only fetch events when we have the team data with matchType AND a selected season
   const { data: events, isLoading: isEventsLoading, error: eventsError } = useTeamEvents(
-    teamNumber, 
-    selectedSeasonId || '', 
+    teamNumber,
+    selectedSeasonId || '',
     team?.matchType
   );
+
+  // Stage 2 — fall back to the most recent season that actually has events.
+  // Nominal season end dates sit in December, so a finished season (e.g. 2025-2026
+  // ended 2025-12-25) no longer "brackets" today while the empty new season does.
+  // Bracket-by-date can't distinguish them; only the event count can. So if the
+  // auto-selected season returns zero events, advance to the next older started
+  // season until one has events. Stops once the user picks a season manually.
+  useEffect(() => {
+    if (!autoSelectSeason) return;
+    if (!seasons || !selectedSeasonId || isEventsLoading) return;
+    if (!events || events.length > 0) return; // not loaded yet, or has events → done
+    const now = Date.now();
+    const started = seasons.filter(s => new Date(s.start).getTime() <= now);
+    const idx = started.findIndex(s => s.id.toString() === selectedSeasonId);
+    if (idx >= 0 && idx < started.length - 1) {
+      setSelectedSeasonId(started[idx + 1].id.toString());
+    }
+  }, [autoSelectSeason, seasons, selectedSeasonId, events, isEventsLoading]);
 
   const handleBackClick = () => {
     const returnUrl = searchParams.get('returnUrl');
@@ -78,6 +99,7 @@ export default function TeamDetailPage() {
   };
 
   const handleSeasonChange = (seasonId: string) => {
+    setAutoSelectSeason(false);
     setSelectedSeasonId(seasonId);
   };
 

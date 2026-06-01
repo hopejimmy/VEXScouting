@@ -16,6 +16,7 @@ import { ensureTeamAnalysis, getTeamPerformance, getTeamPerformanceV2 } from './
 import { analysisWorker } from './services/analysis-worker.js';
 import { publicLimiter, authLimiter, adminLimiter } from './middleware/rateLimiter.js';
 import { getCurrentSeasonId } from './services/seasonResolver.js';
+import { ROBOTEVENTS_API_BASE, readRobotEventsJson } from './config/robotevents.js';
 import cron from 'node-cron';
 import { runSkillsRefresh, refreshStatus } from './services/skillsRefresh.js';
 
@@ -701,7 +702,7 @@ app.post('/api/admin/tracked-teams/import-event', authenticateToken, requireRole
 
     if (isNumericId) {
       // Direct ID lookup
-      const eventRes = await fetch(`https://www.robotevents.com/api/v2/events/${eventSku}`, {
+      const eventRes = await fetch(`${ROBOTEVENTS_API_BASE}/events/${eventSku}`, {
         headers: {
           'Authorization': `Bearer ${process.env.ROBOTEVENTS_API_TOKEN}`,
           'Accept': 'application/json'
@@ -720,7 +721,7 @@ app.post('/api/admin/tracked-teams/import-event', authenticateToken, requireRole
     } else {
       // SKU lookup
       const eventParams = new URLSearchParams({ sku: eventSku });
-      const eventRes = await fetch(`https://www.robotevents.com/api/v2/events?${eventParams}`, {
+      const eventRes = await fetch(`${ROBOTEVENTS_API_BASE}/events?${eventParams}`, {
         headers: {
           'Authorization': `Bearer ${process.env.ROBOTEVENTS_API_TOKEN}`,
           'Accept': 'application/json'
@@ -743,7 +744,7 @@ app.post('/api/admin/tracked-teams/import-event', authenticateToken, requireRole
     let page = 1;
 
     while (true) {
-      const teamRes = await fetch(`https://www.robotevents.com/api/v2/events/${eventId}/teams?page=${page}&per_page=250`, {
+      const teamRes = await fetch(`${ROBOTEVENTS_API_BASE}/events/${eventId}/teams?page=${page}&per_page=250`, {
         headers: {
           'Authorization': `Bearer ${process.env.ROBOTEVENTS_API_TOKEN}`,
           'Accept': 'application/json'
@@ -1434,7 +1435,7 @@ app.get('/api/events/:eventId/teams/:teamNumber/division', async (req, res) => {
         // The /events/{id}/divisions/{divId}/rankings endpoint returns teams
         // that competed in that specific division with zero cross-division overlap.
         const response = await fetch(
-          `https://www.robotevents.com/api/v2/events/${eventId}/divisions/${divId}/rankings?page=${currentPage}&per_page=250`,
+          `${ROBOTEVENTS_API_BASE}/events/${eventId}/divisions/${divId}/rankings?page=${currentPage}&per_page=250`,
           {
             headers: {
               'Authorization': `Bearer ${apiToken}`,
@@ -1480,7 +1481,7 @@ app.get('/api/events/:eventId/teams/:teamNumber/division', async (req, res) => {
 
       while (matchHasMore) {
         const matchRes = await fetch(
-          `https://www.robotevents.com/api/v2/events/${eventId}/divisions/${divId}/matches?page=${matchPage}&per_page=250`,
+          `${ROBOTEVENTS_API_BASE}/events/${eventId}/divisions/${divId}/matches?page=${matchPage}&per_page=250`,
           {
             headers: {
               'Authorization': `Bearer ${apiToken}`,
@@ -1552,7 +1553,7 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
       let divHasMore = true;
       while (divHasMore) {
         const divRes = await fetch(
-          `https://www.robotevents.com/api/v2/events/${eventId}/divisions/${parsedDivisionId}/rankings?page=${divPage}&per_page=250`,
+          `${ROBOTEVENTS_API_BASE}/events/${eventId}/divisions/${parsedDivisionId}/rankings?page=${divPage}&per_page=250`,
           {
             headers: {
               'Authorization': `Bearer ${apiToken}`,
@@ -1578,7 +1579,7 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
         let matchHasMore = true;
         while (matchHasMore) {
           const matchRes = await fetch(
-            `https://www.robotevents.com/api/v2/events/${eventId}/divisions/${parsedDivisionId}/matches?page=${matchPage}&per_page=250`,
+            `${ROBOTEVENTS_API_BASE}/events/${eventId}/divisions/${parsedDivisionId}/matches?page=${matchPage}&per_page=250`,
             {
               headers: {
                 'Authorization': `Bearer ${apiToken}`,
@@ -1612,7 +1613,7 @@ app.get('/api/events/:eventId/rankings', async (req, res) => {
 
     while (hasMorePages) {
       const teamsResponse = await fetch(
-        `https://www.robotevents.com/api/v2/events/${eventId}/teams?page=${currentPage}`,
+        `${ROBOTEVENTS_API_BASE}/events/${eventId}/teams?page=${currentPage}`,
         {
           headers: {
             'Authorization': `Bearer ${apiToken}`,
@@ -1794,7 +1795,7 @@ app.get('/api/teams/:teamNumber/events', async (req, res) => {
 
     // First get the team ID by searching for the team with the correct program
     const teamResponse = await fetch(
-      `https://www.robotevents.com/api/v2/teams?number[]=${encodeURIComponent(teamNumber.toUpperCase())}&program[]=${programId}`,
+      `${ROBOTEVENTS_API_BASE}/teams?number[]=${encodeURIComponent(teamNumber.toUpperCase())}&program[]=${programId}`,
       {
         headers: {
           'Authorization': `Bearer ${apiToken}`,
@@ -1809,7 +1810,7 @@ app.get('/api/teams/:teamNumber/events', async (req, res) => {
       throw new Error(`RobotEvents API error: ${errorData.message || 'Failed to fetch team'}`);
     }
 
-    const teamData = await teamResponse.json();
+    const teamData = await readRobotEventsJson(teamResponse, 'team lookup');
     console.log('Team search result:', teamData);  // Debug log
 
     if (!teamData.data || teamData.data.length === 0) {
@@ -1822,7 +1823,7 @@ app.get('/api/teams/:teamNumber/events', async (req, res) => {
     console.log(`Fetching events for team ${team.id} and season ${seasonId}`);
 
     const eventsResponse = await fetch(
-      `https://www.robotevents.com/api/v2/teams/${team.id}/events?season[]=${seasonId}`,
+      `${ROBOTEVENTS_API_BASE}/teams/${team.id}/events?season[]=${seasonId}`,
       {
         headers: {
           'Authorization': `Bearer ${apiToken}`,
@@ -1837,7 +1838,7 @@ app.get('/api/teams/:teamNumber/events', async (req, res) => {
       throw new Error(`RobotEvents API error: ${errorData.message || 'Failed to fetch events'}`);
     }
 
-    const eventsData = await eventsResponse.json();
+    const eventsData = await readRobotEventsJson(eventsResponse, 'team events');
     console.log('Events data:', JSON.stringify(eventsData, null, 2));
 
     // Transform and sort events
@@ -1897,7 +1898,7 @@ app.get('/api/teams/:teamNumber/events/:eventId/divisions/:divId/matches', async
 
     // Step 1: Get Team ID
     const teamResponse = await fetch(
-      `https://www.robotevents.com/api/v2/teams?number[]=${encodeURIComponent(teamNumber.toUpperCase())}&program[]=${programId}`,
+      `${ROBOTEVENTS_API_BASE}/teams?number[]=${encodeURIComponent(teamNumber.toUpperCase())}&program[]=${programId}`,
       {
         headers: {
           'Authorization': `Bearer ${apiToken}`,
@@ -1925,7 +1926,7 @@ app.get('/api/teams/:teamNumber/events/:eventId/divisions/:divId/matches', async
 
     // Step 2: Fetch matches for the specific division
     const matchesResponse = await fetch(
-      `https://www.robotevents.com/api/v2/events/${eventId}/divisions/${divId}/matches?team[]=${teamId}&per_page=250`,
+      `${ROBOTEVENTS_API_BASE}/events/${eventId}/divisions/${divId}/matches?team[]=${teamId}&per_page=250`,
       {
         headers: {
           'Authorization': `Bearer ${apiToken}`,
@@ -2046,7 +2047,7 @@ app.get('/api/teams/:teamNumber/events/:eventId/awards', async (req, res) => {
 
     // First get the team ID by searching for the team with the correct program
     const teamResponse = await fetch(
-      `https://www.robotevents.com/api/v2/teams?number[]=${encodeURIComponent(teamNumber.toUpperCase())}&program[]=${programId}`,
+      `${ROBOTEVENTS_API_BASE}/teams?number[]=${encodeURIComponent(teamNumber.toUpperCase())}&program[]=${programId}`,
       {
         headers: {
           'Authorization': `Bearer ${apiToken}`,
@@ -2070,7 +2071,7 @@ app.get('/api/teams/:teamNumber/events/:eventId/awards', async (req, res) => {
 
     // Get awards for the team at the specific event
     const awardsResponse = await fetch(
-      `https://www.robotevents.com/api/v2/events/${eventId}/awards?team[]=${team.id}`,
+      `${ROBOTEVENTS_API_BASE}/events/${eventId}/awards?team[]=${team.id}`,
       {
         headers: {
           'Authorization': `Bearer ${apiToken}`,
@@ -2130,7 +2131,7 @@ app.get('/api/seasons', async (req, res) => {
     console.log(`Fetching seasons for program: ${matchType || 'VRC'} (ID: ${programId})`);
 
     const response = await fetch(
-      `https://www.robotevents.com/api/v2/seasons?program[]=${programId}`,
+      `${ROBOTEVENTS_API_BASE}/seasons?program[]=${programId}`,
       {
         headers: {
           'Authorization': `Bearer ${apiToken}`,
@@ -2144,7 +2145,7 @@ app.get('/api/seasons', async (req, res) => {
       throw new Error(`RobotEvents API error: ${errorData.message || 'Failed to fetch seasons'}`);
     }
 
-    const data = await response.json();
+    const data = await readRobotEventsJson(response, 'seasons');
 
     // Transform and sort seasons (most recent first)
     // The first season in the array will be the CURRENT season for that program
@@ -2174,7 +2175,7 @@ app.get('/api/programs', async (req, res) => {
     }
 
     const response = await fetch(
-      'https://www.robotevents.com/api/v2/programs',
+      `${ROBOTEVENTS_API_BASE}/programs`,
       {
         headers: {
           'Authorization': `Bearer ${apiToken}`,
@@ -2188,7 +2189,7 @@ app.get('/api/programs', async (req, res) => {
       throw new Error(`RobotEvents API error: ${errorData.message || 'Failed to fetch programs'}`);
     }
 
-    const data = await response.json();
+    const data = await readRobotEventsJson(response, 'programs');
 
     // Filter for VEX programs and transform
     const vexPrograms = data.data
