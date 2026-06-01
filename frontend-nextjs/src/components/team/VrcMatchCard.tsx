@@ -150,32 +150,6 @@ function TeamRow({
                         )}
                     </>
                 )}
-                {showAnalysis && performanceData && (
-                    <>
-                        <TierChip tier={performanceData.tier} />
-                        <TooltipProvider>
-                            <Tooltip
-                                content={
-                                    <div className="text-xs space-y-0.5">
-                                        <div>WR: {performanceData.winRate}</div>
-                                        <div>CCWM: {performanceData.ccwm ?? '—'}</div>
-                                        <div>Skills: {performanceData.skills}</div>
-                                        <div>Events: {performanceData.n ?? '—'}</div>
-                                    </div>
-                                }
-                            >
-                                <Badge variant="secondary" className="text-xs font-normal bg-gray-100 text-gray-700 cursor-help">
-                                    S:{performanceData.strength}
-                                </Badge>
-                            </Tooltip>
-                        </TooltipProvider>
-                        {(performanceData.n ?? 0) > 0 && (performanceData.n ?? 0) <= 2 && (
-                            <span className="text-xs text-amber-600" title={`Based on only ${performanceData.n} event(s) — score may be unreliable.`}>
-                                ?
-                            </span>
-                        )}
-                    </>
-                )}
                 {team.team.rank && (
                     <Badge variant="outline" className="text-xs font-normal text-gray-500 bg-white">
                         Rank #{team.team.rank}
