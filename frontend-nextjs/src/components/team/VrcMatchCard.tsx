@@ -124,10 +124,31 @@ function TeamRow({
             </div>
 
             <div className="flex items-center space-x-2">
-                {showAnalysis && !performanceData && (
-                    <Badge variant="outline" className="text-xs font-normal bg-amber-50 text-amber-700 border-amber-200" title="No performance data — team has not played in any processed events this season. Counted as zero in alliance prediction.">
-                        no data
-                    </Badge>
+                {showAnalysis && performanceData && (
+                    <>
+                        <TierChip tier={performanceData.tier} />
+                        <TooltipProvider>
+                            <Tooltip
+                                content={
+                                    <div className="text-xs space-y-0.5">
+                                        <div>WR: {performanceData.winRate}</div>
+                                        <div>CCWM: {performanceData.ccwm ?? '—'}</div>
+                                        <div>Skills: {performanceData.skills}</div>
+                                        <div>Events: {performanceData.n ?? '—'}</div>
+                                    </div>
+                                }
+                            >
+                                <Badge variant="secondary" className="text-xs font-normal bg-gray-100 text-gray-700 cursor-help">
+                                    S:{performanceData.strength}
+                                </Badge>
+                            </Tooltip>
+                        </TooltipProvider>
+                        {(performanceData.n ?? 0) > 0 && (performanceData.n ?? 0) <= 2 && (
+                            <span className="text-xs text-amber-600" title={`Based on only ${performanceData.n} event(s) — score may be unreliable.`}>
+                                ?
+                            </span>
+                        )}
+                    </>
                 )}
                 {showAnalysis && performanceData && (
                     <>

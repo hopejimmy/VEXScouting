@@ -39,16 +39,19 @@ export function MatchAnalysisCard({ redAlliance, blueAlliance, performanceMap }:
 
         teams.forEach(t => {
             const data = performanceMap[t];
-            totalStrength += data?.strength ?? 0;
-            totalCcwm += parseFloat(data?.ccwm ?? '0');
-            totalSkills += data?.skills ?? 0;
+            if (data) {
+                totalStrength += data.strength;
+                totalCcwm += parseFloat(data.ccwm ?? '0');
+                totalSkills += data.skills;
+                count++;
+            }
         });
 
         const denom = teams.length || 1;
         return {
-            strength: Math.round(totalStrength / denom),
-            ccwm: (totalCcwm / denom).toFixed(1),
-            skills: Math.round(totalSkills / denom),
+            strength: count > 0 ? Math.round(totalStrength / count) : 0,
+            ccwm: count > 0 ? (totalCcwm / count).toFixed(1) : '0.0',
+            skills: count > 0 ? Math.round(totalSkills / count) : 0
         };
     };
 
