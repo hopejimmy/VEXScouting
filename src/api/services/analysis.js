@@ -1,8 +1,8 @@
 import fetch from 'node-fetch';
 import { create, all } from 'mathjs';
+import { ROBOTEVENTS_API_BASE as ROBOTEVENTS_BASE_URL } from '../config/robotevents.js';
 
 const math = create(all);
-const ROBOTEVENTS_BASE_URL = 'https://www.robotevents.com/api/v2';
 
 /**
  * Helper to delay execution

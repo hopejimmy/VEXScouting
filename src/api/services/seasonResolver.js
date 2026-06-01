@@ -1,5 +1,6 @@
 // src/api/services/seasonResolver.js
 import fetch from 'node-fetch';
+import { ROBOTEVENTS_API_BASE, readRobotEventsJson } from '../config/robotevents.js';
 
 // In-memory cache: Map<programKey, { seasonId, seasonName }>
 // programKey is 'VRC' or 'VEXIQ'
@@ -111,7 +112,7 @@ async function fetchSeasonFromApi(programId) {
 
   try {
     const response = await fetch(
-      `https://www.robotevents.com/api/v2/seasons?program[]=${programId}&per_page=5`,
+      `${ROBOTEVENTS_API_BASE}/seasons?program[]=${programId}&per_page=5`,
       {
         headers: {
           'Authorization': `Bearer ${apiToken}`,
@@ -125,7 +126,7 @@ async function fetchSeasonFromApi(programId) {
       return null;
     }
 
-    const data = await response.json();
+    const data = await readRobotEventsJson(response, `season-resolver program ${programId}`);
     const now = new Date();
 
     // Sort by start date descending to ensure we pick the most recent started season
