@@ -78,7 +78,7 @@ export default function MatchListPage() {
 
     // VRC/VEXU: fetch match-analysis performance for the Predict Matches feature.
     // Disable entirely on the VEXIQ path since that card doesn't use it.
-    const { data: performanceList } = useTeamPerformance(isVexiq ? [] : allTeamNumbers);
+    const { data: performanceList } = useTeamPerformance(isVexiq ? [] : allTeamNumbers, matchType);
 
     const performanceMap = useMemo(() => {
         const map: Record<string, PerformanceData> = {};
