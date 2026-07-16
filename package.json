@@ -8,7 +8,8 @@
     "dev": "node src/api/server.js",
     "start": "node src/db/migrate.js && NODE_ENV=production node src/api/server.js",
     "migrate": "node src/db/migrate.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test src/api/services/*.test.js",
+    "backtest:predictions": "node scripts/backtest-match-predictions.js"
   },
   "keywords": [
     "vex",
