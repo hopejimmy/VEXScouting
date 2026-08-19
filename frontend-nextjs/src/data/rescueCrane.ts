@@ -1,0 +1,141 @@
+import type { LessonPart } from '@/data/learning';
+
+export interface RescueCraneStep {
+  id: string;
+  title: string;
+  titleEn: string;
+  instruction: string;
+  instructionEn: string;
+  check: string;
+  checkEn: string;
+  focus: '结构' | '传动' | '测试';
+  photoBrief: string;
+  photoBriefEn: string;
+}
+
+export const rescueCraneLesson = {
+  id: 'rescue-crane',
+  title: '手摇救援起重机',
+  titleEn: 'Hand-Crank Rescue Crane',
+  subtitle: '先造一个能吊起“救援物资”的工具，再发现为什么长一点的手柄更省力。',
+  subtitleEn: 'Build a tool that lifts rescue cargo, then discover why a longer handle feels easier.',
+  duration: 45,
+  hero: '/learn/rescue-crane-hero-v1.png',
+  ageRange: '8–12 岁',
+  ageRangeEn: 'Ages 8–12',
+  prerequisite: '建议先完成第 1 课',
+  prerequisiteEn: 'Lesson 1 recommended',
+  outcomes: ['搭建稳定的底座和塔架', '认识卷筒如何把转动变成升降', '比较曲柄长度与用力大小'],
+  outcomesEn: ['Build a stable base and tower', 'See how a spool turns rotation into lifting', 'Compare crank length and effort'],
+  mission: '把不超过 100 克的“救援物资”吊高 20 厘米，停留 3 秒，再平稳放进目标区。',
+  missionEn: 'Lift rescue cargo weighing no more than 100 g by 20 cm, hold it for 3 seconds, then lower it smoothly into the target zone.',
+  parts: [
+    { id: 'long-beam', libraryPartId: 'iq-beam-1x12', name: '长梁', nameEn: 'Long beam', count: 4, note: '组成宽底座和左右塔柱', noteEn: 'Form the wide base and two tower rails' },
+    { id: 'short-beam', libraryPartId: 'iq-beam-1x6', name: '短梁', nameEn: 'Short beam', count: 6, note: '连接底座并加固塔架', noteEn: 'Connect the base and brace the tower' },
+    { id: 'corner', libraryPartId: 'iq-double-corner-connector', name: '双角连接件', nameEn: 'Double corner connector', count: 4, note: '让塔柱与底座保持直角', noteEn: 'Keep the tower square to the base' },
+    { id: 'pins', libraryPartId: 'iq-connector-pin-1x1', name: '连接销', nameEn: 'Connector pin', count: 20, note: '实际数量随加固方式调整', noteEn: 'Final quantity depends on the bracing pattern' },
+    { id: 'shaft', libraryPartId: 'iq-shaft-6x', name: '6× 轴', nameEn: '6x shaft', count: 1, note: '同时穿过塔架两侧作为卷筒轴', noteEn: 'Passes through both tower rails as the spool shaft' },
+    { id: 'collar', libraryPartId: 'iq-rubber-shaft-collar', name: '橡胶轴套', nameEn: 'Rubber shaft collar', count: 2, note: '限制轴左右滑动，但不要夹紧塔架', noteEn: 'Limit side-to-side motion without squeezing the tower' },
+    { id: 'spool', libraryPartId: 'iq-wide-spool-1x', name: '宽卷筒', nameEn: 'Wide spool', count: 1, note: '安装在轴中央并收放绳索', noteEn: 'Mount at the shaft center to wind the rope' },
+    { id: 'rope', libraryPartId: 'iq-pitch-rope-24x', name: '节距绳索', nameEn: 'Pitch rope', count: 1, note: '绕在卷筒中央，另一端连接轻质物品', noteEn: 'Wind at the spool center and attach to lightweight cargo' },
+    { id: 'crank', libraryPartId: 'iq-crank-arm-23t', name: '手摇臂', nameEn: 'Crank arm', count: 1, note: '装在轴的一端，先使用最外侧孔', noteEn: 'Mount on one shaft end; begin with the outer handle hole' },
+  ] satisfies LessonPart[],
+  steps: [
+    {
+      id: 'base',
+      title: '搭一个宽而平的底座',
+      titleEn: 'Build a wide, flat base',
+      instruction: '把两条长梁平行摆放，用三条短梁连接前、中、后位置。先压紧四角，再补连接销。',
+      instructionEn: 'Place two long beams in parallel and connect them at the front, middle, and rear with three short beams. Secure the corners first, then add the remaining pins.',
+      check: '底座放在桌上不会摇晃；左右长梁平行。',
+      checkEn: 'The base sits flat without rocking, and both long beams are parallel.',
+      focus: '结构',
+      photoBrief: '俯视拍摄完整底座，清楚看到三条横梁和四角连接销。',
+      photoBriefEn: 'Top view of the full base, clearly showing three cross beams and the corner pins.',
+    },
+    {
+      id: 'tower',
+      title: '竖起两根平行塔柱',
+      titleEn: 'Raise two parallel tower rails',
+      instruction: '用双角连接件把另外两条长梁固定在底座中部。两根塔柱要互相平行，并与桌面接近 90°。',
+      instructionEn: 'Use double corner connectors to attach two more long beams near the middle of the base. Keep the rails parallel and close to 90 degrees from the table.',
+      check: '从正面看，两根塔柱高度相同、没有向内或向外倾斜。',
+      checkEn: 'From the front, both rails are the same height and do not lean inward or outward.',
+      focus: '结构',
+      photoBrief: '正面低角度拍摄，重点显示角连接件如何连接底座与塔柱。',
+      photoBriefEn: 'Low front view focused on how the corner connectors join the base and tower rails.',
+    },
+    {
+      id: 'brace',
+      title: '加固会摇晃的塔架',
+      titleEn: 'Brace the wobbly tower',
+      instruction: '在两根塔柱之间增加横梁，并在底座与塔柱之间增加支撑。每增加一根梁，都轻推塔顶比较晃动大小。',
+      instructionEn: 'Add a cross beam between the rails and supports between the base and tower. After each beam, gently push the tower top and compare the wobble.',
+      check: '轻推塔顶后能迅速回到原位，底座不会抬离桌面。',
+      checkEn: 'After a gentle push, the tower returns quickly and the base stays on the table.',
+      focus: '结构',
+      photoBrief: '三分之四侧视，清楚显示横向加固梁与底座支撑。',
+      photoBriefEn: 'Three-quarter view clearly showing the cross brace and base supports.',
+    },
+    {
+      id: 'shaft-holes',
+      title: '找到同高的两个轴孔',
+      titleEn: 'Find two matching shaft holes',
+      instruction: '在两根塔柱顶端选择同样高度的孔。先用一根短梁横向比对，确认两个孔在一条直线上。',
+      instructionEn: 'Choose holes at the same height near the top of both rails. Use a short beam as a visual guide to confirm that the holes align.',
+      check: '从正面透过两个孔看，孔心重合。',
+      checkEn: 'Looking through from the front, the centers of the two holes line up.',
+      focus: '结构',
+      photoBrief: '正面特写，用标记指示左右两个同高轴孔，不安装轴。',
+      photoBriefEn: 'Front close-up with markers pointing to the matching shaft holes before the shaft is installed.',
+    },
+    {
+      id: 'shaft',
+      title: '让轴穿过两点支撑',
+      titleEn: 'Support the shaft at two points',
+      instruction: '把轴依次穿过第一根塔柱、卷筒和第二根塔柱。卷筒保持在两根塔柱之间。',
+      instructionEn: 'Slide the shaft through the first rail, the spool, and then the second rail. Keep the spool between the rails.',
+      check: '手转轴时没有明显卡顿；轴没有向下倾斜。',
+      checkEn: 'The shaft turns by hand without binding and does not slope downward.',
+      focus: '传动',
+      photoBrief: '略俯视近拍，完整显示轴穿过两根塔柱，卷筒位于中间。',
+      photoBriefEn: 'Slightly elevated close-up showing the shaft through both rails with the spool centered between them.',
+    },
+    {
+      id: 'capture',
+      title: '用轴套限制左右滑动',
+      titleEn: 'Capture the shaft with collars',
+      instruction: '在两根塔柱外侧各装一个轴套，留下约一张纸厚度的间隙。不要让轴套挤压塔柱。',
+      instructionEn: 'Add one collar outside each rail, leaving about a sheet of paper of clearance. Do not squeeze the rails.',
+      check: '轴能自由转动，左右移动不超过一个连接孔的宽度。',
+      checkEn: 'The shaft spins freely and moves sideways by less than one connector-hole width.',
+      focus: '传动',
+      photoBrief: '轴端特写，左右两个轴套都可见，并显示保留的小间隙。',
+      photoBriefEn: 'Close-up of the shaft ends showing both collars and the small clearance gap.',
+    },
+    {
+      id: 'crank-rope',
+      title: '装上手摇臂和绳索',
+      titleEn: 'Add the crank and rope',
+      instruction: '把手摇臂装在轴的一端，先使用离轴最远的孔作为握持点。把绳索固定并整齐绕在卷筒中央。',
+      instructionEn: 'Mount the crank on one shaft end and begin with the hole farthest from the shaft as the grip point. Secure the rope and wind it neatly around the spool center.',
+      check: '慢慢摇一圈：绳索不会碰塔柱，也不会从卷筒边缘滑出。',
+      checkEn: 'Turn one slow revolution: the rope does not touch the rails or slip over the spool edge.',
+      focus: '传动',
+      photoBrief: '侧面特写，同时显示手摇臂在轴端、绳索位于卷筒中央。',
+      photoBriefEn: 'Side close-up showing the crank on the shaft end and the rope centered on the spool.',
+    },
+    {
+      id: 'rescue-test',
+      title: '执行 20 厘米救援任务',
+      titleEn: 'Run the 20 cm rescue mission',
+      instruction: '连接不超过 100 克的轻质物品。一只手稳住底座，另一只手慢慢摇动，把物品升高 20 厘米、停留 3 秒，再平稳下降。',
+      instructionEn: 'Attach lightweight cargo no heavier than 100 g. Steady the base with one hand and crank slowly with the other. Lift 20 cm, hold for 3 seconds, then lower smoothly.',
+      check: '全程不松手，绳索没有缠绕，塔架没有倾倒，物品落入目标区。',
+      checkEn: 'You keep hold of the crank, the rope stays untangled, the tower remains upright, and the cargo reaches the target zone.',
+      focus: '测试',
+      photoBrief: '全景拍摄完成结构和轻质物品；背景放置尺子与目标区，避免出现儿童面部。',
+      photoBriefEn: 'Wide view of the complete build and lightweight cargo, with a ruler and target zone visible and no child faces in frame.',
+    },
+  ] satisfies RescueCraneStep[],
+};

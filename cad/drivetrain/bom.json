@@ -1,0 +1,25 @@
+{
+  "model": "VEX IQ Drive Train Teaching MVP",
+  "status": "source-models-required",
+  "source": "VEX Robotics official IQ STEP library",
+  "parts": [
+    { "partNumber": "228-2500-026", "name": "2x12 Beam", "quantity": 6, "file": "228-2500-026.STEP" },
+    { "partNumber": "228-2500-023", "name": "2x8 Beam", "quantity": 2, "file": "228-2500-023.STEP" },
+    { "partNumber": "228-2500-017", "name": "2x2 Beam", "quantity": 4, "file": "228-2500-017.STEP" },
+    { "partNumber": "228-2500-060", "name": "1x1 Connector Pin", "quantity": 36, "file": "228-2500-060.STEP" },
+    { "partNumber": "228-2500-086", "name": "0x2 Connector Pin", "quantity": 12, "file": "228-2500-086.STEP" },
+    { "partNumber": "228-2500-112", "name": "Washer", "quantity": 4, "file": "228-2500-112.STEP" },
+    { "partNumber": "228-2500-143", "name": "Rubber Shaft Collar", "quantity": 4, "file": "228-2500-143.STEP" },
+    { "partNumber": "228-2500-1253", "name": "Triple 2x Wide, 2x2 Corner Connector", "quantity": 8, "file": "228-2500-1253.STEP" },
+    { "partNumber": "228-2500-136", "name": "2x Wide, 2x2 Offset Corner Connector", "quantity": 4, "file": "228-2500-136.STEP" },
+    { "partNumber": "228-2500-1925", "name": "2x2 Center Offset Round Lock Beam", "quantity": 4, "file": "228-2500-1925.STEP" },
+    { "partNumber": "228-2536-000", "name": "200mm Omni-Directional Wheel", "quantity": 2, "file": "228-2536-000.STEP" },
+    { "partNumber": "228-2500-209", "name": "200mm Rubber Tire", "quantity": 2, "file": "228-2500-209.STEP" },
+    { "partNumber": "228-2500-1208", "name": "44mm Small Wheel Hub", "quantity": 2, "file": "228-2500-1208.STEP" },
+    { "partNumber": "228-2500-2236", "name": "3x Pitch Motor Shaft", "quantity": 2, "file": "228-2500-2236.STEP" },
+    { "partNumber": "228-2500-2225", "name": "5x Pitch Capped Shaft", "quantity": 2, "file": "228-2500-2225.STEP" },
+    { "partNumber": "228-2560", "name": "IQ Smart Motor", "quantity": 2, "file": "228-2560.STEP" },
+    { "partNumber": "228-6480", "name": "IQ Robot Brain (2nd Generation)", "quantity": 1, "file": "228-6480.STEP" },
+    { "partNumber": "228-7045", "name": "IQ Robot Battery (2nd Generation)", "quantity": 1, "file": "228-7045.STEP" }
+  ]
+}

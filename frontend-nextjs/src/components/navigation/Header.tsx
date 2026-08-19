@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Heart, GitCompare, Home, Upload, Trash2, User, LogOut, Settings, LogIn } from 'lucide-react';
+import { Heart, GitCompare, GraduationCap, Home, Upload, Trash2, User, LogOut, Settings, LogIn } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +11,7 @@ import { useFavorites } from '@/contexts/FavoritesContext';
 import { useCompare } from '@/contexts/CompareContext';
 import { useAuth } from '@/contexts/AuthContext';
 import LoginModal from '@/components/auth/LoginModal';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export function Header() {
   const router = useRouter();
@@ -18,10 +19,12 @@ export function Header() {
   const { favorites, clearFavorites } = useFavorites();
   const { compareList, clearCompare } = useCompare();
   const { user, isAuthenticated, logout, hasPermission } = useAuth();
+  const { language } = useLanguage();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const hasItemsToClear = favorites.length > 0 || compareList.length > 0;
+  const zh = pathname.startsWith('/learn') && language === 'zh';
 
   const clearAllStorage = () => {
     clearFavorites();
@@ -39,35 +42,42 @@ export function Header() {
   const navItems = [
     {
       icon: Home,
-      label: 'Home',
+      label: zh ? '首页' : 'Home',
       path: '/',
       count: 0,
       permission: null, // Always visible
     },
     {
       icon: Heart,
-      label: 'Favorites',
+      label: zh ? '收藏' : 'Favorites',
       path: '/favorites',
       count: favorites.length,
       permission: null, // Always visible - no login required
     },
     {
+      icon: GraduationCap,
+      label: zh ? '课堂' : 'Learn',
+      path: '/learn',
+      count: 0,
+      permission: null,
+    },
+    {
       icon: GitCompare,
-      label: 'Compare',
+      label: zh ? '对比' : 'Compare',
       path: '/compare',
       count: compareList.length,
       permission: null, // Always visible - no login required
     },
     {
       icon: Upload,
-      label: 'Upload',
+      label: zh ? '上传' : 'Upload',
       path: '/upload',
       count: 0,
       permission: 'upload:create',
     },
     {
       icon: Settings,
-      label: 'Admin',
+      label: zh ? '管理' : 'Admin',
       path: '/admin',
       count: 0,
       permission: 'admin:access',
@@ -85,7 +95,7 @@ export function Header() {
     <>
       <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between gap-2 h-16">
             {/* Logo */}
             <div 
               className="flex items-center space-x-3 cursor-pointer"
@@ -99,16 +109,18 @@ export function Header() {
                 className="h-8 w-8"
                 priority
               />
-              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <h1 className="hidden text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent md:block">
                 VEX Scouting
               </h1>
             </div>
 
             {/* Navigation */}
-            <nav className="flex items-center space-x-2">
+            <nav className="flex min-w-0 items-center space-x-0.5 sm:space-x-1 lg:space-x-2">
               {visibleNavItems.map((item) => {
                 const Icon = item.icon;
-                const isActive = pathname === item.path;
+                const isActive = item.path === '/'
+                  ? pathname === '/'
+                  : pathname === item.path || pathname.startsWith(`${item.path}/`);
                 
                 return (
                   <Button
@@ -141,9 +153,9 @@ export function Header() {
               })}
               
               {/* Clear Storage Button */}
-              <div className="h-4 w-px bg-gray-200 mx-2" />
+              <div className="hidden h-4 w-px bg-gray-200 mx-1 sm:block lg:mx-2" />
               <TooltipProvider>
-                <Tooltip content={hasItemsToClear ? "Clear favorites and compare lists" : "No items to clear"}>
+                <Tooltip content={hasItemsToClear ? (zh ? '清空收藏和对比列表' : 'Clear favorites and compare lists') : (zh ? '没有可清空的项目' : 'No items to clear')}>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -161,7 +173,7 @@ export function Header() {
               </TooltipProvider>
 
               {/* Authentication Section */}
-              <div className="h-4 w-px bg-gray-200 mx-2" />
+              <div className="hidden h-4 w-px bg-gray-200 mx-1 sm:block lg:mx-2" />
               {isAuthenticated ? (
                 <div className="relative">
                   <Button
@@ -189,7 +201,7 @@ export function Header() {
                         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
                       >
                         <LogOut className="w-4 h-4" />
-                        <span>Sign Out</span>
+                        <span>{zh ? '退出登录' : 'Sign Out'}</span>
                       </button>
                     </div>
                   )}
@@ -202,7 +214,7 @@ export function Header() {
                   className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
                 >
                   <LogIn className="w-4 h-4" />
-                  <span className="hidden sm:inline">Sign In</span>
+                  <span className="hidden sm:inline">{zh ? '登录' : 'Sign In'}</span>
                 </Button>
               )}
             </nav>
@@ -225,4 +237,4 @@ export function Header() {
       )}
     </>
   );
-} 
+}

@@ -1,0 +1,7 @@
+assets/official/*.STEP
+assets/official/*.step
+output/*.FCStd
+output/*.step
+output/*.STEP
+!assets/official/.gitkeep
+!output/.gitkeep
